@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SVG → PNG converter (offline)</title>
+<style>
+  body{font-family:Segoe UI,Calibri,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px;color:#1F2D3D}
+  h1{color:#0A4A40;font-size:22px}
+  .box{border:2px dashed #0F6B5C;border-radius:12px;padding:28px;text-align:center;background:#F4FAF8}
+  label.btn{display:inline-block;background:#0F6B5C;color:#fff;padding:10px 22px;border-radius:8px;cursor:pointer;font-weight:600}
+  input[type=file]{display:none}
+  .hint{color:#5C6B68;font-size:13px;margin-top:14px}
+  #status{margin-top:16px;font-weight:600;color:#0A4A40}
+</style>
+</head>
+<body>
+<h1>SVG → PNG converter (runs offline, nothing uploaded)</h1>
+<div class="box">
+  <label class="btn">Choose an SVG file<input type="file" accept=".svg" onchange="convert(this)"></label>
+  <p class="hint">Pick <b>workflow_infographic.svg</b> (or any SVG) — a PNG at 2× resolution downloads automatically.</p>
+  <div id="status"></div>
+</div>
+<script>
+function convert(input){
+  const file = input.files[0]; if(!file) return;
+  const status = document.getElementById("status");
+  const reader = new FileReader();
+  reader.onload = e => {
+    const svgText = e.target.result;
+    const m = svgText.match(/viewBox\s*=\s*"[\d.\s-]*?([\d.]+)\s+([\d.]+)"\s*/);
+    const vb = svgText.match(/viewBox\s*=\s*"([\d.\s-]+)"/);
+    let w = 1600, h = 1180;
+    if(vb){ const p = vb[1].trim().split(/\s+/); w = parseFloat(p[2]); h = parseFloat(p[3]); }
+    const scale = 2;
+    const blob = new Blob([svgText], {type:"image/svg+xml"});
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = w*scale; c.height = h*scale;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0,0,c.width,c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const a = document.createElement("a");
+      a.download = file.name.replace(/\.svg$/i,"") + ".png";
+      a.href = c.toDataURL("image/png");
+      a.click();
+      status.textContent = "✓ PNG downloaded (" + c.width + "×" + c.height + ")";
+    };
+    img.onerror = () => { status.textContent = "Could not render this SVG."; URL.revokeObjectURL(url); };
+    img.src = url;
+  };
+  reader.readAsText(file);
+  input.value = "";
+}
+</script>
+</body>
+</html>

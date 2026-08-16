@@ -138,6 +138,35 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   .print-only{display:inline}
   input,textarea,select{color:#000 !important}
 }
+
+/* ===== Per-tab guidance card (additive, never printed) ===== */
+.guide-card{padding:14px 16px}
+.guide-head{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;margin:0}
+.guide-head:hover{text-decoration:underline}
+.guide-caret{font-size:13px;color:var(--primary)}
+.guide-sum{font-size:12.5px;color:var(--muted);margin:5px 0 0}
+.guide-panel{margin-top:10px;background:#f2f7ff;border:1px solid #cfe0f7;border-left:4px solid #12489e;border-radius:8px;padding:10px 12px;color:#12489e;font-size:12.5px;font-weight:700;font-style:italic}
+.guide-panel p{margin:0 0 6px}
+.guide-panel ul{margin:0;padding-left:18px}
+.guide-panel li{margin:3px 0}
+.guide-label{font-style:normal;font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px}
+.oio{display:flex;align-items:stretch;gap:8px;margin-top:10px}
+.oio-p{flex:1;border-radius:11px;padding:10px 11px}
+.oio-p ul{margin:0;padding-left:16px;font-size:12px}
+.oio-p li{margin:2px 0}
+.oio-cap{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.oio-in{background:#fff;border:1.5px solid var(--oc)}
+.oio-in .oio-cap{color:var(--oc)}
+.oio-do{background:var(--oc);color:#fff}
+.oio-do .oio-cap{color:#fff}
+.oio-out{background:var(--ot);border:1px solid var(--ot)}
+.oio-out .oio-cap{color:var(--oc)}
+.oio-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--oc)}
+@media (max-width:760px){
+  .oio{flex-direction:column}
+  .oio-arrow{transform:rotate(90deg)}
+}
+@media print{ .guide-card,.guide-panel,.oio{display:none !important} }
 </style>
 </head>
 <body>
@@ -165,7 +194,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.81</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.82</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -203,14 +232,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-data"></section>
 </main>
 
-<footer>OBE Course Manager <b>v1.81</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v1.82</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v1.81";
+const APP_VERSION = "v1.82";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -583,6 +612,7 @@ function renderTab(name){
   const map = { dashboard:renderDashboard, course:renderCourse, cos:renderCOs, tla:renderTLA, assess:renderAssess,
                 ca:renderCA, marks:renderMarks, attain:renderAttain, cqi:renderCQI, docs:renderDocs, data:renderData };
   if(map[name]) map[name]();
+  if(typeof injectGuide === "function") injectGuide(name);   // per-tab guidance card (additive)
 }
 function refresh(){ renderCourseSelect(); renderTab(window._currentTab || "dashboard"); }
 
@@ -4601,6 +4631,97 @@ function loadSample(){
   state.courses.push(c); state.activeCourseId=c.id;
   save(); refresh(); toast("Sample course loaded — explore each tab");
 }
+
+
+/* ============ Per-tab guidance card (additive — review build) ============
+   One data table + one injector. The card is prepended to each tab's container
+   after that tab renders; nothing inside the existing render functions changes.
+   Collapsed by default; never printed (see .guide-card rules in @media print). */
+const TAB_GUIDE = {
+  "dashboard": { n:"Dashboard", ttl:"What this tab shows", sum:"A snapshot of this course and the recommended order of work for the semester.", intro:"Start here whenever you open the app: it tells you what is already done and what to do next.", c:"#4B3F8F", t:"#efedf8",
+    dos:["Check the counts (COs, assessments, students) against what you expect \u2014 a zero usually means data was never entered, not that nothing is required.", "Work through the Suggested Workflow in order; every step names the tab it belongs to.", "Expand a step to read its full instructions before you start it.", "Treat a warning about items with no CO as urgent: those marks reach no CO and quietly shrink attainment.", "Duplicate for New Semester lives here \u2014 use it to open the next offering, never to \u201cclear\u201d the current one."],
+    i:["Data entered in every other tab", "Actions carried over from last semester"], d:["Read the status counts", "Follow the workflow in order", "Spot gaps before they matter"], o:["A clear next action", "Early warning of missing data"] },
+  "course": { n:"Course Info", ttl:"What to do in this tab", sum:"Course identity, plus the attainment thresholds every calculation in this app uses.", intro:"Fill this in once, carefully \u2014 two fields here silently shape results everywhere else.", c:"#4B3F8F", t:"#efedf8",
+    dos:["Enter course code, title and section exactly as they must appear officially; they are printed verbatim on every document.", "Enter credit hours correctly: many institutions weight a course\u2019s contribution to program-level outcomes by its credit hours, so a wrong value can distort program-level results even though this app shows no error.", "Set Target Pass Marks, KPI marks and Target KPI before marks are entered \u2014 changing them later silently re-computes every figure you have already reported.", "Set the direct/indirect weights (80/20 by default) to your department\u2019s agreed rule.", "Everything saves as you type; there is no Save button, so confirm the header shows your data file."],
+    i:["Official course details", "Department thresholds and weights"], d:["Record the identity", "Set thresholds", "Set direct/indirect weights"], o:["Document headers", "The thresholds used by all attainment maths"] },
+  "cos": { n:"COs &amp; CO\u2013PO Mapping", ttl:"What to do in this tab", sum:"Write the course outcomes and tick which program outcomes each one serves.", intro:"This tab defines what the course claims to achieve \u2014 everything downstream depends on it.", c:"#4B3F8F", t:"#efedf8",
+    dos:["Write each CO as one observable action that can actually be assessed; vague verbs cannot be measured later.", "Set the Bloom domain and level honestly \u2014 assessment items inherit it, and the CA tab flags questions pitched above it.", "Map every CO to at least one PO: an unmapped CO contributes nothing at program level, however well the class performs.", "Do not map a CO to every PO \u201cto be safe\u201d \u2014 inflated mapping dilutes the program picture and is the first thing auditors question.", "This app tracks outcomes at the course level (COs). Program Outcomes (POs) and Program Educational Objectives (PEOs) are normally tracked and improved separately, at the department or program level \u2014 this tool doesn\u2019t attempt that broader analysis."],
+    i:["Syllabus and Bloom\u2019s taxonomy", "The program\u2019s PO list"], d:["Write COs", "Set domain and level", "Tick the CO\u2013PO matrix"], o:["The CO list used by every tab", "The mapping the program aggregates"] },
+  "tla": { n:"T&amp;L", ttl:"What to do in this tab", sum:"Plan the teaching activities and shared resources behind each CO and topic.", intro:"Plan delivery here before teaching starts, and the documents fill themselves in later.", c:"#0f766e", t:"#e6f4f2",
+    dos:["Adopt an activity for each CO before the semester begins \u2014 adopted activities flow into the Specifications alignment table automatically.", "Prefer names from the Activity Pool over free text: only pooled names can be verified and tracked across semesters.", "Register shared resources as links, choosing the Type first \u2014 the Title suggestions then match that type.", "Tick Related COs on both the resource and the topic; a resource reaches a topic only where the two tick lists overlap, which is the commonest source of \u201cnothing appeared\u201d.", "Activities suggested by last semester\u2019s CQI are boosted in the recommendations \u2014 adopting them is how the loop actually closes."],
+    i:["COs with Bloom levels", "Last semester\u2019s CQI suggestions"], d:["Adopt activities per CO", "Register resources", "Plan topic by topic"], o:["Alignment table entries", "The resource list printed in the Outline"] },
+  "assess": { n:"Assessments", ttl:"What to do in this tab", sum:"Plan every assessment and tag each question to the CO it measures.", intro:"The CO tag on each item is what turns marks into attainment \u2014 get it right before marking begins.", c:"#0f766e", t:"#e6f4f2",
+    dos:["Tag every item with a CO: an untagged item\u2019s marks count in the class total but reach no CO, and the summary flags them as unmapped marks.", "Leave Mandatory ticked unless the question is genuinely optional \u2014 on a choice question a blank means \u201cnot chosen\u201d, not zero.", "For Class Performance, set the total and tick the COs: the marks split equally, so it gives every ticked CO the same percentage.", "Tick \u201cRubric prepared\u201d only when the rubric exists and students have seen it; the CQI evidence checklist depends on it.", "Check the summary table early \u2014 a CO carrying under 10% of total marks yields a fragile attainment figure."],
+    i:["COs and their Bloom levels", "The department assessment plan"], d:["Create assessments", "Tag items to COs", "Set marks and rubrics"], o:["The columns of the marks grid", "Marks distribution per CO"] },
+  "ca": { n:"CA", ttl:"What to do in this tab", sum:"A live check that outcomes, teaching and assessment genuinely agree.", intro:"Nothing is entered here \u2014 it reads your other tabs and shows where the course does not hold together.", c:"#0f766e", t:"#e6f4f2",
+    dos:["Visit after any change to COs, activities or assessments, and again before printing documents.", "Green means verified alignment; amber means something exists but does not match the CO\u2019s level \u2014 read the note before dismissing it.", "Fix an \u201cunassessed CO\u201d at once: it will report zero attainment however well the class performed.", "Use the one-click Adopt on a suggested activity rather than typing a new name, so it stays trackable.", "An \u2191 marker means a question sits above its CO\u2019s declared level \u2014 reword it, or raise the CO\u2019s level deliberately."],
+    i:["COs, adopted activities, assessment items"], d:["Read the triangles", "Act on every flag", "Adopt suggested fixes"], o:["A coherent plan", "Problems caught before marking"] },
+  "marks": { n:"Students &amp; Marks", ttl:"What to do in this tab", sum:"Enrol the class and record marks question by question.", intro:"This is the raw evidence behind every number the program eventually sees.", c:"#0f766e", t:"#e6f4f2",
+    dos:["Download the empty template rather than inventing headers \u2014 the app writes the exact column names it will accept back.", "A blank on a mandatory item counts as zero, so leave it blank only when that is what you mean.", "Class Performance appears as a single column per part: enter one mark and the app spreads it across that CP\u2019s COs.", "Use Replace List carefully \u2014 students missing from the pasted list are removed together with their marks.", "Partial data produces partial attainment, not an error, so confirm every column is filled before reading the Attainment tab."],
+    i:["The class list", "Marked scripts and rubric results"], d:["Enrol students", "Enter or import marks", "Check for empty columns"], o:["Complete mark data", "The basis of direct attainment"] },
+  "attain": { n:"Attainment", ttl:"What to do in this tab", sum:"CO and PO attainment computed from marks and from the student survey.", intro:"Read this only when marking is finished \u2014 incomplete data looks exactly like poor performance.", c:"#b45309", t:"#fdf1e0",
+    dos:["Check that all marks are entered first; a missing column depresses a CO just as a weak class would.", "Check Course Info first if a result looks unexpectedly high or low: the thresholds behind every figure here come from that tab, not from anywhere else.", "Enter or import the survey for indirect attainment; without it the combined figure rests on the direct side alone.", "Never import the same survey CSV twice \u2014 responses accumulate; clear the tallies first for a clean re-import.", "Note the lowest-attaining CO before you leave: that is the finding the CQI tab expects you to explain."],
+    i:["Marks from this course", "Survey responses", "Thresholds from Course Info"], d:["Review CO and PO tables", "Tally the survey", "Compare against target"], o:["Attainment figures for the report", "The findings CQI works from"] },
+  "cqi": { n:"CQI", ttl:"What to do in this tab", sum:"Diagnose weak outcomes, decide what changes, and close last semester\u2019s actions.", intro:"Work the sections top to bottom \u2014 each one feeds the next, and the order is the argument.", c:"#b45309", t:"#fdf1e0",
+    dos:["Follow the sequence: diagnose the low attainment, describe what happened, decide the actions, then close the previous offering\u2019s actions.", "Every finding needs an action, a named owner and a date; an action without those cannot be audited.", "Close a previous action only when this offering\u2019s data shows it worked \u2014 not merely because it was carried out.", "Keep each analysis tied to evidence: name the CO, the item and the number that triggered it.", "The actions you record here are course-level improvements. Broader, program-level quality improvement is normally handled separately by the department."],
+    i:["Attainment results", "Survey comments", "Last offering\u2019s actions"], d:["Analyse low attainment", "Write the narratives", "Set actions, owners, dates"], o:["The CQI report", "Actions that open next semester"] },
+  "docs": { n:"Accreditation Documents", ttl:"What to do in this tab", sum:"The printable OBE documents, generated from everything entered so far.", intro:"Nothing is authored here \u2014 these are live views of your data, ready for the file.", c:"#9d174d", t:"#fceaf1",
+    dos:["Print only once the CA tab is clean and marks are complete; each document is a snapshot of the data as it stands.", "Use the browser\u2019s Save as PDF \u2014 nothing needs retyping into Word.", "Sections marked \u26d3 linked share one dataset with the CQI tab: edit them in either place, never as two separate copies.", "Check the header block on page one; code, title, section and semester come straight from Course Info.", "This guidance card is excluded from printing, so the paper copy carries official content only."],
+    i:["Data from every tab"], d:["Review each document", "Print or save as PDF"], o:["Outline, Specifications, Report", "CQI report and annexures"] },
+  "data": { n:"Data &amp; Backup", ttl:"What to do in this tab", sum:"Where your course file lives, and where the semester\u2019s data leaves for the program.", intro:"Everything is stored in this browser, so the export is not a convenience \u2014 it is the archive.", c:"#9d174d", t:"#fceaf1",
+    dos:["Export the JSON at the end of every semester and keep it as your official record \u2014 it\u2019s also what your department would need if it consolidates course data for accreditation reporting.", "Treat the export as your archive \u2014 clearing browser data removes everything that was never exported.", "Prefer \u201cWork on a file\u201d so each change auto-saves to a file you own rather than to browser storage alone.", "Import restores a whole course including the shared pools, so a department can distribute one curated set.", "Export before Duplicate for New Semester or any deletion; both are quick and neither can be undone."],
+    i:["This course\u2019s complete data"], d:["Save to a file", "Export a backup", "Hand over the semester file"], o:["The JSON the program imports", "A restorable archive"] }
+};
+function guidePanelHTML(g){
+  return `<div class="guide-panel">
+      <div class="guide-label">${g.ttl} · ${g.n}</div>
+      <p>${g.intro}</p>
+      <ul>${g.dos.map(x=>`<li>${x}</li>`).join("")}</ul>
+    </div>
+    <div class="oio" style="--oc:${g.c};--ot:${g.t}">
+      <div class="oio-p oio-in"><div class="oio-cap">What comes in</div><ul>${g.i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="oio-arrow">&#8594;</div>
+      <div class="oio-p oio-do"><div class="oio-cap">What you do here</div><ul>${g.d.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="oio-arrow">&#8594;</div>
+      <div class="oio-p oio-out"><div class="oio-cap">What comes out</div><ul>${g.o.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+    </div>`;
+}
+function guideCard(tab){
+  const g = TAB_GUIDE[tab]; if(!g) return "";
+  const open = !!(window._guideOpen||{})[tab];
+  return `<div class="card guide-card">
+    <h2 class="guide-head" onclick="toggleGuide('${tab}')" title="${open? "Hide the guidance":"Show the guidance for this tab"}">
+      <span class="guide-caret">${open? "&#9662;":"&#9656;"}</span>${g.ttl}
+    </h2>
+    ${open? guidePanelHTML(g) : `<p class="guide-sum">${g.sum}</p>`}
+  </div>`;
+}
+function injectGuide(tab){
+  if(!TAB_GUIDE[tab]) return;
+  const host = document.getElementById("tab-"+tab); if(!host) return;
+  const first = host.firstElementChild;
+  if(first && first.classList && first.classList.contains("guide-card")) return;   // already there
+  host.insertAdjacentHTML("afterbegin", guideCard(tab));
+}
+function toggleGuide(tab){
+  window._guideOpen = window._guideOpen || {};
+  window._guideOpen[tab] = !window._guideOpen[tab];
+  const host = document.getElementById("tab-"+tab); if(!host) return;
+  const card = host.firstElementChild;
+  if(card && card.classList && card.classList.contains("guide-card")) card.outerHTML = guideCard(tab);
+  else injectGuide(tab);
+}
+/* Re-inject whenever a tab re-renders its own content (renderTLA, renderAssess, ...
+   all replace innerHTML), so the card survives without editing those functions. */
+(function guideInit(){
+  Object.keys(TAB_GUIDE).forEach(tab=>{
+    const host = document.getElementById("tab-"+tab); if(!host) return;
+    injectGuide(tab);
+    if(typeof MutationObserver === "function"){
+      new MutationObserver(()=>injectGuide(tab)).observe(host, { childList:true });
+    }
+  });
+})();
 
 /* ============ Init ============ */
 load();
