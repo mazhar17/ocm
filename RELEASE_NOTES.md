@@ -1,8 +1,8 @@
 # OBE Course Manager — Release Notes
 
-**Version:** v1.86 · **First release:** July 13, 2026
+**Version:** v1.90 · **First release:** July 13, 2026
 **Live at:** https://mazhar17.github.io/ocm/
-**License:** © 2026 Prof. Mazharul Islam · Creative Commons Attribution (CC BY) 4.0 International
+**License:** © 2026 Prof. Mazharul Islam ([mazhar17.github.io/MI](https://mazhar17.github.io/MI)) · Creative Commons Attribution (CC BY) 4.0 International
 
 ---
 
@@ -21,7 +21,7 @@ The underlying OBE implementation framework was developed at **Ahsanullah Univer
 - **Assessment planning** — quizzes, exams, labs and projects broken into items, each tagged with a CO and maximum marks; the tagging drives all attainment calculations. **Class Performance** assessments need no questions: set a total, tick the COs, and the marks split equally across them (one CP column per course part).
 - **Marks management** — spreadsheet-style entry with frozen headers, decimals and fractions (1 2/3), bulk student paste from Excel, and a CSV workflow (Empty Template → Import → Export).
 - **Learning resources register** — the materials shared with students recorded as links (Type-filtered suggestions from a curated pool), CO-tagged so they flow into the topic-wise plan and print as Course Outline 17.3.
-- **Sections, sub-sections & guidance** — the app is organised as Sections, each opening with a collapsed "What to do in this Section" card (concrete instructions, the traps to avoid, and a what-comes-in / what-you-do / what-comes-out diagram — never printed). Long Sections split into sub-section pill bars; the CQI Section stays one page with a sticky Jump-to bar and collapsible step cards carrying live progress statuses.
+- **Sections, sub-sections & guidance** — the app is organised as Sections, each opening with a collapsed "What to do in this Section" card (concrete instructions, the traps to avoid, and a what-comes-in / what-you-do / what-comes-out diagram — never printed). Long Sections split into sub-section pill bars; the CQI Section stays one page with a sticky Jump-to bar and collapsible step cards carrying live progress statuses — an idiom shared by the per-assessment and per-CO cards, which collapse to one-line status summaries.
 - **Direct measurement of COs & POs** — identical to the AUST Direct CO-PO Calculations method: per-student CO scores, % of students above the Target Pass Marks and KPI thresholds, and marks-weighted PO scores, with charts.
 - **Indirect measurement** — a printable CO Exit Survey (or Google Forms + CSV import), with Likert-based indirect attainment per CO and PO.
 - **Combined attainment** — direct and indirect results combined with user-editable weights (default 80/20).

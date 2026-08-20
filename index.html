@@ -215,7 +215,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.86</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.90</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -253,14 +253,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-data"></section>
 </main>
 
-<footer>OBE Course Manager <b>v1.86</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
-<br>© 2026 Prof. Mazharul Islam · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
+<footer>OBE Course Manager <b>v1.90</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<br>© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v1.86";
+const APP_VERSION = "v1.90";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -749,6 +749,28 @@ function cqiFoldSums(c){
     s6: "Everything recorded above prints into one report — open when the steps are complete."
   };
 }
+/* Folded cards outside CQI: per-assessment cards (Assessments) and per-CO cards (T&L).
+   Same idiom — collapsed by default, one-line status, independent toggles. */
+function foldOpenA(id){ return !!(window._assessFold||{})[id]; }
+function toggleFoldA(id){
+  window._assessFold = window._assessFold || {};
+  window._assessFold[id] = !window._assessFold[id];
+  renderAssess();
+}
+/* Reference cards (summaries, pools, recommendations header) share one fold store. */
+function foldOpenM(k){ return !!(window._miscFold||{})[k]; }
+function foldClickM(ev, k, rr){
+  if(ev && ev.target && ev.target.closest && (ev.target.closest("button")||ev.target.closest("a"))) return;
+  window._miscFold = window._miscFold || {};
+  window._miscFold[k] = !window._miscFold[k];
+  ({ tla: renderTLA, data: renderData, assess: renderAssess, ca: renderCA }[rr] || renderTLA)();
+}
+function foldOpenT(id){ return !!(window._tlaFold||{})[id]; }
+function toggleFoldT(id){
+  window._tlaFold = window._tlaFold || {};
+  window._tlaFold[id] = !window._tlaFold[id];
+  renderTLA();
+}
 function cqiJump(id){
   const map={cqiA1:"s1",cqiA2:"s2",cqiA3:"s3",cqiA4:"s4",cqiA5:"s5",cqiA6:"s6"};
   const k=map[id];
@@ -1127,7 +1149,7 @@ function piCard(c){
   const anyTick = c.cos.some(co=>Object.values(co.pi||{}).some(arr=>Array.isArray(arr)&&arr.length));
   if(!open) return `
   <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">PO Indicators (optional) <button class="btn secondary small" onclick="window._piOpen=true;renderCOs()">▸ Show / edit</button></h2>
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="window._piOpen=true;renderCOs()"><span class="fold-caret">&#9656;</span> PO Indicators (optional)</h2>
     <p class="hint" style="margin:0">${anyTick? "Indicators are ticked for at least one CO — they print on the Course Specifications and Outline." : "Optionally record WHICH indicator(s) of a mapped PO each CO addresses (PO1a, PO1b, …). Purely documentary — attainment is unaffected."}</p>
   </div>`;
   const coBlocks = c.cos.map((co,i)=>{
@@ -1145,7 +1167,7 @@ function piCard(c){
   }).join("");
   return `
   <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">PO Indicators (optional) <button class="btn secondary small" onclick="window._piOpen=false;renderCOs()">▾ Hide</button></h2>
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="if(!event.target.closest('button')) { window._piOpen=false; renderCOs(); }"><span class="fold-caret">&#9662;</span> PO Indicators (optional)</h2>
     <p class="hint">Tick the indicator(s) of each mapped PO that this CO addresses. Ticking an indicator also ticks its parent PO in the matrix; unticking a PO clears its indicators. Documentary only — no calculation uses these. Ticked indicators print on the Course Specifications and the Course Outline.</p>
     ${coBlocks || '<div class="empty">Add COs first.</div>'}
     <div class="btn-row">
@@ -1347,9 +1369,11 @@ function suggestBox(c, tab){
   const aiBtn = isTla
     ? `<button class="btn secondary small" onclick="copyTlaAIPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the T&amp;L-related suggestions, expressed as activities adoptable in this Section">📋 Copy AI Prompt (T&amp;L suggestions only)</button>`
     : `<button class="btn secondary small" onclick="copyAssessSuggestPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the assessment-related suggestions, expressed as actions doable in this Section">📋 Copy AI Prompt (assessment suggestions only)</button>`;
+  const fk = "sug_"+tab;
   return `
-  <div class="card">
-    <h2>Suggested Modifications in ${isTla? "T&amp;L" : "Assessment"} Activities</h2>
+  <div class="${foldOpenM(fk)? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'${fk}','${isTla? "tla":"assess"}')"><span class="fold-caret">${foldOpenM(fk)? '&#9662;':'&#9656;'}</span> Suggested Modifications in ${isTla? "T&amp;L" : "Assessment"} Activities</h2>
+    <p class="fold-sum">${val.trim()? "Notes recorded — act on them below, then record the closure in Specifications 6.1." : "Empty — open to copy the AI prompt and paste its distilled suggestions."}</p>
     <p class="hint">Working notes for this offering — copy the AI prompt below, paste the AI's distilled suggestions here, and act on them further down.${isTla? " Pool activities named here are <b>boosted</b> in the recommendations (green “CQI match” badge)." : ""} Once implemented, record the closure in Course Specifications 6.1 (“Actions reflected” — the CQI Section's AI prompt drafts it from these notes as task item 6). Not printed in any document; kept in backups.</p>
     <div class="btn-row" style="margin:0 0 8px">${aiBtn}</div>
     <textarea class="di" id="sug_${field}" rows="5" style="width:100%;overflow-y:hidden;resize:vertical" placeholder="${isTla? "e.g., Adopt Think-pair-share for CO1; drop the ineffective seminar for CO3; add simulation-based activities for CO4…" : "e.g., Add a rubric-graded design item for CO5; make Q2–Q7 parallel in difficulty; return quiz feedback within one week…"}" oninput="autoGrowTA(this)" onchange="austSet('${field}',this.value)${isTla? ";renderTLA()":""}">${esc(val)}</textarea>
@@ -1546,7 +1570,7 @@ function learnResCard(c){
     <td class="no-print"><button class="icon-btn" onclick="delLearnRes(${i})">✕</button></td></tr>`).join("");
   return `
   <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Learning Resources shared with students <button class="btn secondary small" onclick="toggleLearnRes()">${open? "▾ Hide":"▸ Show / edit"}</button></h2>
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="if(!event.target.closest('button')) toggleLearnRes()"><span class="fold-caret">${open? "&#9662;":"&#9656;"}</span> Learning Resources shared with students</h2>
     ${open? `
     <p class="hint">A register of the materials you share with students to aid the T&L activities — class session slides, the LMS course site, companion sites (e.g., NotebookLM), interactive infographics, videos, rubrics and tip sheets. Choose the <b>Type</b> first — the Title box then suggests only the matching entries of the <b>T&L Resource Pool</b> (Data &amp; Backup); Type <b>Other</b> shows the full pool, and free-typed titles are always accepted. Picking a pool entry prefills a practical tip. Re-verify links each offering — the Verified column dims to an amber badge after six months. <b>Links only:</b> the LMS (or hosting site) remains where the material lives; this register records what exists and where. It is kept by ⟳ Duplicate for New Semester, prints as <b>Course Outline 17.3</b> when non-empty, is cited by the CQI AI prompts, Tick each resource's <b>Related COs</b> and it flows automatically into the Resources column of the Topic-wise T&L Plan below for every topic ticked with those COs (deselectable per topic there); further topic-specific resources can be added manually.</p>
     <div class="tbl-wrap"><table class="tbl">
@@ -1612,9 +1636,12 @@ function topicPlanCard(c){
       <td><button class="icon-btn" style="color:#c0392b;font-weight:700" title="Delete this topic (also removes it from Course Specifications 4.1)" onclick="delTopic(${i});renderTLA()">✕</button></td>
     </tr>`;
   }).join("");
+  const nCO = topics.filter(t=>Array.isArray(t.cos)&&t.cos.length).length;
+  const hrs = topics.reduce((s,t)=>s+(parseFloat(t.planned)||0),0);
   return `
-  <div class="card">
-    <h2>Topic-wise T&amp;L Plan <span class="badge blue" title="Sl./Topics/Planned Hours are the same data as Course Specifications 4.1 (and Course Report 3.1) — edit in either place">⛓ linked — same data as Course Specifications 4.1</span></h2>
+  <div class="${foldOpenM('topicPlan')? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'topicPlan','tla')"><span class="fold-caret">${foldOpenM('topicPlan')? '&#9662;':'&#9656;'}</span> Topic-wise T&amp;L Plan <span class="badge blue" title="Sl./Topics/Planned Hours are the same data as Course Specifications 4.1 (and Course Report 3.1) — edit in either place">⛓ linked — same data as Course Specifications 4.1</span></h2>
+    <p class="fold-sum">${topics.length? `${topics.length} topic(s) · ${hrs} planned hour(s) · ${nCO} CO-tagged — click to plan methods and resources per topic.` : "No topics yet — click to add them (or import from CSV)."}</p>
     <p class="hint">Plan each topic's teaching: tick the related CO(s) — the <b>blue</b> method chips fill in automatically from the activities adopted above (× deselects one for that topic only; the dimmed chip's + restores it) — and add <b>topic-specific</b> activities (green chips, removable) from the pool or your own. Topics and planned hours are shared with Course Specifications 4.1; Related COs and topic-specific activities are planning fields kept with the course data (not printed in the Specifications table).</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:40px">Sl.</th><th style="width:38%">Topics</th><th style="width:70px">Planned Hours</th><th style="width:95px">Related COs</th><th style="width:230px">T&amp;L Methods</th><th style="width:200px">Resources</th><th class="no-print" style="width:54px;font-size:11px">Delete</th></tr></thead>
@@ -1674,8 +1701,9 @@ function resourcePoolCard(){
       <td>${r.custom? `<button class="icon-btn" onclick="delCustomRes(${i-RES_POOL.length})">✕</button>`:""}</td></tr>`).join("");
   const cats = [...new Set(RES_POOL.map(r=>r.cat))].concat(["Other"]);
   return `
-  <div class="card">
-    <h2>T&amp;L Resource Pool (${resPool().length})</h2>
+  <div class="${foldOpenM('resPool')? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'resPool','data')"><span class="fold-caret">${foldOpenM('resPool')? '&#9662;':'&#9656;'}</span> T&amp;L Resource Pool (${resPool().length})</h2>
+    <p class="fold-sum">${resPool().length} resource kinds · ${resPool().filter(r=>r.custom).length} custom — click to browse or extend.</p>
     <p class="hint">Curated resource <b>kinds</b> from the engineering-education perspective, most common first — used by the T&amp;L Section's Learning Resources register: picking a pool name there (autocomplete) prefills the Type and a practical tip; you then add your own link and CO tags. Custom entries are stored with your data and included in JSON backups, so a department can share a common pool.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:200px">Resource</th><th style="width:140px">Category</th><th>Description</th><th style="width:220px">Justification</th><th style="width:200px">Practical tip</th><th style="width:180px">Pairs with</th><th style="width:36px"></th></tr></thead>
@@ -1702,8 +1730,9 @@ function activityPoolCard(){
       <td style="font-size:12px">${a.mode} / ${a.size}</td>
       <td>${a.custom? `<button class="icon-btn" onclick="delCustomTLA(${i-TLA_POOL.length})">✕</button>`:""}</td></tr>`).join("");
   return `
-  <div class="card">
-    <h2>T&amp;L Activity Pool (${tlaPool().length})</h2>
+  <div class="${foldOpenM('tlaPoolCard')? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'tlaPoolCard','data')"><span class="fold-caret">${foldOpenM('tlaPoolCard')? '&#9662;':'&#9656;'}</span> T&amp;L Activity Pool (${tlaPool().length})</h2>
+    <p class="fold-sum">${tlaPool().length} activities · ${tlaPool().filter(a=>a.custom).length} custom — click to browse or extend.</p>
     <p class="hint">Built-in pedagogy pool plus your own additions — used by the T&amp;L Section's recommendations, autocomplete and summary-table tips. Custom activities are stored with your data and included in JSON backups, so a department can share a common pool.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:220px">Activity</th><th>Description</th><th style="width:110px">Bloom's</th><th style="width:120px">Mode / Size</th><th style="width:36px"></th></tr></thead>
@@ -1742,9 +1771,18 @@ function renderTLA(){
     const ranked = showAll? rankedAll : rankedAll.slice(0,6);
     const adopted = (co.delivery||"").toLowerCase();
     const lvlName = primeLevelName(co), tag = primeTag(co);
+    if(!foldOpenT(co.id)){
+      const nAd = deliveryList(co).length;
+      const top = ranked.length? ranked[0].a.n : null;
+      return `
+    <div class="card">
+      <h2 class="cqi-fold" onclick="toggleFoldT('${co.id}')"><span class="fold-caret">&#9656;</span> CO${i+1} <span class="badge blue">${esc(co.btDomain||"Cognitive")}${lvlName? " · "+esc(lvlName):""}${tag && (co.btDomain||"Cognitive")==="Cognitive"? " ("+tag+")":""}</span></h2>
+      <p class="fold-sum">${nAd? nAd+" activit"+(nAd===1?"y":"ies")+" adopted" : "nothing adopted yet"}${top? " · top suggestion: "+esc(top):""} — click for recommendations.</p>
+    </div>`;
+    }
     return `
     <div class="card">
-      <h2>CO${i+1} <span class="badge blue">${esc(co.btDomain||"Cognitive")}${lvlName? " · "+esc(lvlName):""}${tag && (co.btDomain||"Cognitive")==="Cognitive"? " ("+tag+")":""}</span></h2>
+      <h2 class="cqi-fold" onclick="toggleFoldT('${co.id}')"><span class="fold-caret">&#9662;</span> CO${i+1} <span class="badge blue">${esc(co.btDomain||"Cognitive")}${lvlName? " · "+esc(lvlName):""}${tag && (co.btDomain||"Cognitive")==="Cognitive"? " ("+tag+")":""}</span></h2>
       <p class="hint">${esc(co.statement)||"<i>(no statement)</i>"}</p>
       <p style="font-size:13px;margin-bottom:2px"><b>Current delivery methods</b> <span style="color:var(--muted);font-size:11.5px">(click × to remove)</span>:</p>
       <p style="font-size:13px">${deliveryList(co).map((n,k)=>`<span class="badge blue" style="display:inline-flex;align-items:center;gap:6px;margin:2px 4px 2px 0">${esc(n)}<button onclick="removeDelivery('${co.id}',${k})" title="Remove this activity" style="background:none;border:none;color:inherit;cursor:pointer;font-weight:700;padding:0;font-size:13px;line-height:1">×</button></span>`).join("")||'<span class="badge grey">none adopted yet</span>'}</p>
@@ -1805,16 +1843,18 @@ function renderTLA(){
       <td style="white-space:nowrap;font-size:12.5px">${coLbls || "—"}</td></tr>`;
   }).join("");
   const resSummaryCard = `
-  <div class="card">
-    <h2>T&amp;L Resources Summary Table</h2>
+  <div class="${foldOpenM('resSum')? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'resSum','tla')"><span class="fold-caret">${foldOpenM('resSum')? '&#9662;':'&#9656;'}</span> T&amp;L Resources Summary Table</h2>
+    <p class="fold-sum">${regRes.length? regRes.length+" resource(s) registered — click to view descriptions, tips and related COs." : "No resources registered yet — click for details."}</p>
     <p class="hint">Every learning resource registered for this course, with guidance — the companion of the Activities Summary below. Descriptions and practical tips come from the T&amp;L Resource Pool: by title when a pool name was picked, otherwise via the entry's <b>Type</b> (your own Notes take precedence over the type-derived tip); Related CO comes from the register's CO tags.</p>
     ${regRes.length? `<div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:240px">T&amp;L Resource</th><th>Brief Descriptions</th><th>Practical Tip</th><th style="width:100px">Related CO</th></tr></thead>
       <tbody>${resSumRows}</tbody></table></div>` : `<p class="hint">No resources registered yet — add them in the “Learning Resources shared with students” card above.</p>`}
   </div>`;
   const tlaSummaryCard = `
-  <div class="card">
-    <h2>T&amp;L Activities Summary Table</h2>
+  <div class="${foldOpenM('tlaSum')? 'card':'card folded'}">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'tlaSum','tla')"><span class="fold-caret">${foldOpenM('tlaSum')? '&#9662;':'&#9656;'}</span> T&amp;L Activities Summary Table</h2>
+    <p class="fold-sum">${sumEntries.length? sumEntries.length+" adopted activit"+(sumEntries.length===1?"y":"ies")+" — click for descriptions, practical tips and related COs." : "No activities adopted yet — click for details."}</p>
     <p class="hint">Every activity adopted in this course, with classroom-ready guidance — a quick lesson-planning reference. Descriptions and practical tips come from the T&L Activity Pool (custom pool activities can carry your own tips); free-text activities show “—” until matched to a pool entry.</p>
     ${sumEntries.length? `<div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:200px">T&amp;L Activity</th><th>Brief Descriptions</th><th>Practical Tips</th><th style="width:100px">Related CO</th></tr></thead>
@@ -1823,8 +1863,9 @@ function renderTLA(){
   const planGroup = `
   ${cqiCard}
   ${suggestBox(c, "tla")}
-  <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Recommendations per CO <button class="btn secondary small" onclick="togglePoolBrowser()">${window._poolOpen? "▾ Hide" : "▸ Browse"} the full T&amp;L Activity Pool (${tlaPool().length})</button></h2>
+  <div class="${foldOpenM('reco')? 'card':'card folded'}">
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="foldClickM(event,'reco','tla')"><span class="fold-caret">${foldOpenM('reco')? '&#9662;':'&#9656;'}</span> Recommendations per CO ${foldOpenM('reco')? `<button class="btn secondary small" onclick="togglePoolBrowser()">${window._poolOpen? "▾ Hide" : "▸ Browse"} the full T&amp;L Activity Pool (${tlaPool().length})</button>`:""}</h2>
+    <p class="fold-sum">How the ranking works, plus the Mode / Class-size filters — click to open (the per-CO cards below work either way).</p>
     ${window._poolOpen? `
     <div class="tbl-wrap" style="margin-bottom:14px"><table class="tbl">
       <thead><tr><th style="width:220px">Activity</th><th style="width:90px">Bloom</th><th style="width:120px">Mode · Size${'' /* dom */}</th><th>Description</th><th>Practical tip</th></tr></thead>
@@ -2152,13 +2193,21 @@ function renderCA(){
         return `<span class="badge ${ex? "amber":"blue"}" title="${esc(it.aName)} · ${it.max} marks · ${itemLevelTag(it,d.co)}${it.mandatory===false? " · choice question":""}${ex? " · exceeds CO level":""}" style="margin:2px 3px 2px 0">${esc(it.label)}${it.mandatory===false?"†":""}${ex?"↑":""}</span>`;
       }).join("") + `<div style="font-size:11.5px;color:var(--muted);margin-top:4px">${d.coMax} marks · ${d.share.toFixed(0)}% of total</div>`
       : '<span class="badge red">no items</span>';
-    return `
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    const fk = 'ca_'+d.co.id;
+    const head = `<span class="fold-caret">${foldOpenM(fk)? '&#9662;':'&#9656;'}</span>
         <b style="font-size:15.5px">${d.label}</b>
         <span class="badge blue" title="Bloom's Taxonomy domain and level of this CO">${esc(d.info.domain)}${primeTag(d.co)? " · "+primeTag(d.co):""}${primeLevelName(d.co)? " "+esc(primeLevelName(d.co)):""}</span>
-        <span class="badge ${d.base}">${caWord(d.base)}</span>
-      </div>
+        <span class="badge ${d.base}">${caWord(d.base)}</span>`;
+    if(!foldOpenM(fk)){
+      return `
+    <div class="card">
+      <div class="cqi-fold" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap" onclick="foldClickM(event,'${fk}','ca')">${head}</div>
+      <p class="fold-sum">${esc((d.co.statement||"").split("\n")[0].slice(0,110))||"(no statement)"} — click for the triangle${sugg.length? " and "+sugg.length+" suggestion(s)":""}.</p>
+    </div>`;
+    }
+    return `
+    <div class="card">
+      <div class="cqi-fold" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap" onclick="foldClickM(event,'${fk}','ca')">${head}</div>
       <p style="font-size:13px;margin:6px 0 12px">${esc(d.co.statement)||"<i>(no statement)</i>"}</p>
       <div style="display:grid;grid-template-columns:1fr minmax(230px,300px) 1fr;gap:14px;align-items:center">
         <div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">T&amp;L ACTIVITIES <span style="font-weight:400">(⛓ T&amp;L Section)</span></p>${tlaChips}</div>
@@ -2222,9 +2271,19 @@ function renderAssess(){
         </span>
       </div>`).join("");
     const total = a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0);
+    if(!foldOpenA(a.id)){
+      const nOptQ = a.items.filter(it=>it.mandatory===false).length;
+      const rub = rubricTypes().includes(a.type)? (a.rubric? " · rubric ready" : " · rubric pending") : "";
+      return `
+    <div class="card">
+      <h2 class="cqi-fold" onclick="toggleFoldA('${a.id}')"><span class="fold-caret">&#9656;</span> ${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span></h2>
+      <p class="fold-sum">${total} marks · ${a.items.length} item(s)${nOptQ? " · "+nOptQ+" choice question(s)":""}${rub} — click to open.</p>
+    </div>`;
+    }
     return `
     <div class="card">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="icon-btn" title="Collapse this assessment" onclick="toggleFoldA('${a.id}')">▾</button>
         <input value="${esc(a.name)}" placeholder="Assessment name (e.g., Quiz 1)" style="font-weight:600;font-size:15px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px;font-family:inherit" onchange="updateAssessment('${a.id}','name',this.value)">
         <select style="padding:7px;border:1px solid var(--border);border-radius:8px;font-family:inherit" onchange="updateAssessment('${a.id}','type',this.value)">
           ${(ASSESS_TYPES.includes(a.type)? ASSESS_TYPES : [a.type, ...ASSESS_TYPES]).map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`).join("")}
@@ -2409,6 +2468,13 @@ function setCpMark(sid, aid, val, el){
 function cpAssessCard(c, a){
   const n = a.items.length;
   const share = n? round4(cpTotalOf(a)/n) : 0;
+  if(!foldOpenA(a.id)){
+    return `
+  <div class="card">
+    <h2 class="cqi-fold" onclick="toggleFoldA('${a.id}')"><span class="fold-caret">&#9656;</span> ${esc(a.name||"Class Performance")} <span class="badge blue">Class Performance</span></h2>
+    <p class="fold-sum">Total ${cpTotalOf(a)} · ${n? n+" CO(s), "+share+" each" : "no COs ticked yet"} — click to open.</p>
+  </div>`;
+  }
   const boxes = c.cos.map((co,i)=>{
     const on = a.items.some(it=>it.coId===co.id);
     return `<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 14px 4px 0;font-size:13.5px;white-space:nowrap">
@@ -2418,6 +2484,7 @@ function cpAssessCard(c, a){
   return `
   <div class="card">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="icon-btn" title="Collapse this assessment" onclick="toggleFoldA('${a.id}')">▾</button>
       <input value="${esc(a.name)}" placeholder="Assessment name (e.g., Class Performance — Part A)" style="font-weight:600;font-size:15px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;flex:1;min-width:180px;font-family:inherit" onchange="updateAssessment('${a.id}','name',this.value)">
       <select style="padding:7px;border:1px solid var(--border);border-radius:8px;font-family:inherit" onchange="updateAssessment('${a.id}','type',this.value)">
         ${ASSESS_TYPES.map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`).join("")}
@@ -2437,7 +2504,10 @@ function cpAssessCard(c, a){
 }
 function addAssessment(){
   const c = activeCourse(); if(!c) return;
-  c.assessments.push({ id: uid(), name:"", type:"Quiz", items:[] });
+  const id = uid();
+  c.assessments.push({ id, name:"", type:"Quiz", items:[] });
+  window._assessFold = window._assessFold || {};
+  window._assessFold[id] = true;   // a just-added assessment opens ready for editing
   save(); renderAssess();
 }
 function updateAssessment(id, field, val){
@@ -3736,7 +3806,7 @@ function cqiInputsCard(c, tab){
     <textarea class="di" rows="2" style="width:100%;overflow-y:hidden" placeholder="Recommended action (previous Course Report)" oninput="autoGrowTA(this)" onchange="austSet('spec.cqiPrev.${i}.rec',this.value);${rerender}">${esc(c.aust.spec.cqiPrev[i].rec||"")}</textarea>`).join("");
   return `
   <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">CQI Inputs from the Previous Offering <button class="btn secondary small" onclick="toggleCqiCard('${tab}')">${open? "▾ Hide details":"▸ Show / edit details"}</button></h2>
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="if(!event.target.closest('button')) toggleCqiCard('${tab}')"><span class="fold-caret">${open? "&#9662;":"&#9656;"}</span> CQI Inputs from the Previous Offering</h2>
     ${open? `
     <p class="hint">Editable here — every change updates <b>Course Specifications 6.1</b> and the <b>CQI Section</b> automatically (⛓ one shared dataset). The entries ${isTla? "feed the recommendations below" : "inform the assessment plan below"}. This offering's suggested actions for the <i>next</i> offering are written in the <b>CQI Section</b> (or Course Report 6.1), not here.</p>
     ${rows}
@@ -4885,7 +4955,7 @@ function renderData(){
   <div class="card">
     <h2>About</h2>
     <p class="hint">OBE Course Manager <b>${APP_VERSION}</b> — a free, single-file web app for outcome-based teaching, learning &amp; assessment management. Works offline after first load. No data ever leaves your device.</p>
-    <p class="hint">© 2026 Prof. Mazharul Islam · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons Attribution (CC BY) 4.0 International License</a>.</p>
+    <p class="hint">© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">Creative Commons Attribution (CC BY) 4.0 International License</a>.</p>
     <p class="hint">GitHub Repository: <a href="https://github.com/mazhar17/obe-course-manager" target="_blank" rel="noopener">github.com/mazhar17/obe-course-manager</a></p>
     <p class="hint">Feel free to send your comments/suggestions/feedback to <a href="mailto:mazharul.islam.mpe@aust.edu">mazharul.islam.mpe@aust.edu</a>.</p>
   </div>`;
