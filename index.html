@@ -95,7 +95,7 @@ table.tbl tr:nth-child(even) td{background:#fafcfd}
 footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;text-align:center;padding:16px}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--primary-dark);color:#fff;padding:10px 22px;border-radius:24px;font-size:14px;box-shadow:var(--shadow);opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
 .toast.show{opacity:1}
-/* CQI tab: full-width editable fields (the di/dta helpers are print-styled only inside .report-sheet) */
+/* CQI Section: full-width editable fields (the di/dta helpers are print-styled only inside .report-sheet) */
 #tab-cqi textarea.di{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;min-height:100px}
 #tab-cqi input.di{width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
 #tab-cqi select.di{border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-size:13px;font-family:inherit;width:100%}
@@ -139,6 +139,27 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   input,textarea,select{color:#000 !important}
 }
 
+/* ===== Sub-section bar (long Sections split into sub-sections) ===== */
+.subbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.sub-btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:7px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.sub-btn:hover{border-color:var(--primary)}
+.sub-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+/* CQI sticky step navigation — jump links; the pipeline stays one page */
+.cqinav{position:sticky;top:0;z-index:50;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  background:var(--bg);padding:8px 0 10px;margin:0 0 6px;border-bottom:1px solid var(--border)}
+.cqinav .nav-lbl{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.cqinav button{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
+  padding:5px 12px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cqinav button:hover{border-color:var(--primary);color:var(--primary)}
+/* Collapsible CQI cards: a .folded card shows only its heading + status line */
+.card.folded>*:not(h2):not(.fold-sum){display:none !important}
+.card:not(.folded)>.fold-sum{display:none}
+.cqi-fold{cursor:pointer;user-select:none}
+.cqi-fold:hover{text-decoration:underline}
+.fold-caret{color:var(--primary);font-size:13px}
+.fold-sum{font-size:12.5px;color:var(--muted);margin:5px 0 0}
+@media print{ .subbar,.cqinav{display:none !important} }
 /* ===== Per-tab guidance card (additive, never printed) ===== */
 .guide-card{padding:14px 16px}
 .guide-head{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;margin:0}
@@ -194,7 +215,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.82</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.86</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -232,14 +253,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-data"></section>
 </main>
 
-<footer>OBE Course Manager <b>v1.82</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v1.86</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v1.82";
+const APP_VERSION = "v1.86";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -248,6 +269,75 @@ const PO_INFO = {
   10:"Communication", 11:"Project Management and Finance", 12:"Life-long Learning"
 };
 const N_PO = 12;
+/* ===== OBE Framework versions =====
+   v2.2 (default): the current 12 POs, no indicators — the app's historical behavior.
+   v3: the updated 12 POs (BAETE / IEA-WA 2021 alignment + Entrepreneurship) with
+   Performance Indicators (PIs). PO names differ from PO6 onward, so the choice is
+   per-course and every PO-name lookup goes through poInfo(c, n). */
+const PO_INFO_V3 = {
+  1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
+  4:"Investigation", 5:"Modern Tool Usage", 6:"The Engineer and the World",
+  7:"Ethics", 8:"Individual and Collaborative Teamwork", 9:"Communication",
+  10:"Project Management and Finance", 11:"Lifelong Learning", 12:"Entrepreneurship"
+};
+/* Official 46 PO Indicators (AUST list). Letters are positional: index 0 = a, 1 = b, … */
+const PO_PI_V3 = {
+ 1:["Apply the knowledge of mathematics and computing to solve complex engineering problems (K2)",
+    "Apply the knowledge of natural science to solve complex engineering problems (K1)",
+    "Apply knowledge of engineering fundamentals to solve complex engineering problems (K3)",
+    "Apply knowledge of engineering specialization to solve complex engineering problems (K4)"],
+ 2:["Identify the complex engineering problem including identification of relevant attributes of complex engineering problems",
+    "Formulate a complex engineering problem",
+    "Research literature to gather required knowledge related to the complex engineering problem",
+    "Analyze complex engineering problem using first principles of mathematics, natural sciences and engineering sciences to reach substantiated conclusion",
+    "Consider sustainable development holistically in the identification, formulation, research of literature, analysis and conclusion of complex engineering problems"],
+ 3:["Design creative solutions of complex engineering problems",
+    "Design systems, components or processes to meet identified needs",
+    "Appropriately consider public health and safety in the design",
+    "Appropriately consider whole-life cost, net zero carbon and resources in the design",
+    "Appropriately consider cultural, societal, and environmental issues as required"],
+ 4:["Conduct investigation of complex engineering problems using research methods including research-based knowledge",
+    "Conduct investigation of complex engineering problems using design of experiments",
+    "Analyze and interpret data and synthesize information to provide valid conclusions to complex engineering problems"],
+ 5:["Create modern engineering and IT tools, including prediction and modeling, to solve complex engineering problems",
+    "Select modern engineering and IT tools, including prediction and modeling, to solve complex engineering problems",
+    "Apply modern engineering and IT tools, including prediction and modeling, to solve complex engineering problems",
+    "Recognize limitations of appropriate techniques, resources and modern engineering and IT tools"],
+ 6:["When solving complex engineering problems, analyze and evaluate sustainable development impacts to society",
+    "When solving complex engineering problems, analyze and evaluate sustainable development impacts to the economy",
+    "When solving complex engineering problems, analyze and evaluate sustainable development impacts to sustainability",
+    "When solving complex engineering problems, analyze and evaluate sustainable development impacts to health and safety",
+    "When solving complex engineering problems, analyze and evaluate sustainable development impacts to legal frameworks",
+    "When solving complex engineering problems, analyze and evaluate sustainable development impacts to the environment"],
+ 7:["Apply ethical principles to engineering practice",
+    "Commit to professional ethics and norms of engineering practice",
+    "Adhere to relevant national and international laws",
+    "Demonstrate an understanding of the need for diversity and inclusion"],
+ 8:["Function effectively as an individual in diverse and inclusive teams and in multi-disciplinary, face-to-face, remote and distributed settings",
+    "Function effectively as a member in diverse and inclusive teams and in multi-disciplinary, face-to-face, remote and distributed settings",
+    "Function effectively as a leader in diverse and inclusive teams and in multi-disciplinary, face-to-face, remote and distributed settings"],
+ 9:["Communicate effectively and inclusively on complex engineering activities with the engineering community through comprehending and writing effective reports and design documentation taking into account cultural, language, and learning differences",
+    "Communicate effectively and inclusively on complex engineering activities with the engineering community through making effective presentations taking into account cultural, language, and learning differences",
+    "Communicate effectively and inclusively on complex engineering activities with society at large through comprehending and writing effective reports and design documentation taking into account cultural, language, and learning differences",
+    "Communicate effectively and inclusively on complex engineering activities with society at large through making effective presentations taking into account cultural, language, and learning differences"],
+ 10:["Apply knowledge and understanding of engineering management principles and economic decision-making to one's own work as a member and leader in a team",
+    "Apply knowledge and understanding of engineering management principles and economic decision-making to manage projects",
+    "Apply knowledge and understanding of engineering management principles and economic decision-making in multidisciplinary environments"],
+ 11:["Recognize the need for and have the preparation and ability for independent and life-long learning in the broadest context of technological change",
+    "Recognize the need for and have the preparation and ability for adaptability to new and emerging technologies in the broadest context of technological change",
+    "Recognize the need for and have the preparation and ability for critical thinking in the broadest context of technological change"],
+ 12:["Demonstrate understanding of the skills required to be an entrepreneur",
+    "Demonstrate ability to apply entrepreneurial skills"]
+};
+function fwV3(c){ return !!(c && c.aust && c.aust.fw === "v3"); }
+function poInfo(c, n){ return fwV3(c)? PO_INFO_V3[n] : PO_INFO[n]; }
+function piLetter(k){ return String.fromCharCode(97 + k); }
+function piLabel(p, k){ return "PO" + p + piLetter(k); }
+/* The course's own (editable) PI list — created as a copy of the official list on first use. */
+function coursePIs(c){
+  if(!c.aust.pis) c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  return c.aust.pis;
+}
 const BLOOMS = ["Remember","Understand","Apply","Analyze","Evaluate","Create"];
 const ASSESS_TYPES = ["Class Performance","Quiz","Assignment","Mid Term","Final Exam","Lab/Sessional","Project","Presentation","Viva","Attendance","Other"];
 /* "Class Test" was retired from the list — assessments already saved with it keep working,
@@ -289,7 +379,9 @@ function ensureAust(c){
   a.spec = Object.assign({submitDate:"", other:""}, a.spec||{});
   a.spec.slt = Object.assign({lecture:"42", active:"", reading:"", quiz:"", assign:"", finalPrep:"", finalExam:"3", total:"120"}, a.spec.slt||{});
   if(!Array.isArray(a.spec.topics)) a.spec.topics = [];
-  a.spec.topics.forEach(t=>{ if(!Array.isArray(t.cos)) t.cos = []; if(!Array.isArray(t.tla)) t.tla = []; if(!Array.isArray(t.res)) t.res = []; if(!Array.isArray(t.resExcl)) t.resExcl = []; if(!Array.isArray(t.tlaExcl)) t.tlaExcl = []; });   // topic -> related CO ids, topic-specific activities, planned resources, per-topic deselections (T&L tab's topic-wise plan)
+  a.spec.topics.forEach(t=>{ if(!Array.isArray(t.cos)) t.cos = []; if(!Array.isArray(t.tla)) t.tla = []; if(!Array.isArray(t.res)) t.res = []; if(!Array.isArray(t.resExcl)) t.resExcl = []; if(!Array.isArray(t.tlaExcl)) t.tlaExcl = []; });   // topic -> related CO ids, topic-specific activities, planned resources, per-topic deselections (T&L Section's topic-wise plan)
+  if(a.fw !== "v3") a.fw = "v2.2";                       // OBE framework: v2.2 (default) or v3 (new POs + indicators)
+  if(a.fw === "v3" && !a.pis) a.pis = JSON.parse(JSON.stringify(PO_PI_V3));
   if(!Array.isArray(a.learnRes)) a.learnRes = [];   // learning resources shared with students: {type,title,url,cos,notes}
   a.learnRes.forEach(r=>{
     if(!Array.isArray(r.cos)) r.cos = [];
@@ -463,7 +555,7 @@ async function openDataFile(){
 async function newDataFile(){
   try{
     if(fileHandle && !filePermOk && state.courses.length){
-      if(!confirm("The linked file has not been reconnected this session, so recent changes may exist only in this browser and will NOT be written to it.\n\nContinue creating a new file anyway?")) return;
+      if(!confirm("The linked file has not been reconnected this session, so recent changes may exist only in this browser and will NOT be written to it.\n\nContinue and set up the new file anyway?")) return;
     }
     if(!fileHandle && state.courses.length){
       if(!confirm("Your current data lives only in this browser and is not linked to any file.\n\nIt will remain in this browser, but the app will switch to the new empty file. Consider File ▸ Save to New File… first if you want to keep it in a file.\n\nCreate the new file anyway?")) return;
@@ -479,8 +571,8 @@ async function newDataFile(){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
     await writeFileNow();
     refresh(); updateFileChip();
-    toast("New data file created: "+h.name+" — your activity pool was carried over");
-  }catch(e){ if(e && e.name!=="AbortError") alert("Could not create file: "+e.message); }
+    toast("New data file saved: "+h.name+" — your activity pool was carried over");
+  }catch(e){ if(e && e.name!=="AbortError") alert("Could not save the file: "+e.message); }
 }
 async function saveAsDataFile(){
   try{
@@ -608,6 +700,71 @@ function showTab(name){
   renderTab(name);
   window._currentTab = name;
 }
+/* ===== Sub-sections: long Sections are split into switchable groups ===== */
+const SUBSECTS = {
+  attain: [["dco","Direct — CO"],["dpo","Direct — PO"],["survey","Survey (Indirect)"],["combined","Combined"]],
+  data:   [["file","File & Backups"],["pools","Pools"],["misc","Danger Zone & About"]],
+  tla:    [["plan","Planning per CO"],["resources","Learning Resources"],["topics","Topic-wise Plan"],["summary","Summary Tables"]],
+  assess: [["plan","Assessment Plan"],["summary","Summary & Tips"]]
+};
+function subSect(tab){
+  const list = SUBSECTS[tab]; if(!list) return null;
+  window._subSect = window._subSect || {};
+  if(!list.some(x=>x[0]===window._subSect[tab])) window._subSect[tab] = list[0][0];
+  return window._subSect[tab];
+}
+function setSubSect(tab, id){
+  window._subSect = window._subSect || {};
+  window._subSect[tab] = id;
+  renderTab(tab);
+}
+/* CQI jump navigation (sticky) — anchors, not sub-sections: the diagnose → describe →
+   decide → close pipeline must stay visible top-to-bottom on one page.
+   The six content cards collapse to their headings (independent toggles, collapsed by
+   default); each collapsed card shows a one-line status, so the collapsed view doubles
+   as a progress board. Jumping to a step auto-expands it. */
+function cqiFoldOpen(k){ return !!(window._cqiFold||{})[k]; }
+function cqiFoldClick(ev, k){
+  if(ev && ev.target && ev.target.closest && (ev.target.closest("button")||ev.target.closest("a"))) return;   // heading buttons must not toggle
+  window._cqiFold = window._cqiFold || {};
+  window._cqiFold[k] = !window._cqiFold[k];
+  renderCQI();
+}
+function foldCls(k){ return cqiFoldOpen(k)? "card" : "card folded"; }
+function foldCaret(k){ return `<span class="fold-caret">${cqiFoldOpen(k)? "&#9662;" : "&#9656;"}</span> `; }
+function cqiFoldSums(c){
+  const q = c.aust.cqi;
+  const nAn = c.cos.filter(co=>{ const a=(q.lowAnalysis||{})[co.id]||{}; return Object.values(a).some(v=>String(v||"").trim()); }).length;
+  const nNar = ["complex","effective","design","moderation"].filter(k=>String(q[k]||"").trim()).length;
+  const nAct = (c.aust.report.cqi||[]).filter(t=>String(t||"").trim()).length;
+  const nRef = (c.aust.spec.cqiPrev||[]).filter(x=>String((x||{}).ref||"").trim()).length;
+  const nSt = (q.stakeholders||[]).length;
+  const nEv = EVIDENCE_ITEMS.filter(([k])=>q.evid[k]).length;
+  return {
+    s1: nAn? `Analyses recorded for ${nAn} CO(s) — click to review or extend.` : "Nothing recorded yet — click to diagnose the low-attaining COs (Step 1).",
+    s2: `${nNar} of 4 narratives written — click to ${nNar? "review":"write"} them (Step 2).`,
+    s3: `${nAct} of 5 action rows filled · ${nRef} of 5 closure notes — click to decide and close (Steps 3–4).`,
+    s4: nSt? `${nSt} feedback entr${nSt===1?"y":"ies"} recorded.` : "No stakeholder feedback recorded yet.",
+    s5: `${nEv} of ${EVIDENCE_ITEMS.length} evidence items ticked.`,
+    s6: "Everything recorded above prints into one report — open when the steps are complete."
+  };
+}
+function cqiJump(id){
+  const map={cqiA1:"s1",cqiA2:"s2",cqiA3:"s3",cqiA4:"s4",cqiA5:"s5",cqiA6:"s6"};
+  const k=map[id];
+  if(k && !cqiFoldOpen(k)){ window._cqiFold = window._cqiFold || {}; window._cqiFold[k]=true; renderCQI(); }
+  const a=document.getElementById(id); if(a && a.scrollIntoView) a.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function cqiNavBar(){
+  const items=[["cqiA1","1 · Diagnose"],["cqiA2","2 · Narratives (3.8)"],["cqiA3","3–4 · Actions & Closure (5.4.3)"],["cqiA4","Stakeholders"],["cqiA5","Annexure H"],["cqiA6","Finish"]];
+  return `<div class="cqinav no-print"><span class="nav-lbl">Jump to</span>${items.map(([id,l])=>`<button onclick="cqiJump('${id}')">${l}</button>`).join("")}</div>`;
+}
+function subBar(tab){
+  const list = SUBSECTS[tab]; if(!list) return "";
+  const cur = subSect(tab);
+  return `<div class="subbar no-print">${list.map(([id,label])=>
+    `<button class="sub-btn ${id===cur?"active":""}" onclick="setSubSect('${tab}','${id}')">${label}</button>`).join("")}</div>`;
+}
 function renderTab(name){
   const map = { dashboard:renderDashboard, course:renderCourse, cos:renderCOs, tla:renderTLA, assess:renderAssess,
                 ca:renderCA, marks:renderMarks, attain:renderAttain, cqi:renderCQI, docs:renderDocs, data:renderData };
@@ -637,8 +794,8 @@ function renderDashboard(){
   if(!c){
     el.innerHTML = `<div class="card"><h2>Welcome</h2>
       <p class="hint">This app helps you manage a course from the OBE perspective: define Course Outcomes (COs), map them to Program Outcomes (POs), plan CO-based assessments, enter marks, and get CO/PO attainment automatically — ready for accreditation evidence (BAETE / Washington Accord).</p>
-      <p>Start by creating your first course.</p>
-      <div class="btn-row"><button class="btn" onclick="openNewCourse()">+ Create a Course</button>
+      <p>Start by adding your first course.</p>
+      <div class="btn-row"><button class="btn" onclick="openNewCourse()">+ Add a Course</button>
       <button class="btn secondary" onclick="loadSample()">Load Sample Course (demo)</button></div></div>`;
     return;
   }
@@ -655,11 +812,11 @@ function renderDashboard(){
     1: `Set the course details, cohort, credits and teacher(s), and the attainment thresholds (Target Pass Marks, KPI, Direct/Indirect weights).`,
     2: `Write the COs, choose the BT Domain (Cognitive / Affective / Psychomotor) and Level, and tick the CO–PO matrix against the 12 Washington Accord POs.`,
     3: `First fill out <b>Course Specifications Table 6.1</b> (CQI recommendations from the previous offering) so the recommender and AI prompts can use them, noting distilled actions in <b>Suggested Modifications in T&amp;L Activities</b> (named pool activities get boosted); then adopt activities per CO — they auto-fill <b>Course Specifications Table 3.1 (Constructive Alignment)</b>; review the T&amp;L Activities Summary Table (descriptions, practical tips, related COs).`,
-    4: `Start from the assessment-related CQI recommendations of the previous offering (the tab's CQI Inputs card + scoped AI prompt), noting them in <b>Suggested Modifications in Assessment Activities</b>; then plan quizzes/exams/labs/projects; tag every item with a CO, marks and Level (warning if set above the CO's level); untick Mandatory for choice questions — “answer any k of n” pools (⚙ Advanced for the scheme); tick “Rubric prepared” where required; review the Assessment Summary Table (marks-distribution chart + practical tips).`,
+    4: `Start from the assessment-related CQI recommendations of the previous offering (the Section's CQI Inputs card + scoped AI prompt), noting them in <b>Suggested Modifications in Assessment Activities</b>; then plan quizzes/exams/labs/projects; tag every item with a CO, marks and Level (warning if set above the CO's level); untick Mandatory for choice questions — “answer any k of n” pools (⚙ Advanced for the scheme); tick “Rubric prepared” where required; review the Assessment Summary Table (marks-distribution chart + practical tips).`,
     5: `Check the Biggs triangle and per-CO alignment cards; close gaps using the suggestions (one-click Adopt).`,
     6: `Add students or paste from Excel; enter marks in the grid or via CSV (Empty Template / Import / Export).`,
     7: `Direct CO/PO attainment is computed automatically (AUST method); add the Course Evaluation Survey for Indirect and the 80/20 (editable) Combined attainment.`,
-    8: `BAETE 3.8 &amp; 5.4.3 evidence, worked top to bottom: diagnose (low-attainment analysis), describe (3.8 narratives), decide (Report 6.1 actions), close (Specifications 6.1 closure) — each section has its own 📋 AI prompt in its heading; run them in that order. Also: stakeholder feedback register &amp; Annexure H checklist (incl. rubrics). Recording next semester's actions in Course Report 6.1 restarts the loop via “⟳ Duplicate for New Semester”. The full loop map is shown atop the CQI tab.`,
+    8: `BAETE 3.8 &amp; 5.4.3 evidence, worked top to bottom: diagnose (low-attainment analysis), describe (3.8 narratives), decide (Report 6.1 actions), close (Specifications 6.1 closure) — each section has its own 📋 AI prompt in its heading; run them in that order. Also: stakeholder feedback register &amp; Annexure H checklist (incl. rubrics). Recording next semester's actions in Course Report 6.1 restarts the loop via “⟳ Duplicate for New Semester”. The full loop map is shown atop the CQI Section.`,
     9: `Course Outline, Course Specifications, Final Exam Vetting Form, Direct CO-PO Calculations, Course Evaluation Survey, Course Report &amp; CQI Report — several key information are auto-filled and printable.`
   };
   const cqiStarted = !!(c.aust&&c.aust.cqi&&(c.aust.cqi.complex||c.aust.cqi.effective));
@@ -728,7 +885,7 @@ function toggleDashStep(n){
 }
 function duplicateForNewSemester(){
   const c = activeCourse(); if(!c) return;
-  if(!confirm("Create a copy of this course for a new semester?\n\nKept: COs, CO-PO mapping, T&L activities, learning resources, assessments, topics, settings — and the Course Report CQI actions are carried into the new Course Specifications (6.1).\nCleared: students, marks, survey tallies, actual hours, grades, report comments, the Suggested Modifications working boxes, and the CQI tab's narratives, low-attainment analyses, stakeholder register and evidence ticks.")) return;
+  if(!confirm("Prepare a copy of this course for a new semester?\n\nKept: COs, CO-PO mapping, T&L activities, learning resources, assessments, topics, settings — and the Course Report CQI actions are carried into the new Course Specifications (6.1).\nCleared: students, marks, survey tallies, actual hours, grades, report comments, the Suggested Modifications working boxes, and the CQI Section's narratives, low-attainment analyses, stakeholder register and evidence ticks.")) return;
   const n = ensureAust(JSON.parse(JSON.stringify(c)));
   n.id = uid();
   n.semester = "";
@@ -750,7 +907,7 @@ function duplicateForNewSemester(){
   state.courses.push(n);
   state.activeCourseId = n.id;
   save(); refresh();
-  toast("New-semester copy created — set the Semester in Course Info");
+  toast("New-semester copy ready — set the Semester in Course Info");
 }
 
 /* ============ Course Info ============ */
@@ -762,7 +919,7 @@ function openNewCourse(){
   state.courses.push(c);
   state.activeCourseId = c.id;
   save(); renderCourseSelect(); showTab("course");
-  toast("New course created — fill in the details");
+  toast("New course added — fill in the details");
 }
 function deleteCourse(){
   const c = activeCourse(); if(!c) return;
@@ -774,7 +931,7 @@ function deleteCourse(){
 function renderCourse(){
   const el = document.getElementById("tab-course");
   const c = activeCourse();
-  if(!c){ el.innerHTML = `<div class="empty">No course selected. Create one with <b>+ New Course</b>.</div>`; return; }
+  if(!c){ el.innerHTML = `<div class="empty">No course selected. Add one with <b>+ New Course</b>.</div>`; return; }
   el.innerHTML = `
   <div class="card">
     <h2>Course Information</h2>
@@ -788,7 +945,14 @@ function renderCourse(){
       <label class="fld">Section <input value="${esc(c.section)}" placeholder="e.g., A" onchange="setCourseField('section',this.value)"></label>
       <label class="fld">Cohort <input value="${esc(c.cohort)}" placeholder="e.g., ME17" onchange="setCourseField('cohort',this.value)"></label>
       <label class="fld">Course Teacher(s) <input value="${esc(c.instructor)}" placeholder="e.g., Prof. Dr. Mazharul Islam" onchange="setCourseField('instructor',this.value)"></label>
+      <label class="fld">OBE Framework
+        <select onchange="setFramework(this.value, this)" title="Version 2.2: the current 12 POs, no indicators. Version 3: the updated 12 POs (PO names differ from PO6 onward) with Performance Indicators (PO1a, PO1b, …)">
+          <option value="v2.2" ${fwV3(c)?"":"selected"}>Version 2.2 — 12 POs without Indicators</option>
+          <option value="v3" ${fwV3(c)?"selected":""}>Version 3 — updated 12 POs with indicators</option>
+        </select>
+      </label>
     </div>
+    ${fwV3(c)? `<p class="hint" style="margin-top:8px">Version 3 is active: the CO–PO matrix uses the updated PO names, and an optional <b>PO Indicators</b> editor (PO1a, PO1b, …) appears under the matrix in the COs Section.</p>`:""}
   </div>
   <div class="card">
     <h2>Attainment Settings (AUST Direct CO-PO Measurement)</h2>
@@ -804,13 +968,29 @@ function renderCourse(){
       <label class="fld">Weight of Direct measurement (%) <input type="number" min="0" max="100" value="${c.cfg.wDirect}" onchange="setCfgField('wDirect',this.value)"></label>
       <label class="fld">Weight of Indirect measurement (%) — auto <input type="number" value="${c.cfg.wIndirect}" disabled title="Always 100 − Direct, so the weights can never exceed 100%"></label>
     </div>
-    <p class="hint" style="margin-top:8px">Edits save automatically and apply immediately to the Attainment tab and all documents.</p>
+    <p class="hint" style="margin-top:8px">Edits save automatically and apply immediately to the Attainment Section and all documents.</p>
   </div>`;
 }
 function setCourseField(k, v){
   const c = activeCourse(); if(!c) return;
   c[k] = String(v).trim();
   save(); renderCourseSelect(); toast("Saved");
+}
+function setFramework(v, el){
+  const c = activeCourse(); if(!c) return;
+  if(v === c.aust.fw){ return; }
+  const anyMapped = c.cos.some(co=>Object.values(co.po||{}).some(x=>x>0));
+  if(anyMapped && !confirm(
+    `Switch this course to OBE Framework ${v==="v3"? "Version 3":"Version 2.2"}?\n\n`+
+    `Your CO–PO ticks are kept by NUMBER, but the MEANING of PO6–PO12 differs between the frameworks `+
+    `(e.g., PO8 is Ethics in v2.2 but Individual and Collaborative Teamwork in v3). `+
+    `Review the mapping matrix after switching.`)){
+    if(el) el.value = c.aust.fw;
+    return;
+  }
+  c.aust.fw = v;
+  if(v === "v3" && !c.aust.pis) c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  save(); renderCourse(); toast(v==="v3"? "Framework v3 — updated PO names and indicators active" : "Framework v2.2 — current PO names, no indicators");
 }
 function setCfgField(k, v){
   const c = activeCourse(); if(!c) return;
@@ -909,11 +1089,11 @@ function renderCOs(){
       <td style="white-space:nowrap">${Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>`<span class="badge blue">PO${p}</span>`).join(" ")||'<span class="badge grey">unmapped</span>'}</td>
       <td><button class="icon-btn" title="Delete CO" onclick="deleteCO('${co.id}')">✕</button></td>
     </tr>`;}).join("");
-  const mapHeader = Array.from({length:N_PO},(_,i)=>`<th class="map-cell" title="${esc(PO_INFO[i+1])}">PO${i+1}</th>`).join("");
+  const mapHeader = Array.from({length:N_PO},(_,i)=>`<th class="map-cell" title="${esc(poInfo(c,i+1))}">PO${i+1}</th>`).join("");
   const mapRows = c.cos.map((co,i)=>{
     const cells = Array.from({length:N_PO},(_,p)=>{
       const v = (co.po&&co.po[p+1])||0;
-      return `<td class="map-cell m${v?3:0}" title="Click to toggle (${esc(PO_INFO[p+1])})" onclick="togglePO('${co.id}',${p+1})">${v?"✓":"·"}</td>`;
+      return `<td class="map-cell m${v?3:0}" title="Click to toggle (${esc(poInfo(c,p+1))})" onclick="togglePO('${co.id}',${p+1})">${v?"✓":"·"}</td>`;
     }).join("");
     return `<tr><td style="white-space:nowrap"><b>CO${i+1}</b></td>${cells}</tr>`;
   }).join("");
@@ -934,9 +1114,101 @@ function renderCOs(){
       <thead><tr><th></th>${mapHeader}</tr></thead>
       <tbody>${mapRows || `<tr><td colspan="13" class="empty">Add COs first.</td></tr>`}</tbody>
     </table></div>
-    <span class="pill-note">PO1 Engineering Knowledge · PO2 Problem Analysis · PO3 Design/Development · PO4 Investigation · PO5 Modern Tool Usage · PO6 Engineer &amp; Society · PO7 Environment &amp; Sustainability · PO8 Ethics · PO9 Individual &amp; Team Work · PO10 Communication · PO11 Project Mgmt &amp; Finance · PO12 Life-long Learning</span>
-  </div>`;
+    <span class="pill-note">${Array.from({length:N_PO},(_,i)=>`PO${i+1} ${esc(poInfo(c,i+1))}`).join(" · ")}${fwV3(c)? ' <span class="badge blue" title="This course uses OBE Framework Version 3 (set in Course Info)">Framework v3</span>':''}</span>
+  </div>
+  ${piCard(c)}`;
   autoGrowAll("tab-cos");
+}
+/* ===== PO Indicators (Framework v3 only, documentary) ===== */
+function piCard(c){
+  if(!fwV3(c)) return "";
+  const pis = coursePIs(c);
+  const open = window._piOpen;
+  const anyTick = c.cos.some(co=>Object.values(co.pi||{}).some(arr=>Array.isArray(arr)&&arr.length));
+  if(!open) return `
+  <div class="card">
+    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">PO Indicators (optional) <button class="btn secondary small" onclick="window._piOpen=true;renderCOs()">▸ Show / edit</button></h2>
+    <p class="hint" style="margin:0">${anyTick? "Indicators are ticked for at least one CO — they print on the Course Specifications and Outline." : "Optionally record WHICH indicator(s) of a mapped PO each CO addresses (PO1a, PO1b, …). Purely documentary — attainment is unaffected."}</p>
+  </div>`;
+  const coBlocks = c.cos.map((co,i)=>{
+    const mapped = Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>+p).sort((a,b)=>a-b);
+    if(!mapped.length) return `<div style="margin:8px 0"><b>CO${i+1}</b> <span class="badge grey">map this CO to a PO first</span></div>`;
+    const rows = mapped.map(p=>{
+      const boxes = (pis[p]||[]).map((txt,k)=>{
+        const on = Array.isArray((co.pi||{})[p]) && co.pi[p].includes(k);
+        return `<label style="display:block;font-size:12.5px;margin:2px 0" title="${esc(txt)}">
+          <input type="checkbox" ${on?"checked":""} onchange="togglePI('${co.id}',${p},${k})"> <b>${piLabel(p,k)}</b> ${esc(txt.length>110? txt.slice(0,107)+"…" : txt)}</label>`;
+      }).join("");
+      return `<div style="margin:4px 0 8px 14px"><span class="badge blue" title="${esc(poInfo(c,p))}">PO${p}</span> ${esc(poInfo(c,p))}<div style="margin-top:3px">${boxes || '<span class="badge grey">no indicators defined for this PO</span>'}</div></div>`;
+    }).join("");
+    return `<div style="margin:10px 0;border-top:1px dashed var(--border);padding-top:8px"><b>CO${i+1}</b> <span style="font-size:12px;color:var(--muted)">${esc((co.statement||"").split("\n")[0].slice(0,80))}</span>${rows}</div>`;
+  }).join("");
+  return `
+  <div class="card">
+    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">PO Indicators (optional) <button class="btn secondary small" onclick="window._piOpen=false;renderCOs()">▾ Hide</button></h2>
+    <p class="hint">Tick the indicator(s) of each mapped PO that this CO addresses. Ticking an indicator also ticks its parent PO in the matrix; unticking a PO clears its indicators. Documentary only — no calculation uses these. Ticked indicators print on the Course Specifications and the Course Outline.</p>
+    ${coBlocks || '<div class="empty">Add COs first.</div>'}
+    <div class="btn-row">
+      <button class="btn secondary small" onclick="window._piEdit=!window._piEdit;renderCOs()">${window._piEdit? "▾ Close list editor":"✎ Edit this course's indicator list"}</button>
+      <button class="btn secondary small" onclick="resetPIs()" title="Restores the official 46-indicator list for this course (ticked indicators whose position survives are kept)">⟲ Reset to official list</button>
+    </div>
+    ${window._piEdit? Array.from({length:N_PO},(_,q)=>{ const p=q+1; return `
+      <div style="margin:8px 0"><b>PO${p}</b> <span style="font-size:12px;color:var(--muted)">${esc(poInfo(c,p))}</span>
+        ${(pis[p]||[]).map((txt,k)=>`<div style="display:flex;gap:6px;align-items:flex-start;margin:3px 0">
+          <span class="badge blue" style="margin-top:6px">${piLabel(p,k)}</span>
+          <textarea class="di" rows="1" style="flex:1;overflow-y:hidden" oninput="autoGrowTA(this)" onchange="editPI(${p},${k},this.value)">${esc(txt)}</textarea>
+          <button class="icon-btn" title="Delete this indicator (later letters shift up; CO ticks are re-pointed)" onclick="delPI(${p},${k})">✕</button></div>`).join("")}
+        <button class="btn secondary small" style="margin-top:2px" onclick="addPI(${p})">+ Add indicator to PO${p}</button>
+      </div>`;}).join("") : ""}
+  </div>`;
+}
+function togglePI(coId, p, k){
+  const c = activeCourse(); if(!c) return;
+  const co = c.cos.find(x=>x.id===coId); if(!co) return;
+  if(!co.pi) co.pi = {};
+  if(!Array.isArray(co.pi[p])) co.pi[p] = [];
+  const i = co.pi[p].indexOf(k);
+  if(i>=0){ co.pi[p].splice(i,1); if(!co.pi[p].length) delete co.pi[p]; }
+  else { co.pi[p].push(k); co.pi[p].sort((a,b)=>a-b);
+         if(!co.po) co.po = {}; co.po[p] = 1; }   // an indicator implies its parent PO
+  save(); renderCOs();
+}
+function editPI(p, k, val){
+  const c = activeCourse(); if(!c) return;
+  const pis = coursePIs(c);
+  if(pis[p] && pis[p][k]!==undefined){ pis[p][k] = String(val).trim(); save(); toast("Saved"); }
+}
+function addPI(p){
+  const c = activeCourse(); if(!c) return;
+  const pis = coursePIs(c);
+  if(!Array.isArray(pis[p])) pis[p] = [];
+  pis[p].push("");
+  save(); renderCOs();
+}
+function delPI(p, k){
+  const c = activeCourse(); if(!c) return;
+  const pis = coursePIs(c);
+  const used = c.cos.filter(co=>Array.isArray((co.pi||{})[p]) && co.pi[p].includes(k)).length;
+  if(!confirm(`Delete indicator ${piLabel(p,k)}?${used? `\n\nIt is ticked for ${used} CO(s); those ticks will be removed. Later letters shift up (ticks on them are re-pointed).`:" Later letters shift up."}`)) return;
+  pis[p].splice(k,1);
+  c.cos.forEach(co=>{
+    const arr = (co.pi||{})[p]; if(!Array.isArray(arr)) return;
+    co.pi[p] = arr.filter(x=>x!==k).map(x=> x>k? x-1 : x);
+    if(!co.pi[p].length) delete co.pi[p];
+  });
+  save(); renderCOs();
+}
+function resetPIs(){
+  const c = activeCourse(); if(!c) return;
+  if(!confirm("Replace this course's indicator list with the official 46-indicator list?\n\nTicks whose position exists in the official list are kept; ticks beyond it are dropped.")) return;
+  c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  c.cos.forEach(co=>{
+    Object.keys(co.pi||{}).forEach(p=>{
+      co.pi[p] = (co.pi[p]||[]).filter(k=> k < (PO_PI_V3[p]||[]).length);
+      if(!co.pi[p].length) delete co.pi[p];
+    });
+  });
+  save(); renderCOs(); toast("Official indicator list restored");
 }
 function addCO(){
   const c = activeCourse(); if(!c) return;
@@ -960,7 +1232,7 @@ function togglePO(coId, po){
   const c = activeCourse(); if(!c) return;
   const co = c.cos.find(x=>x.id===coId); if(!co) return;
   if(!co.po) co.po = {};
-  if(co.po[po]) delete co.po[po];
+  if(co.po[po]){ delete co.po[po]; if(co.pi && co.pi[po]) delete co.pi[po]; }   // unticking a PO clears its indicators
   else co.po[po] = 1;
   save(); renderCOs();
 }
@@ -1060,8 +1332,8 @@ function cqiTexts(c){
   if(c.aust.tlaSuggest) bits.push(c.aust.tlaSuggest);   // "Suggested Modifications in T&L Activities" box boosts matching pool activities
   return bits;
 }
-/* Working-notes card under the CQI Inputs card (T&L and Assessments tabs).
-   Full-width, 10 visible rows, auto-growing beyond; hosts the tab's scoped AI-prompt button. */
+/* Working-notes card under the CQI Inputs card (T&L and Assessments Sections).
+   Full-width, 10 visible rows, auto-growing beyond; hosts the Section's scoped AI-prompt button. */
 function autoGrowTA(ta){
   if(!ta || !ta.style) return;
   ta.style.height = "auto";
@@ -1073,12 +1345,12 @@ function suggestBox(c, tab){
   const field = isTla? "tlaSuggest" : "assessSuggest";
   const val = c.aust[field] || "";
   const aiBtn = isTla
-    ? `<button class="btn secondary small" onclick="copyTlaAIPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the T&amp;L-related suggestions, expressed as activities adoptable in this tab">📋 Copy AI Prompt (T&amp;L suggestions only)</button>`
-    : `<button class="btn secondary small" onclick="copyAssessSuggestPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the assessment-related suggestions, expressed as actions doable in this tab">📋 Copy AI Prompt (assessment suggestions only)</button>`;
+    ? `<button class="btn secondary small" onclick="copyTlaAIPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the T&amp;L-related suggestions, expressed as activities adoptable in this Section">📋 Copy AI Prompt (T&amp;L suggestions only)</button>`
+    : `<button class="btn secondary small" onclick="copyAssessSuggestPrompt()" title="Builds a prompt from the Specifications 6.1 recommendations that asks an AI tool for ONLY the assessment-related suggestions, expressed as actions doable in this Section">📋 Copy AI Prompt (assessment suggestions only)</button>`;
   return `
   <div class="card">
     <h2>Suggested Modifications in ${isTla? "T&amp;L" : "Assessment"} Activities</h2>
-    <p class="hint">Working notes for this offering — copy the AI prompt below, paste the AI's distilled suggestions here, and act on them further down.${isTla? " Pool activities named here are <b>boosted</b> in the recommendations (green “CQI match” badge)." : ""} Once implemented, record the closure in Course Specifications 6.1 (“Actions reflected” — the CQI tab's AI prompt drafts it from these notes as task item 6). Not printed in any document; kept in backups.</p>
+    <p class="hint">Working notes for this offering — copy the AI prompt below, paste the AI's distilled suggestions here, and act on them further down.${isTla? " Pool activities named here are <b>boosted</b> in the recommendations (green “CQI match” badge)." : ""} Once implemented, record the closure in Course Specifications 6.1 (“Actions reflected” — the CQI Section's AI prompt drafts it from these notes as task item 6). Not printed in any document; kept in backups.</p>
     <div class="btn-row" style="margin:0 0 8px">${aiBtn}</div>
     <textarea class="di" id="sug_${field}" rows="5" style="width:100%;overflow-y:hidden;resize:vertical" placeholder="${isTla? "e.g., Adopt Think-pair-share for CO1; drop the ineffective seminar for CO3; add simulation-based activities for CO4…" : "e.g., Add a rubric-graded design item for CO5; make Q2–Q7 parallel in difficulty; return quiz feedback within one week…"}" oninput="autoGrowTA(this)" onchange="austSet('${field}',this.value)${isTla? ";renderTLA()":""}">${esc(val)}</textarea>
   </div>`;
@@ -1404,7 +1676,7 @@ function resourcePoolCard(){
   return `
   <div class="card">
     <h2>T&amp;L Resource Pool (${resPool().length})</h2>
-    <p class="hint">Curated resource <b>kinds</b> from the engineering-education perspective, most common first — used by the T&amp;L tab's Learning Resources register: picking a pool name there (autocomplete) prefills the Type and a practical tip; you then add your own link and CO tags. Custom entries are stored with your data and included in JSON backups, so a department can share a common pool.</p>
+    <p class="hint">Curated resource <b>kinds</b> from the engineering-education perspective, most common first — used by the T&amp;L Section's Learning Resources register: picking a pool name there (autocomplete) prefills the Type and a practical tip; you then add your own link and CO tags. Custom entries are stored with your data and included in JSON backups, so a department can share a common pool.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:200px">Resource</th><th style="width:140px">Category</th><th>Description</th><th style="width:220px">Justification</th><th style="width:200px">Practical tip</th><th style="width:180px">Pairs with</th><th style="width:36px"></th></tr></thead>
       <tbody>${rows}</tbody></table></div>
@@ -1421,7 +1693,7 @@ function resourcePoolCard(){
     <div class="btn-row"><button class="btn" onclick="addCustomRes()">+ Add to Pool</button></div>
   </div>`;
 }
-/* T&L Activity Pool management card — lives in the Data & Backup tab (the pool travels in JSON backups). */
+/* T&L Activity Pool management card — lives in the Data & Backup Section (the pool travels in JSON backups). */
 function activityPoolCard(){
   const poolRows = tlaPool().map((a,i)=>`
     <tr><td><b>${esc(a.n)}</b>${a.custom? ' <span class="badge blue">custom</span>':''}</td>
@@ -1432,7 +1704,7 @@ function activityPoolCard(){
   return `
   <div class="card">
     <h2>T&amp;L Activity Pool (${tlaPool().length})</h2>
-    <p class="hint">Built-in pedagogy pool plus your own additions — used by the T&amp;L tab's recommendations, autocomplete and summary-table tips. Custom activities are stored with your data and included in JSON backups, so a department can share a common pool.</p>
+    <p class="hint">Built-in pedagogy pool plus your own additions — used by the T&amp;L Section's recommendations, autocomplete and summary-table tips. Custom activities are stored with your data and included in JSON backups, so a department can share a common pool.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:220px">Activity</th><th>Description</th><th style="width:110px">Bloom's</th><th style="width:120px">Mode / Size</th><th style="width:36px"></th></tr></thead>
       <tbody>${poolRows}</tbody></table></div>
@@ -1548,10 +1820,9 @@ function renderTLA(){
       <thead><tr><th style="width:200px">T&amp;L Activity</th><th>Brief Descriptions</th><th>Practical Tips</th><th style="width:100px">Related CO</th></tr></thead>
       <tbody>${sumRows}</tbody></table></div>` : `<p class="hint">No activities adopted yet — use “+ Adopt” in the recommendations above, or “Add your own activity”.</p>`}
   </div>`;
-  el.innerHTML = `
+  const planGroup = `
   ${cqiCard}
   ${suggestBox(c, "tla")}
-  <datalist id="tlaPoolList">${tlaPool().map(a=>`<option value="${esc(a.n)}">`).join("")}</datalist>
   <div class="card">
     <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Recommendations per CO <button class="btn secondary small" onclick="togglePoolBrowser()">${window._poolOpen? "▾ Hide" : "▸ Browse"} the full T&amp;L Activity Pool (${tlaPool().length})</button></h2>
     ${window._poolOpen? `
@@ -1571,12 +1842,15 @@ function renderTLA(){
       <label class="fld">Class size <select onchange="window._tlaSize=this.value;renderTLA()">${["Any","Small","Large"].map(m=>`<option ${m===size?"selected":""}>${m}</option>`).join("")}</select></label>
     </div>
   </div>
-  ${coCards || '<div class="empty">Define COs first (COs &amp; CO–PO Mapping tab).</div>'}
-  ${learnResCard(c)}
-  ${topicPlanCard(c)}
-  ${resSummaryCard}
-  <datalist id="lrTitleList">${c.aust.learnRes.filter(r=>(r.title||"").trim()).map(r=>`<option value="${esc(r.title)}">`).join("")}</datalist>
-  ${tlaSummaryCard}`;
+  ${coCards || '<div class="empty">Define COs first (COs &amp; CO–PO Mapping Section).</div>'}`;
+  const sec = subSect("tla");
+  el.innerHTML = subBar("tla")
+    + `<datalist id="tlaPoolList">${tlaPool().map(a=>`<option value="${esc(a.n)}">`).join("")}</datalist>`
+    + `<datalist id="lrTitleList">${c.aust.learnRes.filter(r=>(r.title||"").trim()).map(r=>`<option value="${esc(r.title)}">`).join("")}</datalist>`
+    + ( sec==="resources"? learnResCard(c) + resSummaryCard
+      : sec==="topics"?    topicPlanCard(c)
+      : sec==="summary"?   tlaSummaryCard
+      : planGroup );
   autoGrowAll("tab-tla");
 }
 function togglePoolBrowser(){
@@ -1742,7 +2016,7 @@ function caCoData(c){
 function caSuggestions(c, d){
   const s = [];
   if(!d.coItems.length)
-    s.push({t:"No assessment item measures this CO — add at least one item in the Assessments tab."});
+    s.push({t:"No assessment item measures this CO — add at least one item in the Assessments Section."});
   if(d.exceeds.length)
     s.push({t:"Item(s) exceed the CO's declared level: "+d.exceeds.map(it=>`${it.aName} ${it.label} (${itemLevelTag(it,d.co)})`).join(", ")+" — reword/split the item(s), or raise the CO's level if the higher demand is intended."});
   if(d.allOptional)
@@ -1859,7 +2133,7 @@ function renderCA(){
   ensureAust(c);
   if(!c.cos.length){
     el.innerHTML = `<div class="card"><h2>Constructive Alignment (CA)</h2>
-      <p class="hint">Define your Course Outcomes first (COs &amp; CO–PO Mapping tab) — CA then visualises how your COs, T&amp;L activities and assessments align (Biggs, 2003).</p></div>`;
+      <p class="hint">Define your Course Outcomes first (COs &amp; CO–PO Mapping Section) — CA then visualises how your COs, T&amp;L activities and assessments align (Biggs, 2003).</p></div>`;
     return;
   }
   const data = caCoData(c);
@@ -1887,9 +2161,9 @@ function renderCA(){
       </div>
       <p style="font-size:13px;margin:6px 0 12px">${esc(d.co.statement)||"<i>(no statement)</i>"}</p>
       <div style="display:grid;grid-template-columns:1fr minmax(230px,300px) 1fr;gap:14px;align-items:center">
-        <div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">T&amp;L ACTIVITIES <span style="font-weight:400">(⛓ T&amp;L tab)</span></p>${tlaChips}</div>
+        <div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">T&amp;L ACTIVITIES <span style="font-weight:400">(⛓ T&amp;L Section)</span></p>${tlaChips}</div>
         <div>${caMiniTriangle(d)}</div>
-        <div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">ASSESSMENT ITEMS <span style="font-weight:400">(⛓ Assessments tab)</span></p>${itemChips}</div>
+        <div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:4px">ASSESSMENT ITEMS <span style="font-weight:400">(⛓ Assessments Section)</span></p>${itemChips}</div>
       </div>
       ${sugg.length? `<div style="border-top:1px dashed var(--border);margin-top:12px;padding-top:10px">
         <p style="font-size:12.5px;font-weight:700;color:var(--primary-dark);margin-bottom:6px">Suggestions for proper CA</p>
@@ -1900,7 +2174,7 @@ function renderCA(){
   el.innerHTML = `
   <div class="card">
     <h2>Constructive Alignment (CA)</h2>
-    <p class="hint">"In constructive alignment, we start with the outcomes we intend students to learn, and align teaching and assessment to those outcomes" (Biggs). The triangle below summarises the whole course: each edge is colored by the actual state — green when every CO is aligned on that edge, amber when partially, red when gaps exist. Below it, <b>each CO card repeats the triangle for that CO alone</b> — live from its own adopted activities (⛓ T&amp;L tab) and assessment items (⛓ Assessments tab) — with the CO statement, Bloom's domain &amp; level, and suggestions.</p>
+    <p class="hint">"In constructive alignment, we start with the outcomes we intend students to learn, and align teaching and assessment to those outcomes" (Biggs). The triangle below summarises the whole course: each edge is colored by the actual state — green when every CO is aligned on that edge, amber when partially, red when gaps exist. Below it, <b>each CO card repeats the triangle for that CO alone</b> — live from its own adopted activities (⛓ T&amp;L Section) and assessment items (⛓ Assessments Section) — with the CO statement, Bloom's domain &amp; level, and suggestions.</p>
     ${caTriangle(leftAll, rightAll, baseAll)}
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:6px">
       KSA = Knowledge, Skills, Attitudes · <span class="badge green">Aligned</span> <span class="badge amber">Partially aligned</span> <span class="badge red">Not aligned</span> · Activity chips: <span class="badge green">verified fit</span> <span class="badge amber">level mismatch</span> <span class="badge grey">unverified free-text</span> · Items: † choice question, ↑ exceeds CO level
@@ -1988,16 +2262,19 @@ function renderAssess(){
       <div class="btn-row"><button class="btn secondary small" onclick="addItem('${a.id}')">+ Add Item</button></div>
     </div>`;
   }).join("");
-  el.innerHTML = `
+  const planGroup = `
   ${cqiInputsCard(c, "assess")}
   ${suggestBox(c, "assess")}
   <div class="card">
     <h2>Assessment Plan</h2>
-    <p class="hint">Create assessments (quizzes, exams, labs...) and break each into items/questions, each tagged with a CO, maximum marks, and a Mandatory tick (untick for questions the students may choose to skip). Exams offering a choice of questions can be configured further under <b>⚙ Advanced (question choice)</b> — most courses never need it. The <b>Class Performance</b> type is special: no questions — set its total (typically 10), tick the COs it covers and the marks split equally among them; you enter one CP mark per student. Edits save automatically.</p>
+    <p class="hint">Set up assessments (quizzes, exams, labs...) and break each into items/questions, each tagged with a CO, maximum marks, and a Mandatory tick (untick for questions the students may choose to skip). Exams offering a choice of questions can be configured further under <b>⚙ Advanced (question choice)</b> — most courses never need it. The <b>Class Performance</b> type is special: no questions — set its total (typically 10), tick the COs it covers and the marks split equally among them; you enter one CP mark per student. Edits save automatically.</p>
     <div class="btn-row" style="margin-top:0"><button class="btn" onclick="addAssessment()">+ Add Assessment</button></div>
   </div>
-  ${blocks || '<div class="empty">No assessments yet.</div>'}
-  ${assessSummaryCard(c)}`;
+  ${blocks || '<div class="empty">No assessments yet.</div>'}`;
+  const sec = subSect("assess");
+  el.innerHTML = subBar("assess") + ( sec==="summary"
+    ? (assessSummaryCard(c) || '<div class="empty">No assessment items yet — set them up in the Assessment Plan sub-section.</div>')
+    : planGroup );
   drawMarksShareChart(c);
   autoGrowAll("tab-assess");
 }
@@ -2025,7 +2302,7 @@ function assessSummaryCard(c){
   return `
   <div class="card">
     <h2>Assessment Summary Table</h2>
-    <p class="hint">Where each CO is assessed and how the total marks are distributed across COs — with practical tips on authentic, rubric-based assessment generated from the assessment types and the CO's level (background and references: Faculty Manual, <i>Authentic assessment &amp; rubrics</i>). † choice question, ↑ exceeds the CO's declared level; alignment analysis is in the CA tab.</p>
+    <p class="hint">Where each CO is assessed and how the total marks are distributed across COs — with practical tips on authentic, rubric-based assessment generated from the assessment types and the CO's level (background and references: Faculty Manual, <i>Authentic assessment &amp; rubrics</i>). † choice question, ↑ exceeds the CO's declared level; alignment analysis is in the CA Section.</p>
     <div style="max-width:820px;height:118px;margin:0 auto"><canvas id="marksShareChart"></canvas></div>
     <div class="tbl-wrap" style="margin-top:10px"><table class="tbl">
       <thead><tr><th style="width:58px">CO</th><th>Selected Assessments</th><th style="width:110px">% of Total Marks</th><th style="width:320px">Practical Tips</th></tr></thead>
@@ -2303,7 +2580,7 @@ function renderMarks(){
   </div>
   <div class="card">
     <h2>Marks Entry</h2>
-    <p class="hint">${items.length? "Enter marks per item. Cells save automatically. Leave a cell blank when the student did not attempt the item: on a mandatory item a blank counts as 0, while on a choice question (marked †) the student is not penalized — the item is simply excluded from that student's CO calculation. A <b>Class Performance</b> assessment shows a single CP column: enter one mark per student and it is split equally across the CP's ticked COs." : "Define assessment items first (Assessments tab)."}</p>
+    <p class="hint">${items.length? "Enter marks per item. Cells save automatically. Leave a cell blank when the student did not attempt the item: on a mandatory item a blank counts as 0, while on a choice question (marked †) the student is not penalized — the item is simply excluded from that student's CO calculation. A <b>Class Performance</b> assessment shows a single CP column: enter one mark per student and it is split equally across the CP's ticked COs." : "Define assessment items first (Assessments Section)."}</p>
     ${items.length && c.students.length ? `
     <div class="tbl-wrap marks-wrap"><table class="tbl">
       <thead>
@@ -2662,7 +2939,7 @@ function computeAttainment(c){
         avg = assessed.reduce((a,b)=>a+b,0)/assessed.length;
       }
     }
-    pos.push({ po:p, name:PO_INFO[p], contrib, pct:pctPass, pctKPI, avgScorePct:avg,
+    pos.push({ po:p, name:poInfo(c,p), contrib, pct:pctPass, pctKPI, avgScorePct:avg,
                attained: pctPass!==null && pctPass>=c.cfg.kpiTarget });
   }
   return { cos, pos };
@@ -2831,7 +3108,7 @@ function applySurveyCSV(text){
 }
 function exportSurveyTemplateCSV(){
   const c = activeCourse(); if(!c) return;
-  if(!c.cos.length){ toast("Define your COs first (COs & CO–PO Mapping tab)"); return; }
+  if(!c.cos.length){ toast("Define your COs first (COs & CO–PO Mapping Section)"); return; }
   ensureAust(c);
   const s = c.aust.survey;
   const head = ["Timestamp", ...c.cos.map((co,i)=>`CO${i+1}: ${co.statement||""}`),
@@ -2878,7 +3155,7 @@ function renderAttain(){
       <td style="text-align:center">${p.pctKPI===null?"—":p.pctKPI.toFixed(1)+"%"}</td>
       <td>${badgeFor(c, p.pct, p.attained)}</td>
     </tr>`).join("");
-  el.innerHTML = `
+  const coCard = `
   <div class="card">
     <h2>CO Attainment — Direct Measurement (AUST method)</h2>
     <p class="hint">Student CO score = % obtained of the marks assessed under that CO. A blank mark on a <b>mandatory</b> item counts as 0; a blank on a <b>choice question</b> (unticked Mandatory in the Assessment Plan) means the student legitimately skipped it and is excluded from that student's calculation — no penalty. Sub-parts of one choice question can share a <b>Group</b> in the Assessment Plan: attempting any part engages the whole question for that student, so unanswered parts count as 0 (partial answers to a chosen question are penalized). If an assessment declares a <b>choice scheme</b> ("answer k of the choice questions") and a student attempts fewer than k, the unattempted questions with the highest marks are counted as zeros for the shortfall; a student with no marks in that assessment is treated as absent from it and excluded. Students with no assessed marks under a CO are excluded from its cohort (n). A CO is attained when the % of assessed students above the Target Pass Marks (${c.cfg.passMarks}) reaches the Target KPI (${c.cfg.kpiTarget}%). Thresholds are editable in Course Info.</p>
@@ -2887,8 +3164,9 @@ function renderAttain(){
       <tbody>${coRows || '<tr><td colspan="9" class="empty">No COs defined.</td></tr>'}</tbody>
     </table></div>
     <div class="chart-box"><canvas id="coChart" height="110"></canvas></div>
-    <div class="btn-row no-print"><button class="btn secondary small" onclick="showTab('cqi')">🔍 Filter low-attaining students &amp; analyze causes (CQI tab)</button></div>
-  </div>
+    <div class="btn-row no-print"><button class="btn secondary small" onclick="showTab('cqi')">🔍 Filter low-attaining students &amp; analyze causes (CQI Section)</button></div>
+  </div>`;
+  const poCard = `
   <div class="card">
     <h2>PO Attainment — Direct Measurement (course contribution)</h2>
     <p class="hint">Student PO score = average of the student's CO scores mapped to the PO, weighted by each CO's allocated marks (same as the AUST Direct CO-PO Calculations workbook).</p>
@@ -2897,11 +3175,15 @@ function renderAttain(){
       <tbody>${poRows || '<tr><td colspan="6" class="empty">Map COs to POs to see PO attainment.</td></tr>'}</tbody>
     </table></div>
     <div class="chart-box"><canvas id="poChart" height="110"></canvas></div>
-  </div>
-  ${indirectCards(c, att)}`;
+  </div>`;
+  const sec = subSect("attain");
+  el.innerHTML = subBar("attain") + (
+    sec==="dpo"? poCard :
+    sec==="survey"? indirectCards(c, att, "survey") :
+    sec==="combined"? indirectCards(c, att, "combined") : coCard);
   drawCharts(c, att);
 }
-function indirectCards(c, att){
+function indirectCards(c, att, only){
   const ind = computeIndirect(c);
   const comb = combineAtt(c, att, ind);
   const tallyRows = c.cos.map((co,i)=>{
@@ -2927,7 +3209,7 @@ function indirectCards(c, att){
       <td style="text-align:center">${x.indirect===null?"—":x.indirect.toFixed(1)+"%"}</td>
       <td style="text-align:center"><b>${x.pct===null?"—":x.pct.toFixed(1)+"%"}</b></td>
       <td>${badgeFor(c, x.pct, x.attained)}</td></tr>`).join("");
-  return `
+  const surveyCard = `
   <div class="card">
     <h2>Indirect Measurement — Course Evaluation Survey</h2>
     <p class="hint">(The “CO exit survey” — indirect CO measurement.) Students rate each CO on a 5-point Likert scale (5 = Strongly Agree … 1 = Strongly Disagree) at the end of the semester. Enter the count of responses per rating below, or import a survey CSV — download the template and fill it in Excel (one row per respondent, ratings 1–5), or use a Google Forms export (one column per CO — headers containing CO1, CO2, …). Indirect attainment = % of responses rated ≥ ${c.cfg.likertPass}. A printable survey form is available under <b>Accreditation Documents → Course Evaluation Survey</b>.</p>
@@ -2963,7 +3245,7 @@ function indirectCards(c, att){
     ${s.resFbOn? (regRes.length? `<p class="hint" style="margin-bottom:4px">One item per registered Learning Resource (“This resource supported my learning”) — real usage evidence for keeping, revising or dropping resources.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>Resource</th><th style="width:64px">5</th><th style="width:64px">4</th><th style="width:64px">3</th><th style="width:64px">2</th><th style="width:64px">1</th><th style="width:56px">n</th><th style="width:64px">Avg</th><th style="width:70px">% ≥ 4</th></tr></thead>
-      <tbody>${resRows}</tbody></table></div>` : '<p class="hint">No resources registered yet (T&L tab → Learning Resources shared with students).</p>') : ""}`;
+      <tbody>${resRows}</tbody></table></div>` : '<p class="hint">No resources registered yet (T&L Section → Learning Resources shared with students).</p>') : ""}`;
     })()}
     <div class="btn-row">
       <button class="btn secondary" onclick="exportSurveyTemplateCSV()">⬇ Download Survey CSV Template</button>
@@ -2971,7 +3253,8 @@ function indirectCards(c, att){
       <button class="btn secondary" onclick="showDoc('survey');showTab('docs')">🖨 Printable Survey Form</button>
       <button class="btn danger small" onclick="clearSurvey()">Clear Tallies</button>
     </div>
-  </div>
+  </div>`;
+  const combinedCard = `
   <div class="card">
     <h2>Combined Attainment</h2>
     <p class="hint">Weighted combination of direct (marks-based) and indirect (survey-based) measurements. If one component has no data, the other is used alone. Set the Direct weight here (same setting as Course Info → Attainment Settings); the Indirect weight is always 100 − Direct, so the pair can never exceed 100%.</p>
@@ -2988,6 +3271,7 @@ function indirectCards(c, att){
       <tbody>${combPoRows || '<tr><td colspan="5" class="empty">—</td></tr>'}</tbody></table></div>
     </div>
   </div>`;
+  return only==="survey"? surveyCard : only==="combined"? combinedCard : surveyCard + combinedCard;
 }
 function drawCharts(c, att){
   if(typeof Chart === "undefined") return;
@@ -3072,7 +3356,7 @@ function buildAIContext(c){
   if(mappedPOs.length){
     L.push("");
     L.push("== MAPPED PROGRAM OUTCOMES (Washington Accord) ==");
-    L.push(mappedPOs.map(p=>`PO${p} ${PO_INFO[p]}`).join(" · "));
+    L.push(mappedPOs.map(p=>`PO${p} ${poInfo(c,p)}`).join(" · "));
   }
   if(c.assessments.length){
     L.push("");
@@ -3189,7 +3473,7 @@ function aiFeedbackLines(c){
   fbd.res.filter(x=>x.n>0).forEach(x=>out.push(`- ${x.label} → n=${x.n}, avg ${x.avg.toFixed(2)}/5, ${x.pct.toFixed(0)}% rated ≥4`));
   return out;
 }
-/* Recorded low-attainment analyses (CQI tab) — chained into the later prompts */
+/* Recorded low-attainment analyses (CQI Section) — chained into the later prompts */
 function aiLowAnalysisLines(c){
   const out = [];
   c.cos.forEach((co,i)=>{
@@ -3246,7 +3530,7 @@ function buildNarrativesPrompt(c){
   L.push(`2. "Why these methods and tools are effective and appropriate" — 3-6 sentences citing the attainment results${ind.n>0? ", the survey findings":""}${effBits.length? " and the recorded TLA effectiveness":""}; be honest about the not-attained CO(s)${failing.length? " ("+failing.join(", ")+")":""}${low.length? "; engage critically with the recorded low-attainment analyses above — acknowledge the diagnosed causes and state the response, do not gloss over them":""}${aiResourceLines(c).length? "; where the learning resources listed above supported a method, cite them as delivery evidence":""}.`);
   L.push(`3. "Process of designing and selecting assessment tools" — 3-5 sentences describing the CO-mapped, Bloom-levelled item design, the rubric practice (see the assessment plan) and the question-choice structure where applicable.`);
   L.push(`4. "Question moderation / vetting process" — 2-4 sentences based on the vetting information provided; if none is recorded above, describe the intended process cautiously and note that the signed Vetting Form is the evidence.`);
-  L.push("Each block will be pasted verbatim into the CQI tab's narrative boxes (and printed verbatim in the CQI Report). Output the four labelled blocks and nothing else — action plans are drafted by a separate prompt.");
+  L.push("Each block will be pasted verbatim into the CQI Section's narrative boxes (and printed verbatim in the CQI Report). Output the four labelled blocks and nothing else — action plans are drafted by a separate prompt.");
   aiConstraints(L);
   return L.join("\n");
 }
@@ -3314,7 +3598,7 @@ function copyAIFallback(txt, done){
   try{ document.execCommand("copy"); done(); }catch(e){ alert("Copy failed — please copy manually:\n\n"+txt.slice(0,500)+"…"); }
   ta.remove();
 }
-/* Scoped AI prompts: T&L-only (T&L tab) and assessment-only (Assessments tab),
+/* Scoped AI prompts: T&L-only (T&L Section) and assessment-only (Assessments Section),
    both built from the five "Recommended Actions for Quality Improvement" cells of Specifications 6.1. */
 const CQI_SRC_LABELS = ["CO loop — Direct Measurement","CO loop — Indirect Measurement (survey)","PO loop — Direct Measurement","PO loop — Indirect Measurement (survey)","PEO loop — Indirect Measurement (survey)"];
 function specRecList(c){
@@ -3359,9 +3643,9 @@ function aiAssessContext(c){
 const AI_TLA_TASK = "T&L: for each CO touched by the recommendations, list the activities to adopt (exact pool names where possible) or drop, each with a one-line classroom tip. If a suggestion maps to no pool activity, propose it as a new custom activity with a short, reusable name. JUSTIFY every suggestion in one sentence: why it fits the CO's Bloom domain/level, which recommendation it addresses, and why it is feasible for the stated class size.";
 const AI_ASSESS_TASK = "Assessment: for each CO touched by the recommendations, state which assessments/items to add or adjust — type, item Bloom level, mandatory vs choice questions and the answer-k-of-n setup, question design; rubric actions (analytic rubrics shared in advance; mandatory for assignments plus a similarity check such as Turnitin); and marks-distribution changes across COs. JUSTIFY every suggestion in one sentence: how it improves validity, reliability or authenticity at that CO's level, and which recommendation it addresses.";
 const AI_COMMON_RULES = ["- Be concise; group the output by CO number.","- On choice questions (answer k of n), read low attempt rates as topic/question avoidance (a perceived-difficulty signal), never as disengagement.","- Suggestions must be feasible for the stated class size within a regular semester.","- Keep each justification to a single sentence — I may reuse them in the CQI narratives."];
-const AI_TLA_IMPL = "- I will adopt T&L suggestions in the app's T&L tab (+ Adopt buttons, or typed with pool-name autocomplete).";
-const AI_ASSESS_IMPL = "- I will implement assessment suggestions in the app's Assessments tab (items with CO/marks/Level, Mandatory ticks, ⚙ question choice, “Rubric prepared”).";
-/* Lens-scoped low-attainment findings (⛓ CQI tab, Step 1) for the two scoped prompts */
+const AI_TLA_IMPL = "- I will adopt T&L suggestions in the app's T&L Section (+ Adopt buttons, or typed with pool-name autocomplete).";
+const AI_ASSESS_IMPL = "- I will implement assessment suggestions in the app's Assessments Section (items with CO/marks/Level, Mandatory ticks, ⚙ question choice, “Rubric prepared”).";
+/* Lens-scoped low-attainment findings (⛓ CQI Section, Step 1) for the two scoped prompts */
 function aiLowLensBlock(c, lens){
   const out = [];
   c.cos.forEach((co,i)=>{
@@ -3373,7 +3657,7 @@ function aiLowLensBlock(c, lens){
     if(bits.length) out.push(`CO${i+1}: ${bits.join(" | ")}`);
   });
   if(!out.length) return [];
-  return [`== RECORDED LOW-ATTAINMENT FINDINGS (${lens==="tla"? "w.r.t. T&L activities":"w.r.t. assessment techniques"} — from the CQI tab's Low Attainment Analysis) ==`, ...out, ""];
+  return [`== RECORDED LOW-ATTAINMENT FINDINGS (${lens==="tla"? "w.r.t. T&L activities":"w.r.t. assessment techniques"} — from the CQI Section's Low Attainment Analysis) ==`, ...out, ""];
 }
 function buildTlaAIPrompt(c){
   const lowBlock = aiLowLensBlock(c, "tla");
@@ -3417,7 +3701,7 @@ function copyScopedPrompt(builder){
   const c = activeCourse(); if(!c) return;
   ensureAust(c);
   if(!specRecList(c).length && !aiLowAnalysisLines(c).length){
-    toast("Fill out “Recommended Actions for Quality Improvement” in Course Specifications 6.1 (or record a Low Attainment Analysis in the CQI tab) first"); return;
+    toast("Fill out “Recommended Actions for Quality Improvement” in Course Specifications 6.1 (or record a Low Attainment Analysis in the CQI Section) first"); return;
   }
   const txt = builder(c);
   const done = ()=>toast("AI prompt copied — paste it into ChatGPT, Claude, Gemini, etc.");
@@ -3427,9 +3711,9 @@ function copyScopedPrompt(builder){
 }
 function copyTlaAIPrompt(){ copyScopedPrompt(buildTlaAIPrompt); }
 function copyAssessSuggestPrompt(){ copyScopedPrompt(buildAssessSuggestPrompt); }
-/* (The Specifications 6.1 synthesis prompt was retired — the CQI tab's
+/* (The Specifications 6.1 synthesis prompt was retired — the CQI Section's
    narratives prompt now covers the "Actions reflected" column as its task item 6.) */
-/* Shared "CQI Inputs from the Previous Offering" card — used by the T&L and Assessments tabs.
+/* Shared "CQI Inputs from the Previous Offering" card — used by the T&L and Assessments Sections.
    Collapsed by default (one summary line); expanded, the five loop rows are EDITABLE here,
    writing straight into the shared Specifications 6.1 / Course Report 6.1 storage. */
 function toggleCqiCard(tab){
@@ -3448,13 +3732,13 @@ function cqiInputsCard(c, tab){
   const rerender = tab==="tla"? "renderTLA()" : "renderAssess()";
   const rows = CQI_SRC_LABELS.map((lab,i)=>`
     <p style="font-size:12px;font-weight:700;color:var(--primary-dark);margin:12px 0 2px">${lab}</p>
-    <div style="font-size:11.5px;color:var(--muted);margin:0 0 2px"><span class="badge blue" title="Same data as Course Specifications 6.1 and the CQI tab — edit in any of them">⛓ Specifications 6.1</span> recommended actions from the previous offering</div>
+    <div style="font-size:11.5px;color:var(--muted);margin:0 0 2px"><span class="badge blue" title="Same data as Course Specifications 6.1 and the CQI Section — edit in any of them">⛓ Specifications 6.1</span> recommended actions from the previous offering</div>
     <textarea class="di" rows="2" style="width:100%;overflow-y:hidden" placeholder="Recommended action (previous Course Report)" oninput="autoGrowTA(this)" onchange="austSet('spec.cqiPrev.${i}.rec',this.value);${rerender}">${esc(c.aust.spec.cqiPrev[i].rec||"")}</textarea>`).join("");
   return `
   <div class="card">
     <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">CQI Inputs from the Previous Offering <button class="btn secondary small" onclick="toggleCqiCard('${tab}')">${open? "▾ Hide details":"▸ Show / edit details"}</button></h2>
     ${open? `
-    <p class="hint">Editable here — every change updates <b>Course Specifications 6.1</b> and the <b>CQI tab</b> automatically (⛓ one shared dataset). The entries ${isTla? "feed the recommendations below" : "inform the assessment plan below"}. This offering's suggested actions for the <i>next</i> offering are written in the <b>CQI tab</b> (or Course Report 6.1), not here.</p>
+    <p class="hint">Editable here — every change updates <b>Course Specifications 6.1</b> and the <b>CQI Section</b> automatically (⛓ one shared dataset). The entries ${isTla? "feed the recommendations below" : "inform the assessment plan below"}. This offering's suggested actions for the <i>next</i> offering are written in the <b>CQI Section</b> (or Course Report 6.1), not here.</p>
     ${rows}
     ${bad.length? `<p style="margin-top:10px"><b>Marked ineffective last time</b> (ranked down): ${bad.map(b=>`<span class="badge red">${esc(b)}</span>`).join(" ")}</p>` : ""}`
     : `<p class="hint" style="margin:0 0 4px">${summary}</p>`}
@@ -3464,20 +3748,20 @@ function cqiInputsCard(c, tab){
     </div>`:""}
   </div>`;
 }
-/* Compact CQI loop map — shown on the Dashboard and atop the CQI tab. */
+/* Compact CQI loop map — shown on the Dashboard and atop the CQI Section. */
 function cqiLoopStrip(){
   const step = (tag, cls, title, sub) => `<div style="flex:1 1 150px;min-width:150px;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:rgba(15,107,92,.03)"><span class="badge ${cls}">${tag}</span><div style="font-size:12.5px;font-weight:700;margin-top:4px">${title}</div><div style="font-size:11.5px;color:var(--muted)">${sub}</div></div>`;
   const arr = `<div style="align-self:center;font-size:16px;color:var(--muted)">→</div>`;
   return `
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin:8px 0 4px">
     ${step("START","grey","Previous Course Report 6.1","recommendations from the last offering")}${arr}
-    ${step("PLAN","blue","Specifications 6.1","recommended actions for this offering — Accreditation Documents / CQI tab")}${arr}
-    ${step("PLAN","blue","T&amp;L + Assessments","adopt activities, design assessments (AI-assisted) — T&amp;L / Assessments tabs")}${arr}
-    ${step("DO · CHECK","amber","Deliver &amp; Measure","marks, CO/PO attainment, course evaluation survey — Students &amp; Marks / Attainment tabs")}${arr}
-    ${step("ACT","green","Review &amp; Report","Course Report 6.1, CQI narratives &amp; evidence — CQI tab / Accreditation Documents")}${arr}
+    ${step("PLAN","blue","Specifications 6.1","recommended actions for this offering — Accreditation Documents / CQI Section")}${arr}
+    ${step("PLAN","blue","T&amp;L + Assessments","adopt activities, design assessments (AI-assisted) — T&amp;L / Assessments Sections")}${arr}
+    ${step("DO · CHECK","amber","Deliver &amp; Measure","marks, CO/PO attainment, course evaluation survey — Students &amp; Marks / Attainment Sections")}${arr}
+    ${step("ACT","green","Review &amp; Report","Course Report 6.1, CQI narratives &amp; evidence — CQI Section / Accreditation Documents")}${arr}
     ${step("⟳ REPEAT","grey","New Semester","“Duplicate for New Semester” carries Report 6.1 → next Specifications 6.1 — Dashboard")}
   </div>
-  <p class="hint" style="margin-top:4px">One dataset drives the loop: the 6.1 tables are shared (⛓ linked) between the documents and the CQI tab — edit in either place.</p>`;
+  <p class="hint" style="margin-top:4px">One dataset drives the loop: the 6.1 tables are shared (⛓ linked) between the documents and the CQI Section — edit in either place.</p>`;
 }
 function renderCQI(){
   const el = document.getElementById("tab-cqi");
@@ -3515,6 +3799,7 @@ function renderCQI(){
   const evRows = EVIDENCE_ITEMS.map(([k,label])=>`
     <tr><td style="width:40px;text-align:center"><input type="checkbox" ${q.evid[k]?"checked":""} onchange="austSet('cqi.evid.${k}', this.checked)"></td>
       <td>${label}</td></tr>`).join("");
+  const fsum = cqiFoldSums(c);
   el.innerHTML = `
   <div class="card">
     <h2>The CQI Loop at a Glance</h2>
@@ -3522,11 +3807,15 @@ function renderCQI(){
   </div>
   <div class="card">
     <h2>Continuous Quality Improvement (CQI)</h2>
-    <p class="hint">This tab consolidates the evidence BAETE asks for under <b>Criterion 3.8</b> (teaching-learning &amp; assessment) and <b>Criterion 5.4.3</b> (CQI loop for courses and curriculum). <b>Work top to bottom: diagnose (Low Attainment Analysis) → describe (3.8 narratives) → decide (Report 6.1 actions) → close (Specifications 6.1 closure)</b> — each section carries its own 📋 AI prompt in its heading; run them in that order, pasting each result back before running the next (later prompts include what you have already entered, the diagnosis also feeds the Suggested Modifications prompts in the T&amp;L and Assessments tabs, and the closure prompt can be run any time once implementations begin). The 6.1 action tables in the 5.4.3 card are <b>⛓ the same data</b> as Course Report 6.1 and Course Specifications 6.1 — editing here updates the documents and vice versa. When everything is complete, print the CQI Report from the bottom of this tab.</p>
+    <p class="hint">This Section consolidates the evidence BAETE asks for under <b>Criterion 3.8</b> (teaching-learning &amp; assessment) and <b>Criterion 5.4.3</b> (CQI loop for courses and curriculum). <b>Work top to bottom: diagnose (Low Attainment Analysis) → describe (3.8 narratives) → decide (Report 6.1 actions) → close (Specifications 6.1 closure)</b> — each section carries its own 📋 AI prompt in its heading; run them in that order, pasting each result back before running the next (later prompts include what you have already entered, the diagnosis also feeds the Suggested Modifications prompts in the T&amp;L and Assessments Sections, and the closure prompt can be run any time once implementations begin). The 6.1 action tables in the 5.4.3 card are <b>⛓ the same data</b> as Course Report 6.1 and Course Specifications 6.1 — editing here updates the documents and vice versa. When everything is complete, print the CQI Report from the bottom of this Section.</p>
   </div>
+  ${cqiNavBar()}
+  <div id="cqiA1"></div>
   ${lowAttainmentCard(c)}
-  <div class="card">
-    <h2>BAETE 3.8 — Teaching-Learning Methods &amp; Assessment Tools</h2>
+  <div id="cqiA2"></div>
+  <div class="${foldCls('s2')}">
+    <h2 class="cqi-fold" onclick="cqiFoldClick(event,'s2')">${foldCaret('s2')}BAETE 3.8 — Teaching-Learning Methods &amp; Assessment Tools</h2>
+    <p class="fold-sum">${fsum.s2}</p>
     <p class="hint">The table is compiled automatically from your COs, adopted T&amp;L activities, and assessment plan. CP/CEA come from the Knowledge-Profile mapping in the Course Outline (item 14).</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>CO</th><th>BT Domain (Level)</th><th>Complex Problem (P1–P7)</th><th>Complex Activities (A1–A5)</th><th>T&amp;L Methods (adopted)</th><th>Assessment Tools</th></tr></thead>
@@ -3545,11 +3834,13 @@ function renderCQI(){
       <button class="btn secondary small" onclick="showDoc('vet');showTab('docs')">Open Final Exam Vetting Form</button>
     </div>
   </div>
-  <div class="card">
-    <h2>BAETE 5.4.3 — CQI Loop Status for This Course</h2>
+  <div id="cqiA3"></div>
+  <div class="${foldCls('s3')}">
+    <h2 class="cqi-fold" onclick="cqiFoldClick(event,'s3')">${foldCaret('s3')}BAETE 5.4.3 — CQI Loop Status for This Course</h2>
+    <p class="fold-sum">${fsum.s3}</p>
     <div class="tbl-wrap"><table class="tbl"><tbody>
       <tr><td>1. Measure — direct assessment (marks entered)</td><td>${okBadge(stat.direct,"marks recorded","enter marks in Students & Marks")}</td></tr>
-      <tr><td>2. Measure — indirect assessment (Course Evaluation Survey)</td><td>${okBadge(stat.indirect,"survey collected","collect the survey (Attainment tab)")}</td></tr>
+      <tr><td>2. Measure — indirect assessment (Course Evaluation Survey)</td><td>${okBadge(stat.indirect,"survey collected","collect the survey (Attainment Section)")}</td></tr>
       <tr><td>3. Reflect — T&amp;L activity effectiveness recorded (Course Report 3.2)</td><td>${okBadge(stat.tla,"recorded","record in Course Report 3.2")}</td></tr>
       <tr><td>4. Act — improvement actions recorded (Course Report 6.1)</td><td>${okBadge(stat.actions,"actions recorded","fill the actions table below")}</td></tr>
       <tr><td>5. Close — actions reflected in the next offering (Course Specifications 6.1)</td><td>${okBadge(stat.reflected,"loop closed","use ⟳ Duplicate for New Semester, or fill below")}</td></tr>
@@ -3567,21 +3858,25 @@ function renderCQI(){
       <button class="btn secondary small" onclick="pullCQI()">⟳ Pull CQI actions from Course Report into Specifications 6.1</button>
     </div>
   </div>
-  <div class="card">
-    <h2>Stakeholder Feedback Register</h2>
+  <div id="cqiA4"></div>
+  <div class="${foldCls('s4')}">
+    <h2 class="cqi-fold" onclick="cqiFoldClick(event,'s4')">${foldCaret('s4')}Stakeholder Feedback Register</h2>
+    <p class="fold-sum">${fsum.s4}</p>
     <p class="hint">Systematic record of how stakeholder input (students, alumni, employers, advisory board, external examiners, committee meetings) is used to improve the COs and curriculum — the core of BAETE 5.4.3. Attach the underlying documents (survey results, minutes) as Annexure H evidence.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th style="width:210px">Source</th><th style="width:120px">Date</th><th>Feedback / Findings</th><th>Action Taken / Planned</th><th class="no-print" style="width:54px;font-size:11px">Delete</th></tr></thead>
       <tbody>${stRows || '<tr><td colspan="5" class="empty">No entries yet.</td></tr>'}</tbody></table></div>
     <div class="btn-row"><button class="btn secondary small" onclick="addStakeholder()">+ Add Entry</button></div>
   </div>
-  <div class="card">
-    <h2>Annexure H — Evidence Checklist</h2>
+  <div class="${foldCls('s5')}">
+    <a id="cqiA5"></a><h2 class="cqi-fold" onclick="cqiFoldClick(event,'s5')">${foldCaret('s5')}Annexure H — Evidence Checklist</h2>
+    <p class="fold-sum">${fsum.s5}</p>
     <p class="hint">Tick what has been archived for the accreditation visit. The checklist prints with the CQI Report.</p>
     <table class="tbl"><tbody>${evRows}</tbody></table>
   </div>
-  <div class="card">
-    <h2>Finish: print the CQI Report</h2>
+  <div class="${foldCls('s6')}">
+    <a id="cqiA6"></a><h2 class="cqi-fold" onclick="cqiFoldClick(event,'s6')">${foldCaret('s6')}Finish: print the CQI Report</h2>
+    <p class="fold-sum">${fsum.s6}</p>
     <p class="hint">When the cards above are complete, print the consolidated <b>CQI Report</b> (Annexure H evidence for Criteria 3.8 and 5.4.3) — fully auto-generated: it re-arranges everything into BAETE's reading order, and there is nothing to fill in on the document itself.</p>
     <div class="btn-row" style="margin-top:0"><button class="btn" onclick="showDoc('cqi');showTab('docs')">🖨 Open Printable CQI Report (Annexure H)</button></div>
   </div>`;
@@ -3764,9 +4059,10 @@ function lowAttainmentCard(c){
     </div>`;
   }).join("");
   return `
-  <div class="card">
-    <h2 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">Low Attainment Analysis <span class="badge blue">linked to Attainment</span> <button class="btn secondary small" onclick="copyLowAttPrompt()" title="Builds a tiered prompt: full diagnosis for the not-attained CO(s), brief preventive notes for attained-but-borderline CO(s) (below KPI + 15 points, or carrying a weak item), and an explicit no-action line for strongly attained ones — tasks matching the (a)/(b)/(c) boxes below. Step 1 of 4: run first. The pasted analyses feed the 3.8 narratives prompt (Step 2), the Report 6.1 actions prompt (Step 3), and the Suggested Modifications prompts in the T&L and Assessments tabs.">📋 Copy AI Prompt (low-attainment analysis)</button></h2>
-    <p class="hint">Students are filtered by their per-CO score (same calculation as the Attainment tab). For each CO, analyze the causes with respect to (a) the teaching-learning activities and (b) the assessment techniques, and record your comment — these feed the printable CQI Report, support Course Report 6.1, and flow into the later AI prompts: the (a) findings into the T&amp;L tab's Suggested Modifications prompt, the (b) findings into the Assessments tab's, and all of them into the 3.8 narratives and Report 6.1 actions prompts.</p>
+  <div class="${foldCls('s1')}">
+    <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="cqiFoldClick(event,'s1')">${foldCaret('s1')}Low Attainment Analysis <span class="badge blue">linked to Attainment</span> <button class="btn secondary small" onclick="copyLowAttPrompt()" title="Builds a tiered prompt: full diagnosis for the not-attained CO(s), brief preventive notes for attained-but-borderline CO(s) (below KPI + 15 points, or carrying a weak item), and an explicit no-action line for strongly attained ones — tasks matching the (a)/(b)/(c) boxes below. Step 1 of 4: run first. The pasted analyses feed the 3.8 narratives prompt (Step 2), the Report 6.1 actions prompt (Step 3), and the Suggested Modifications prompts in the T&L and Assessments Sections.">📋 Copy AI Prompt (low-attainment analysis)</button></h2>
+    <p class="fold-sum">${cqiFoldSums(c).s1}</p>
+    <p class="hint">Students are filtered by their per-CO score (same calculation as the Attainment Section). For each CO, analyze the causes with respect to (a) the teaching-learning activities and (b) the assessment techniques, and record your comment — these feed the printable CQI Report, support Course Report 6.1, and flow into the later AI prompts: the (a) findings into the T&amp;L Section's Suggested Modifications prompt, the (b) findings into the Assessments Section's, and all of them into the 3.8 narratives and Report 6.1 actions prompts.</p>
     <label class="fld" style="max-width:340px;margin-bottom:8px">Filter: students scoring below (%)
       <input type="number" min="0" max="100" value="${th}" onchange="window._lowTh=Math.max(0,Math.min(100,parseFloat(this.value)||0));renderCQI()">
     </label>
@@ -3838,7 +4134,7 @@ function renderDocs(){
   autoGrowAll("tab-docs");
   if(sel==="report") drawReportCharts(c);
 }
-/* CO / PO attainment charts embedded in Course Report 4.2 / 4.3 — same data and styling as the Attainment tab. */
+/* CO / PO attainment charts embedded in Course Report 4.2 / 4.3 — same data and styling as the Attainment Section. */
 function drawReportCharts(c){
   if(typeof Chart === "undefined") return;
   const att = computeAttainment(c);
@@ -3912,7 +4208,8 @@ function docOutline(c){
   <table class="tbl"><thead>
     <tr><th rowspan="2" style="width:50px">Sl. No.</th><th rowspan="2">COs</th><th rowspan="2" style="width:80px">POs</th><th colspan="3">Bloom's Taxonomy</th></tr>
     <tr><th style="width:60px">C</th><th style="width:60px">A</th><th style="width:60px">P</th></tr></thead>
-    <tbody>${coRows || '<tr><td colspan="6" style="text-align:center">Define COs in the "COs & CO–PO Mapping" tab</td></tr>'}</tbody></table>
+    <tbody>${coRows || '<tr><td colspan="6" style="text-align:center">Define COs in the "COs & CO–PO Mapping" Section</td></tr>'}</tbody></table>
+  ${piPrintTable(c)}
   <h2>14. Mapping of COs with Knowledge Profiles, Complex Engineering Problem Solving and Complex Engineering Activities</h2>
   <table class="tbl"><thead><tr><th style="width:90px">Course Outcome</th><th>Knowledge Profile (K1–K8)</th><th>Complex Problem Solving (P1–P7)</th><th>Complex Engineering Activities (A1–A5)</th></tr></thead>
     <tbody>${kpRows || '<tr><td colspan="4" style="text-align:center">—</td></tr>'}</tbody></table>
@@ -3922,9 +4219,9 @@ function docOutline(c){
     <tr><th style="text-align:right">Total</th><th style="text-align:center${Math.abs(methodTotal-100)>0.05? ';color:#c0392b':''}">${methodTotal.toFixed(1)} %${Math.abs(methodTotal-100)>0.05? " ⚠":""}</th><td class="no-print"></td></tr></tbody></table>
   <div class="no-print btn-row">
     <button class="btn secondary small" onclick="addOutlineMethod()">+ Add Method</button>
-    <button class="btn secondary small" onclick="prefillOutlineMethods()" title="Replaces the rows with this course's assessments and their shares of total marks — a starting point to edit">⛏ Prefill from Assessments tab</button>
+    <button class="btn secondary small" onclick="prefillOutlineMethods()" title="Replaces the rows with this course's assessments and their shares of total marks — a starting point to edit">⛏ Prefill from Assessments Section</button>
   </div>
-  <p style="font-size:11.5px;color:var(--muted)">This table is yours to edit and is <b>not linked</b> to the Assessments tab — state the approved grading policy (e.g., include Attendance). The total should be 100%.</p>
+  <p style="font-size:11.5px;color:var(--muted)">This table is yours to edit and is <b>not linked</b> to the Assessments Section — state the approved grading policy (e.g., include Attendance). The total should be 100%.</p>
   <h2>16. Week wise distribution of contents and assessment methods</h2>
   <table class="tbl"><thead><tr><th style="width:60px">Week</th><th>Topics</th><th style="width:180px">Assessment Method(s)</th></tr></thead>
     <tbody>${weekRows}</tbody></table>
@@ -3936,7 +4233,7 @@ function docOutline(c){
   <p><b>17.1. Required</b> ${dta('outline.refsReq', o.refsReq, 2, 'Required textbook(s)')}</p>
   <p><b>17.2. Recommended</b> ${dta('outline.refsRec', o.refsRec, 2, 'Recommended reference(s)')}</p>
   ${c.aust.learnRes.filter(r=>(r.title||"").trim()||(r.url||"").trim()).length? `
-  <p><b>17.3. Learning Resources</b> <span class="no-print" style="font-size:11.5px;color:var(--muted)">(⛓ from the T&L tab's Learning Resources register)</span></p>
+  <p><b>17.3. Learning Resources</b> <span class="no-print" style="font-size:11.5px;color:var(--muted)">(⛓ from the T&L Section's Learning Resources register)</span></p>
   <table class="tbl"><thead><tr><th style="width:200px">Type</th><th style="width:200px">Title</th><th>Link / location</th><th style="width:120px">Related CO(s)</th></tr></thead>
     <tbody>${c.aust.learnRes.filter(r=>(r.title||"").trim()||(r.url||"").trim()).map(r=>`<tr><td>${esc(r.type||"")}</td><td>${esc(r.title||"")}</td><td style="word-break:break-all">${esc(r.url||"")}</td><td>${(r.cos||[]).map(id=>{const j=c.cos.findIndex(x=>x.id===id); return j>=0? "CO"+(j+1):null;}).filter(Boolean).join(", ")||"—"}</td></tr>`).join("")}</tbody></table>` : ""}
   <table class="tbl" style="margin-top:18px"><tr>
@@ -3947,6 +4244,26 @@ function docOutline(c){
   <p style="font-size:11.5px;color:var(--muted);margin-top:10px">Annexes (Generic PEOs, PEO-PO mapping, and Bloom's Taxonomy tables) follow the standard AUST template and may be appended from the approved document.</p>`;
 }
 
+/* PO-Indicators print table (Framework v3, only when at least one indicator is ticked).
+   Shared by the Course Outline (§13) and the Course Specifications (§3.1). */
+function piPrintTable(c){
+  if(!fwV3(c)) return "";
+  const pis = coursePIs(c);
+  const rows = c.cos.map((co,i)=>{
+    const marks = Object.entries(co.pi||{}).flatMap(([p,arr])=>(arr||[]).map(k=>({p:+p,k}))).sort((a,b)=>a.p-b.p||a.k-b.k);
+    return marks.length? `<tr><td style="text-align:center"><b>CO${i+1}</b></td><td>${marks.map(x=>piLabel(x.p,x.k)).join(", ")}</td></tr>` : null;
+  }).filter(Boolean).join("");
+  if(!rows) return "";
+  const seen = {};
+  c.cos.forEach(co=>Object.entries(co.pi||{}).forEach(([p,arr])=>(arr||[]).forEach(k=>{ seen[p+"_"+k]={p:+p,k}; })));
+  const legend = Object.values(seen).sort((a,b)=>a.p-b.p||a.k-b.k)
+    .map(x=>`<tr><td style="width:70px;text-align:center;white-space:nowrap"><b>${piLabel(x.p,x.k)}</b></td><td>${esc(((pis[x.p]||[])[x.k])||"")}</td></tr>`).join("");
+  return `
+  <h2 style="font-size:14px">Mapping of COs with PO Indicators (OBE Framework Version 3)</h2>
+  <table class="tbl" style="max-width:520px"><thead><tr><th style="width:70px">CO</th><th>PO Indicator(s) addressed</th></tr></thead><tbody>${rows}</tbody></table>
+  <p style="font-size:11.5px;color:var(--muted);margin-bottom:4px">Indicators referenced above:</p>
+  <table class="tbl"><tbody>${legend}</tbody></table>`;
+}
 /* ---- Document 2: Course Specifications ---- */
 function docSpec(c){
   const sp = c.aust.spec;
@@ -4011,7 +4328,8 @@ function docSpec(c){
     <tr><th rowspan="2" style="width:50px">CO No.</th><th rowspan="2">CO statement</th><th rowspan="2" style="width:75px">Corresponding PO No.</th><th colspan="3">Bloom's Taxonomy</th><th rowspan="2">Delivery Methods and Activities</th><th rowspan="2">Assessment Method</th></tr>
     <tr><th style="width:45px">C</th><th style="width:45px">A</th><th style="width:45px">P</th></tr></thead>
     <tbody>${caRows || '<tr><td colspan="8" style="text-align:center">Define COs first</td></tr>'}</tbody></table>
-  <p style="font-size:11.5px;color:var(--muted)">* Filled out through constructive alignment (Biggs): outcomes → teaching/learning activities → assessments. Delivery Methods carry the activities adopted in the T&amp;L tab; Assessment Method is auto-filled from the assessments measuring each CO (⛓ Assessments tab) — the dotted box below it accepts additional methods.</p>
+  <p style="font-size:11.5px;color:var(--muted)">* Filled out through constructive alignment (Biggs): outcomes → teaching/learning activities → assessments. Delivery Methods carry the activities adopted in the T&amp;L Section; Assessment Method is auto-filled from the assessments measuring each CO (⛓ Assessments Section) — the dotted box below it accepts additional methods.</p>
+  ${piPrintTable(c)}
   <h2>4. Teaching &amp; Learning Activities</h2>
   <h2>4.1 Planned Contact Hours for Different Topics</h2>
   <table class="tbl"><thead><tr><th style="width:55px">Sl. No.</th><th>Topics</th><th style="width:130px">Planned Contact Hours</th><th class="no-print" style="width:54px;font-size:11px">Delete</th></tr></thead>
@@ -4029,10 +4347,10 @@ function docSpec(c){
     <tr><th style="width:70px">Cognitive</th><th style="width:70px">Affective</th><th style="width:85px">Psychomotor</th></tr></thead>
     <tbody>${bpRows || '<tr><td colspan="6" style="text-align:center">Define assessment items first</td></tr>'}</tbody></table>
   <h2>6. Continuous Quality Improvement (CQI) Measures</h2>
-  <p><b>6.1 Recommendations from the Previous Course Report (if any)</b> <span class="badge blue no-print" title="Same data as the CQI tab's linked table — edit in either place" style="margin-left:8px">⛓ linked — also editable in the CQI tab</span></p>
+  <p><b>6.1 Recommendations from the Previous Course Report (if any)</b> <span class="badge blue no-print" title="Same data as the CQI Section's linked table — edit in either place" style="margin-left:8px">⛓ linked — also editable in the CQI Section</span></p>
   <table class="tbl"><thead><tr><th style="width:130px">Loop</th><th style="width:170px">Assessment Type</th><th>Recommended Actions for Quality Improvement</th><th>Actions reflected in the Current Course Specification</th></tr></thead>
     <tbody>${cqiRows}</tbody></table>
-  <p class="no-print" style="font-size:11.5px;color:var(--muted)">The recommendations above feed the AI-prompt buttons in the <b>T&amp;L</b> tab (T&amp;L suggestions only) and the <b>Assessments</b> tab (assessment suggestions only), plus the activity recommender. Draft text for the <b>Actions reflected</b> column comes from the CQI tab's AI prompt (task item 6).</p>
+  <p class="no-print" style="font-size:11.5px;color:var(--muted)">The recommendations above feed the AI-prompt buttons in the <b>T&amp;L</b> Section (T&amp;L suggestions only) and the <b>Assessments</b> Section (assessment suggestions only), plus the activity recommender. Draft text for the <b>Actions reflected</b> column comes from the CQI Section's AI prompt (task item 6).</p>
   <p><b>6.2 Any Other Modification (if any)</b> ${dta('spec.other', sp.other, 3)}</p>
   <table class="sig-table"><tr>${sigCell("Signature of the Instructor<br>Name: "+esc(c.instructor))}<td></td><td></td></tr></table>`;
 }
@@ -4172,7 +4490,7 @@ function docSurvey(c){
   <p>…………………………………………………………………………………………………………………<br>…………………………………………………………………………………………………………………</p>
   <p style="font-size:13px;margin-top:10px"><b>One suggested improvement (optional):</b></p>
   <p>…………………………………………………………………………………………………………………<br>…………………………………………………………………………………………………………………</p>
-  <p style="font-size:11.5px;color:var(--muted)">For online delivery, replicate this form as a Google Form and import the response CSV in the Attainment tab — CO columns headed CO1, CO2, …; the additional columns exactly as in ⬇ Download Survey CSV Template.</p>`;
+  <p style="font-size:11.5px;color:var(--muted)">For online delivery, replicate this form as a Google Form and import the response CSV in the Attainment Section — CO columns headed CO1, CO2, …; the additional columns exactly as in ⬇ Download Survey CSV Template.</p>`;
 }
 
 /* ---- Printable CQI Report (BAETE Criteria 3.8 & 5.4.3, Annexure H) ---- */
@@ -4197,13 +4515,13 @@ function docCQI(c){
       <td style="text-align:center">${x.pct===null?"—":x.pct.toFixed(1)+"%"}</td>
       <td style="text-align:center">${x.pct===null?"—":(x.attained?"Attained":"Not attained")}</td></tr>`).join("");
   const narr = (title, val) => `<p style="font-size:12.5px"><b>${title}</b></p>
-    <p style="font-size:12.5px;border:1px solid var(--border);border-radius:6px;padding:8px;min-height:40px;white-space:pre-wrap">${esc(val)||"<i>(auto-filled from the CQI tab — currently empty there)</i>"}</p>`;
+    <p style="font-size:12.5px;border:1px solid var(--border);border-radius:6px;padding:8px;min-height:40px;white-space:pre-wrap">${esc(val)||"<i>(auto-filled from the CQI Section — currently empty there)</i>"}</p>`;
   const repRows = CQI_LABELS.map((L,i)=>`<tr><td>${L[0]}</td><td>${L[1]}</td><td style="white-space:pre-wrap">${esc(c.aust.report.cqi[i]||"")||"—"}</td></tr>`).join("");
   const specRows = CQI_LABELS.map((L,i)=>`<tr><td>${L[0]}</td><td>${L[1]}</td><td style="white-space:pre-wrap">${esc(c.aust.spec.cqiPrev[i].rec)||"—"}</td><td style="white-space:pre-wrap">${esc(c.aust.spec.cqiPrev[i].ref)||"—"}</td></tr>`).join("");
   const stRows = q.stakeholders.map(s=>`<tr><td>${esc(s.src)}</td><td>${esc(s.date)}</td><td>${esc(s.summary)}</td><td>${esc(s.action)}</td></tr>`).join("");
   const evRows = EVIDENCE_ITEMS.map(([k,label])=>`<tr><td style="width:44px;text-align:center;font-size:15px">${q.evid[k]?"☑":"☐"}</td><td>${label}</td></tr>`).join("");
   return `${docHead("Course CQI Report","Evidence for BAETE Criterion 3.8 (Teaching-Learning and Assessment) and Criterion 5.4.3 (CQI Loop for Courses and Curriculum) — Annexure H")}
-  <p class="no-print" style="background:rgba(15,107,92,.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12.5px">📄 This document is <b>fully auto-generated</b> — every section is drawn from the <b>CQI tab</b>, <b>Course Specifications</b> and <b>Course Report</b>. There is nothing to fill in here: complete those sources, then simply print.</p>
+  <p class="no-print" style="background:rgba(15,107,92,.06);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12.5px">📄 This document is <b>fully auto-generated</b> — every section is drawn from the <b>CQI Section</b>, <b>Course Specifications</b> and <b>Course Report</b>. There is nothing to fill in here: complete those sources, then simply print.</p>
   <table class="tbl" style="max-width:620px"><tbody>
     <tr><th style="width:190px">Course Code &amp; Section</th><td>${esc(c.code)}${c.section? " ("+esc(c.section)+")":""}</td></tr>
     <tr><th>Course Title</th><td>${esc(c.title)}</td></tr>
@@ -4303,7 +4621,7 @@ function docReport(c){
       <td style="width:110px;text-align:center">${effSel(k, v.eff)}</td>
       <td>${taCell("setTlaAnalysis", k, "diff", v.diff, "")}</td></tr>`;
   }).join("");
-  const noAdoptedRow = cols => `<tr><td colspan="${cols}" style="text-align:center">Adopt T&amp;L activities in the T&amp;L tab — one row per adopted activity appears here automatically</td></tr>`;
+  const noAdoptedRow = cols => `<tr><td colspan="${cols}" style="text-align:center">Adopt T&amp;L activities in the T&amp;L Section — one row per adopted activity appears here automatically</td></tr>`;
   const GR = ["A+","A","A-","B+","B","B-","C+","C","D","F"];
   const gTotal = GR.reduce((s,g)=>s+(parseFloat(r.grades[g])||0),0);
   const cqiLabels = [["A. CQI Loop for COs","Direct Measurement"],["A. CQI Loop for COs","Indirect Measurement from Surveys (if any)"],["B. CQI Loop for POs","Direct Measurement"],["B. CQI Loop for POs","Indirect Measurement from Surveys (if any)"],["C. CQI Loop for PEOs","Indirect Measurement from Surveys (if any)"]];
@@ -4328,7 +4646,7 @@ function docReport(c){
     <tbody>${hourRows || '<tr><td colspan="6" style="text-align:center">Add topics in Course Specifications → section 4</td></tr>'}
     ${sp.topics.length? `<tr><td></td><th style="text-align:right">Total</th><th style="text-align:center">${tp}</th><th style="text-align:center">${ta}</th><td colspan="2"></td></tr>`:""}</tbody></table>
   <h2>3.2 Analysis of Teaching &amp; Learning Activities</h2>
-  <p class="no-print" style="font-size:11.5px;color:var(--muted)">One row per adopted T&amp;L activity (⛓ from the T&amp;L tab's Summary Table) — the activity names are read-only here; adopt or remove activities in the T&amp;L tab.</p>
+  <p class="no-print" style="font-size:11.5px;color:var(--muted)">One row per adopted T&amp;L activity (⛓ from the T&amp;L Section's Summary Table) — the activity names are read-only here; adopt or remove activities in the T&amp;L Section.</p>
   <table class="tbl"><thead><tr><th style="width:220px">Teaching &amp; Learning Activity</th><th style="width:110px;text-align:center">Was it effective?</th><th>Difficulties (if any) and suggestions for improvement</th></tr></thead>
     <tbody>${tlaRows || noAdoptedRow(3)}</tbody></table>
   <h2>3.3 Analysis of the Resources</h2>
@@ -4376,7 +4694,7 @@ function docReport(c){
   })()}
   ${(()=>{
     const ind = computeIndirect(c);
-    if(!ind.cos.some(x=>x.n>0)) return `<p style="font-size:12.5px;color:var(--muted)">No survey data recorded — enter or import the Course Evaluation Survey results in the Attainment tab.</p>`;
+    if(!ind.cos.some(x=>x.n>0)) return `<p style="font-size:12.5px;color:var(--muted)">No survey data recorded — enter or import the Course Evaluation Survey results in the Attainment Section.</p>`;
     return `<table class="tbl"><thead><tr><th></th>${ind.cos.map(x=>`<th style="text-align:center">${x.label}</th>`).join("")}</tr></thead><tbody>
       <tr><th>Responses (n)</th>${ind.cos.map(x=>`<td style="text-align:center">${x.n||"—"}</td>`).join("")}</tr>
       <tr><th>Average rating (of 5)</th>${ind.cos.map(x=>`<td style="text-align:center">${x.avgRating===null?"—":x.avgRating.toFixed(2)}</td>`).join("")}</tr>
@@ -4400,7 +4718,7 @@ function docReport(c){
       <tr><th>Attained?</th>${comb.pos.map(x=>`<td style="text-align:center">${x.pct===null?"—":(x.attained?"Yes":"No")}</td>`).join("")}</tr>
     </tbody></table>`;
   })()}
-  <h2>6. Continuous Quality Improvement (CQI) Loops — 6.1 Suggested Action Plans <span class="badge blue no-print" title="Same data as the CQI tab's linked table — edit in either place">⛓ linked — also editable in the CQI tab</span></h2>
+  <h2>6. Continuous Quality Improvement (CQI) Loops — 6.1 Suggested Action Plans <span class="badge blue no-print" title="Same data as the CQI Section's linked table — edit in either place">⛓ linked — also editable in the CQI Section</span></h2>
   <table class="tbl"><thead><tr><th style="width:140px">Loop</th><th style="width:190px">Assessment Type</th><th>Recommended Actions for Quality Improvement</th></tr></thead><tbody>
     ${cqiLabels.map((L,i)=>`<tr><td>${L[0]}</td><td>${L[1]}</td><td>${dta('report.cqi.'+i, r.cqi[i], 10)}</td></tr>`).join("")}
   </tbody></table>
@@ -4480,7 +4798,7 @@ function delOutlineMethod(i){
 function prefillOutlineMethods(){
   const c = activeCourse(); if(!c) return;
   ensureAust(c);
-  if(!c.assessments.length){ toast("No assessments defined yet (Assessments tab)"); return; }
+  if(!c.assessments.length){ toast("No assessments defined yet (Assessments Section)"); return; }
   const existing = c.aust.outline.methods.filter(m=>m.name||m.pct).length;
   if(existing && !confirm(`Replace the current ${existing} method row(s) with this course's ${c.assessments.length} assessment(s) and their shares of total marks?`)) return;
   const totM = c.assessments.reduce((s,y)=>s+y.items.reduce((t,it)=>t+(parseFloat(it.max)||0),0),0);
@@ -4530,7 +4848,7 @@ function importWeeksCSV(input){
 function renderData(){
   const el = document.getElementById("tab-data");
   const c = activeCourse();
-  el.innerHTML = `
+  const fileCards = `
   <div class="card">
     <h2>Work on a File (recommended)</h2>
     ${FS_OK? `
@@ -4553,9 +4871,11 @@ function renderData(){
       ${c? `<button class="btn secondary" onclick="exportCourse()">⬇ Export Current Course (JSON)</button>`:""}
       <label class="btn secondary" style="cursor:pointer">⬆ Import JSON<input type="file" accept=".json" style="display:none" onchange="importJSON(this)"></label>
     </div>
-  </div>
+  </div>`;
+  const poolCards = `
   ${resourcePoolCard()}
-  ${activityPoolCard()}
+  ${activityPoolCard()}`;
+  const miscCards = `
   <div class="card">
     <h2>Danger Zone</h2>
     <div class="btn-row" style="margin-top:0">
@@ -4569,6 +4889,8 @@ function renderData(){
     <p class="hint">GitHub Repository: <a href="https://github.com/mazhar17/obe-course-manager" target="_blank" rel="noopener">github.com/mazhar17/obe-course-manager</a></p>
     <p class="hint">Feel free to send your comments/suggestions/feedback to <a href="mailto:mazharul.islam.mpe@aust.edu">mazharul.islam.mpe@aust.edu</a>.</p>
   </div>`;
+  const sec = subSect("data");
+  el.innerHTML = subBar("data") + (sec==="pools"? poolCards : sec==="misc"? miscCards : fileCards);
 }
 function exportAll(){
   downloadFile("obe_backup_all_"+new Date().toISOString().slice(0,10)+".json",
@@ -4629,46 +4951,46 @@ function loadSample(){
   c.aust.outline.dept = "Mechanical and Production Engineering (MPE)";
   c.aust.spec.topics = [{name:"Introduction to renewable energy",planned:"6",actual:"",reason:""},{name:"Wind energy systems",planned:"12",actual:"",reason:""},{name:"Solar PV and thermal systems",planned:"12",actual:"",reason:""},{name:"Other renewables and integration",planned:"12",actual:"",reason:""}];
   state.courses.push(c); state.activeCourseId=c.id;
-  save(); refresh(); toast("Sample course loaded — explore each tab");
+  save(); refresh(); toast("Sample course loaded — explore each Section");
 }
 
 
 /* ============ Per-tab guidance card (additive — review build) ============
-   One data table + one injector. The card is prepended to each tab's container
-   after that tab renders; nothing inside the existing render functions changes.
+   One data table + one injector. The card is prepended to each Section's container
+   after that Section renders; nothing inside the existing render functions changes.
    Collapsed by default; never printed (see .guide-card rules in @media print). */
 const TAB_GUIDE = {
-  "dashboard": { n:"Dashboard", ttl:"What this tab shows", sum:"A snapshot of this course and the recommended order of work for the semester.", intro:"Start here whenever you open the app: it tells you what is already done and what to do next.", c:"#4B3F8F", t:"#efedf8",
-    dos:["Check the counts (COs, assessments, students) against what you expect \u2014 a zero usually means data was never entered, not that nothing is required.", "Work through the Suggested Workflow in order; every step names the tab it belongs to.", "Expand a step to read its full instructions before you start it.", "Treat a warning about items with no CO as urgent: those marks reach no CO and quietly shrink attainment.", "Duplicate for New Semester lives here \u2014 use it to open the next offering, never to \u201cclear\u201d the current one."],
-    i:["Data entered in every other tab", "Actions carried over from last semester"], d:["Read the status counts", "Follow the workflow in order", "Spot gaps before they matter"], o:["A clear next action", "Early warning of missing data"] },
-  "course": { n:"Course Info", ttl:"What to do in this tab", sum:"Course identity, plus the attainment thresholds every calculation in this app uses.", intro:"Fill this in once, carefully \u2014 two fields here silently shape results everywhere else.", c:"#4B3F8F", t:"#efedf8",
+  "dashboard": { n:"Dashboard", ttl:"What this Section shows", sum:"A snapshot of this course and the recommended order of work for the semester.", intro:"Start here whenever you open the app: it tells you what is already done and what to do next.", c:"#4B3F8F", t:"#efedf8",
+    dos:["Check the counts (COs, assessments, students) against what you expect \u2014 a zero usually means data was never entered, not that nothing is required.", "Work through the Suggested Workflow in order; every step names the Section it belongs to.", "Expand a step to read its full instructions before you start it.", "Treat a warning about items with no CO as urgent: those marks reach no CO and quietly shrink attainment.", "Duplicate for New Semester lives here \u2014 use it to open the next offering, never to \u201cclear\u201d the current one."],
+    i:["Data entered in every other Section", "Actions carried over from last semester"], d:["Read the status counts", "Follow the workflow in order", "Spot gaps before they matter"], o:["A clear next action", "Early warning of missing data"] },
+  "course": { n:"Course Info", ttl:"What to do in this Section", sum:"Course identity, plus the attainment thresholds every calculation in this app uses.", intro:"Fill this in once, carefully \u2014 two fields here silently shape results everywhere else.", c:"#4B3F8F", t:"#efedf8",
     dos:["Enter course code, title and section exactly as they must appear officially; they are printed verbatim on every document.", "Enter credit hours correctly: many institutions weight a course\u2019s contribution to program-level outcomes by its credit hours, so a wrong value can distort program-level results even though this app shows no error.", "Set Target Pass Marks, KPI marks and Target KPI before marks are entered \u2014 changing them later silently re-computes every figure you have already reported.", "Set the direct/indirect weights (80/20 by default) to your department\u2019s agreed rule.", "Everything saves as you type; there is no Save button, so confirm the header shows your data file."],
     i:["Official course details", "Department thresholds and weights"], d:["Record the identity", "Set thresholds", "Set direct/indirect weights"], o:["Document headers", "The thresholds used by all attainment maths"] },
-  "cos": { n:"COs &amp; CO\u2013PO Mapping", ttl:"What to do in this tab", sum:"Write the course outcomes and tick which program outcomes each one serves.", intro:"This tab defines what the course claims to achieve \u2014 everything downstream depends on it.", c:"#4B3F8F", t:"#efedf8",
-    dos:["Write each CO as one observable action that can actually be assessed; vague verbs cannot be measured later.", "Set the Bloom domain and level honestly \u2014 assessment items inherit it, and the CA tab flags questions pitched above it.", "Map every CO to at least one PO: an unmapped CO contributes nothing at program level, however well the class performs.", "Do not map a CO to every PO \u201cto be safe\u201d \u2014 inflated mapping dilutes the program picture and is the first thing auditors question.", "This app tracks outcomes at the course level (COs). Program Outcomes (POs) and Program Educational Objectives (PEOs) are normally tracked and improved separately, at the department or program level \u2014 this tool doesn\u2019t attempt that broader analysis."],
-    i:["Syllabus and Bloom\u2019s taxonomy", "The program\u2019s PO list"], d:["Write COs", "Set domain and level", "Tick the CO\u2013PO matrix"], o:["The CO list used by every tab", "The mapping the program aggregates"] },
-  "tla": { n:"T&amp;L", ttl:"What to do in this tab", sum:"Plan the teaching activities and shared resources behind each CO and topic.", intro:"Plan delivery here before teaching starts, and the documents fill themselves in later.", c:"#0f766e", t:"#e6f4f2",
+  "cos": { n:"COs &amp; CO\u2013PO Mapping", ttl:"What to do in this Section", sum:"Write the course outcomes and tick which program outcomes each one serves.", intro:"This Section defines what the course claims to achieve \u2014 everything downstream depends on it.", c:"#4B3F8F", t:"#efedf8",
+    dos:["Write each CO as one observable action that can actually be assessed; vague verbs cannot be measured later.", "Set the Bloom domain and level honestly \u2014 assessment items inherit it, and the CA Section flags questions pitched above it.", "Map every CO to at least one PO: an unmapped CO contributes nothing at program level, however well the class performs.", "Do not map a CO to every PO \u201cto be safe\u201d \u2014 inflated mapping dilutes the program picture and is the first thing auditors question.", "This app tracks outcomes at the course level (COs). Program Outcomes (POs) and Program Educational Objectives (PEOs) are normally tracked and improved separately, at the department or program level \u2014 this tool doesn\u2019t attempt that broader analysis."],
+    i:["Syllabus and Bloom\u2019s taxonomy", "The program\u2019s PO list"], d:["Write COs", "Set domain and level", "Tick the CO\u2013PO matrix"], o:["The CO list used by every Section", "The mapping the program aggregates"] },
+  "tla": { n:"T&amp;L", ttl:"What to do in this Section", sum:"Plan the teaching activities and shared resources behind each CO and topic.", intro:"Plan delivery here before teaching starts, and the documents fill themselves in later.", c:"#0f766e", t:"#e6f4f2",
     dos:["Adopt an activity for each CO before the semester begins \u2014 adopted activities flow into the Specifications alignment table automatically.", "Prefer names from the Activity Pool over free text: only pooled names can be verified and tracked across semesters.", "Register shared resources as links, choosing the Type first \u2014 the Title suggestions then match that type.", "Tick Related COs on both the resource and the topic; a resource reaches a topic only where the two tick lists overlap, which is the commonest source of \u201cnothing appeared\u201d.", "Activities suggested by last semester\u2019s CQI are boosted in the recommendations \u2014 adopting them is how the loop actually closes."],
     i:["COs with Bloom levels", "Last semester\u2019s CQI suggestions"], d:["Adopt activities per CO", "Register resources", "Plan topic by topic"], o:["Alignment table entries", "The resource list printed in the Outline"] },
-  "assess": { n:"Assessments", ttl:"What to do in this tab", sum:"Plan every assessment and tag each question to the CO it measures.", intro:"The CO tag on each item is what turns marks into attainment \u2014 get it right before marking begins.", c:"#0f766e", t:"#e6f4f2",
+  "assess": { n:"Assessments", ttl:"What to do in this Section", sum:"Plan every assessment and tag each question to the CO it measures.", intro:"The CO tag on each item is what turns marks into attainment \u2014 get it right before marking begins.", c:"#0f766e", t:"#e6f4f2",
     dos:["Tag every item with a CO: an untagged item\u2019s marks count in the class total but reach no CO, and the summary flags them as unmapped marks.", "Leave Mandatory ticked unless the question is genuinely optional \u2014 on a choice question a blank means \u201cnot chosen\u201d, not zero.", "For Class Performance, set the total and tick the COs: the marks split equally, so it gives every ticked CO the same percentage.", "Tick \u201cRubric prepared\u201d only when the rubric exists and students have seen it; the CQI evidence checklist depends on it.", "Check the summary table early \u2014 a CO carrying under 10% of total marks yields a fragile attainment figure."],
-    i:["COs and their Bloom levels", "The department assessment plan"], d:["Create assessments", "Tag items to COs", "Set marks and rubrics"], o:["The columns of the marks grid", "Marks distribution per CO"] },
-  "ca": { n:"CA", ttl:"What to do in this tab", sum:"A live check that outcomes, teaching and assessment genuinely agree.", intro:"Nothing is entered here \u2014 it reads your other tabs and shows where the course does not hold together.", c:"#0f766e", t:"#e6f4f2",
+    i:["COs and their Bloom levels", "The department assessment plan"], d:["Set up assessments", "Tag items to COs", "Set marks and rubrics"], o:["The columns of the marks grid", "Marks distribution per CO"] },
+  "ca": { n:"CA", ttl:"What to do in this Section", sum:"A live check that outcomes, teaching and assessment genuinely agree.", intro:"Nothing is entered here \u2014 it reads your other Sections and shows where the course does not hold together.", c:"#0f766e", t:"#e6f4f2",
     dos:["Visit after any change to COs, activities or assessments, and again before printing documents.", "Green means verified alignment; amber means something exists but does not match the CO\u2019s level \u2014 read the note before dismissing it.", "Fix an \u201cunassessed CO\u201d at once: it will report zero attainment however well the class performed.", "Use the one-click Adopt on a suggested activity rather than typing a new name, so it stays trackable.", "An \u2191 marker means a question sits above its CO\u2019s declared level \u2014 reword it, or raise the CO\u2019s level deliberately."],
     i:["COs, adopted activities, assessment items"], d:["Read the triangles", "Act on every flag", "Adopt suggested fixes"], o:["A coherent plan", "Problems caught before marking"] },
-  "marks": { n:"Students &amp; Marks", ttl:"What to do in this tab", sum:"Enrol the class and record marks question by question.", intro:"This is the raw evidence behind every number the program eventually sees.", c:"#0f766e", t:"#e6f4f2",
-    dos:["Download the empty template rather than inventing headers \u2014 the app writes the exact column names it will accept back.", "A blank on a mandatory item counts as zero, so leave it blank only when that is what you mean.", "Class Performance appears as a single column per part: enter one mark and the app spreads it across that CP\u2019s COs.", "Use Replace List carefully \u2014 students missing from the pasted list are removed together with their marks.", "Partial data produces partial attainment, not an error, so confirm every column is filled before reading the Attainment tab."],
+  "marks": { n:"Students &amp; Marks", ttl:"What to do in this Section", sum:"Enrol the class and record marks question by question.", intro:"This is the raw evidence behind every number the program eventually sees.", c:"#0f766e", t:"#e6f4f2",
+    dos:["Download the empty template rather than inventing headers \u2014 the app writes the exact column names it will accept back.", "A blank on a mandatory item counts as zero, so leave it blank only when that is what you mean.", "Class Performance appears as a single column per part: enter one mark and the app spreads it across that CP\u2019s COs.", "Use Replace List carefully \u2014 students missing from the pasted list are removed together with their marks.", "Partial data produces partial attainment, not an error, so confirm every column is filled before reading the Attainment Section."],
     i:["The class list", "Marked scripts and rubric results"], d:["Enrol students", "Enter or import marks", "Check for empty columns"], o:["Complete mark data", "The basis of direct attainment"] },
-  "attain": { n:"Attainment", ttl:"What to do in this tab", sum:"CO and PO attainment computed from marks and from the student survey.", intro:"Read this only when marking is finished \u2014 incomplete data looks exactly like poor performance.", c:"#b45309", t:"#fdf1e0",
-    dos:["Check that all marks are entered first; a missing column depresses a CO just as a weak class would.", "Check Course Info first if a result looks unexpectedly high or low: the thresholds behind every figure here come from that tab, not from anywhere else.", "Enter or import the survey for indirect attainment; without it the combined figure rests on the direct side alone.", "Never import the same survey CSV twice \u2014 responses accumulate; clear the tallies first for a clean re-import.", "Note the lowest-attaining CO before you leave: that is the finding the CQI tab expects you to explain."],
+  "attain": { n:"Attainment", ttl:"What to do in this Section", sum:"CO and PO attainment computed from marks and from the student survey.", intro:"Read this only when marking is finished \u2014 incomplete data looks exactly like poor performance.", c:"#b45309", t:"#fdf1e0",
+    dos:["Check that all marks are entered first; a missing column depresses a CO just as a weak class would.", "Check Course Info first if a result looks unexpectedly high or low: the thresholds behind every figure here come from that Section, not from anywhere else.", "Enter or import the survey for indirect attainment; without it the combined figure rests on the direct side alone.", "Never import the same survey CSV twice \u2014 responses accumulate; clear the tallies first for a clean re-import.", "Note the lowest-attaining CO before you leave: that is the finding the CQI Section expects you to explain."],
     i:["Marks from this course", "Survey responses", "Thresholds from Course Info"], d:["Review CO and PO tables", "Tally the survey", "Compare against target"], o:["Attainment figures for the report", "The findings CQI works from"] },
-  "cqi": { n:"CQI", ttl:"What to do in this tab", sum:"Diagnose weak outcomes, decide what changes, and close last semester\u2019s actions.", intro:"Work the sections top to bottom \u2014 each one feeds the next, and the order is the argument.", c:"#b45309", t:"#fdf1e0",
+  "cqi": { n:"CQI", ttl:"What to do in this Section", sum:"Diagnose weak outcomes, decide what changes, and close last semester\u2019s actions.", intro:"Work the sections top to bottom \u2014 each one feeds the next, and the order is the argument.", c:"#b45309", t:"#fdf1e0",
     dos:["Follow the sequence: diagnose the low attainment, describe what happened, decide the actions, then close the previous offering\u2019s actions.", "Every finding needs an action, a named owner and a date; an action without those cannot be audited.", "Close a previous action only when this offering\u2019s data shows it worked \u2014 not merely because it was carried out.", "Keep each analysis tied to evidence: name the CO, the item and the number that triggered it.", "The actions you record here are course-level improvements. Broader, program-level quality improvement is normally handled separately by the department."],
     i:["Attainment results", "Survey comments", "Last offering\u2019s actions"], d:["Analyse low attainment", "Write the narratives", "Set actions, owners, dates"], o:["The CQI report", "Actions that open next semester"] },
-  "docs": { n:"Accreditation Documents", ttl:"What to do in this tab", sum:"The printable OBE documents, generated from everything entered so far.", intro:"Nothing is authored here \u2014 these are live views of your data, ready for the file.", c:"#9d174d", t:"#fceaf1",
-    dos:["Print only once the CA tab is clean and marks are complete; each document is a snapshot of the data as it stands.", "Use the browser\u2019s Save as PDF \u2014 nothing needs retyping into Word.", "Sections marked \u26d3 linked share one dataset with the CQI tab: edit them in either place, never as two separate copies.", "Check the header block on page one; code, title, section and semester come straight from Course Info.", "This guidance card is excluded from printing, so the paper copy carries official content only."],
-    i:["Data from every tab"], d:["Review each document", "Print or save as PDF"], o:["Outline, Specifications, Report", "CQI report and annexures"] },
-  "data": { n:"Data &amp; Backup", ttl:"What to do in this tab", sum:"Where your course file lives, and where the semester\u2019s data leaves for the program.", intro:"Everything is stored in this browser, so the export is not a convenience \u2014 it is the archive.", c:"#9d174d", t:"#fceaf1",
+  "docs": { n:"Accreditation Documents", ttl:"What to do in this Section", sum:"The printable OBE documents, generated from everything entered so far.", intro:"Nothing is authored here \u2014 these are live views of your data, ready for the file.", c:"#9d174d", t:"#fceaf1",
+    dos:["Print only once the CA Section is clean and marks are complete; each document is a snapshot of the data as it stands.", "Use the browser\u2019s Save as PDF \u2014 nothing needs retyping into Word.", "Sections marked \u26d3 linked share one dataset with the CQI Section: edit them in either place, never as two separate copies.", "Check the header block on page one; code, title, section and semester come straight from Course Info.", "This guidance card is excluded from printing, so the paper copy carries official content only."],
+    i:["Data from every Section"], d:["Review each document", "Print or save as PDF"], o:["Outline, Specifications, Report", "CQI report and annexures"] },
+  "data": { n:"Data &amp; Backup", ttl:"What to do in this Section", sum:"Where your course file lives, and where the semester\u2019s data leaves for the program.", intro:"Everything is stored in this browser, so the export is not a convenience \u2014 it is the archive.", c:"#9d174d", t:"#fceaf1",
     dos:["Export the JSON at the end of every semester and keep it as your official record \u2014 it\u2019s also what your department would need if it consolidates course data for accreditation reporting.", "Treat the export as your archive \u2014 clearing browser data removes everything that was never exported.", "Prefer \u201cWork on a file\u201d so each change auto-saves to a file you own rather than to browser storage alone.", "Import restores a whole course including the shared pools, so a department can distribute one curated set.", "Export before Duplicate for New Semester or any deletion; both are quick and neither can be undone."],
     i:["This course\u2019s complete data"], d:["Save to a file", "Export a backup", "Hand over the semester file"], o:["The JSON the program imports", "A restorable archive"] }
 };
@@ -4690,7 +5012,7 @@ function guideCard(tab){
   const g = TAB_GUIDE[tab]; if(!g) return "";
   const open = !!(window._guideOpen||{})[tab];
   return `<div class="card guide-card">
-    <h2 class="guide-head" onclick="toggleGuide('${tab}')" title="${open? "Hide the guidance":"Show the guidance for this tab"}">
+    <h2 class="guide-head" onclick="toggleGuide('${tab}')" title="${open? "Hide the guidance":"Show the guidance for this Section"}">
       <span class="guide-caret">${open? "&#9662;":"&#9656;"}</span>${g.ttl}
     </h2>
     ${open? guidePanelHTML(g) : `<p class="guide-sum">${g.sum}</p>`}

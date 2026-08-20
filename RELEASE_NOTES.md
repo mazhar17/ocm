@@ -1,7 +1,7 @@
 # OBE Course Manager — Release Notes
 
-**Version:** v1.4 · **First release:** July 13, 2026
-**Live at:** https://mazhar17.github.io/obe-course-manager/
+**Version:** v1.86 · **First release:** July 13, 2026
+**Live at:** https://mazhar17.github.io/ocm/
 **License:** © 2026 Prof. Mazharul Islam · Creative Commons Attribution (CC BY) 4.0 International
 
 ---
@@ -16,10 +16,12 @@ The underlying OBE implementation framework was developed at **Ahsanullah Univer
 
 ## Key Features
 
-- **Course setup** — course information (including cohort), Course Outcomes with Bloom's taxonomy levels (cognitive, affective, psychomotor), and a click-to-set CO–PO mapping matrix against the 12 Washington Accord Program Outcomes.
-- **T&L Activities recommender (CQI-aware)** — a pool of 31 evidence-based teaching-learning activities, matched to each CO's Bloom's level, boosted by the previous semester's CQI recommendations and ranked down when marked ineffective; one-click adoption into the constructive-alignment table. The pool is extensible.
-- **Assessment planning** — quizzes, tests, exams, labs and projects broken into items, each tagged with a CO and maximum marks; the tagging drives all attainment calculations.
-- **Marks management** — spreadsheet-style entry, bulk student paste from Excel, and a CSV workflow (Empty Template → Import → Export).
+- **Course setup** — course information (including cohort), Course Outcomes with Bloom's taxonomy levels (cognitive, affective, psychomotor), and a click-to-set CO–PO mapping matrix against the 12 Washington Accord Program Outcomes. A per-course **OBE Framework** selector offers **Version 2.2** (the 12 POs without indicators — the default) or **Version 3** (the updated 12-PO set with the official 46 **PO Indicators**, PO1a…PO12b; documentary, printed on the Outline and Specifications).
+- **T&L Activities recommender (CQI-aware)** — a pool of 36 evidence-based teaching-learning activities, matched to each CO's Bloom's level, boosted by the previous semester's CQI recommendations and ranked down when marked ineffective; one-click adoption into the constructive-alignment table. The pool is extensible.
+- **Assessment planning** — quizzes, exams, labs and projects broken into items, each tagged with a CO and maximum marks; the tagging drives all attainment calculations. **Class Performance** assessments need no questions: set a total, tick the COs, and the marks split equally across them (one CP column per course part).
+- **Marks management** — spreadsheet-style entry with frozen headers, decimals and fractions (1 2/3), bulk student paste from Excel, and a CSV workflow (Empty Template → Import → Export).
+- **Learning resources register** — the materials shared with students recorded as links (Type-filtered suggestions from a curated pool), CO-tagged so they flow into the topic-wise plan and print as Course Outline 17.3.
+- **Sections, sub-sections & guidance** — the app is organised as Sections, each opening with a collapsed "What to do in this Section" card (concrete instructions, the traps to avoid, and a what-comes-in / what-you-do / what-comes-out diagram — never printed). Long Sections split into sub-section pill bars; the CQI Section stays one page with a sticky Jump-to bar and collapsible step cards carrying live progress statuses.
 - **Direct measurement of COs & POs** — identical to the AUST Direct CO-PO Calculations method: per-student CO scores, % of students above the Target Pass Marks and KPI thresholds, and marks-weighted PO scores, with charts.
 - **Indirect measurement** — a printable CO Exit Survey (or Google Forms + CSV import), with Likert-based indirect attainment per CO and PO.
 - **Combined attainment** — direct and indirect results combined with user-editable weights (default 80/20).
@@ -41,4 +43,4 @@ All auto-filled from the course data, editable in place, and printable to PDF:
 
 ## Getting Started
 
-Open **https://mazhar17.github.io/obe-course-manager/** in Chrome or Edge, click *Load Sample Course* on the Dashboard to explore, then create your own course. A detailed Faculty User Manual accompanies this release; see `change_log.txt` for the version history.
+Open **https://mazhar17.github.io/ocm/** in Chrome or Edge, click *Load Sample Course* on the Dashboard to explore, then add your own course. A detailed Faculty User Manual accompanies this release; see `change_log_v1.83.txt` for the version history.
