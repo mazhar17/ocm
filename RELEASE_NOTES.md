@@ -1,6 +1,6 @@
 # OBE Course Manager — Release Notes
 
-**Version:** v1.90 · **First release:** July 13, 2026
+**Version:** v2.02 · **First release:** July 13, 2026
 **Live at:** https://mazhar17.github.io/ocm/
 **License:** © 2026 Prof. Mazharul Islam ([mazhar17.github.io/MI](https://mazhar17.github.io/MI)) · Creative Commons Attribution (CC BY) 4.0 International
 
@@ -23,7 +23,7 @@ The underlying OBE implementation framework was developed at **Ahsanullah Univer
 - **Learning resources register** — the materials shared with students recorded as links (Type-filtered suggestions from a curated pool), CO-tagged so they flow into the topic-wise plan and print as Course Outline 17.3.
 - **Sections, sub-sections & guidance** — the app is organised as Sections, each opening with a collapsed "What to do in this Section" card (concrete instructions, the traps to avoid, and a what-comes-in / what-you-do / what-comes-out diagram — never printed). Long Sections split into sub-section pill bars; the CQI Section stays one page with a sticky Jump-to bar and collapsible step cards carrying live progress statuses — an idiom shared by the per-assessment and per-CO cards, which collapse to one-line status summaries.
 - **Direct measurement of COs & POs** — identical to the AUST Direct CO-PO Calculations method: per-student CO scores, % of students above the Target Pass Marks and KPI thresholds, and marks-weighted PO scores, with charts.
-- **Indirect measurement** — a printable CO Exit Survey (or Google Forms + CSV import), with Likert-based indirect attainment per CO and PO.
+- **Indirect measurement** — a printable CO Exit Survey with editable item wording and custom open-ended questions, one-click **Google Form generation** (a downloadable Apps Script builds the whole survey in your account; responses import straight back), and Likert-based indirect attainment per CO and PO.
 - **Combined attainment** — direct and indirect results combined with user-editable weights (default 80/20).
 - **CQI tab (BAETE Criteria 3.8 & 5.4.3)** — teaching-learning and assessment narratives, a six-step CQI-loop status board, low-attainment analysis (filter weak students per CO, item-wise diagnostics, analyses w.r.t. T&L activities and assessment techniques), a stakeholder feedback register, and an Annexure H evidence checklist — all two-way linked with the Course Specifications and Course Report.
 - **"Duplicate for New Semester"** — carries CQI action plans from the Course Report into the next offering's Course Specifications automatically, closing the loop.

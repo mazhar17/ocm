@@ -215,7 +215,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v1.90</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.02</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -237,6 +237,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <button class="tab-btn" data-tab="cqi" onclick="showTab('cqi')">CQI</button>
   <button class="tab-btn" data-tab="docs" onclick="showTab('docs')">Accreditation Documents</button>
   <button class="tab-btn" data-tab="data" onclick="showTab('data')">Data &amp; Backup</button>
+  <button class="tab-btn" data-tab="about" onclick="showTab('about')">About</button>
 </nav>
 
 <main>
@@ -251,16 +252,17 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-cqi"></section>
   <section class="tab" id="tab-docs"></section>
   <section class="tab" id="tab-data"></section>
+  <section class="tab" id="tab-about"></section>
 </main>
 
-<footer>OBE Course Manager <b>v1.90</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v2.02</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v1.90";
+const APP_VERSION = "v2.02";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -329,6 +331,77 @@ const PO_PI_V3 = {
  12:["Demonstrate understanding of the skills required to be an entrepreneur",
     "Demonstrate ability to apply entrepreneurial skills"]
 };
+/* ===== §14 attributes — Version 3 uses WK/WP/EA STRICTLY; K/P/A belong to Version 2.2 only ===== */
+const ATTR_V3 = {
+ wk: { pre:"WK", max:9, tip:{
+  1:"A systematic, theory-based understanding of the natural sciences applicable to the discipline and awareness of relevant social sciences",
+  2:"Conceptually based mathematics, numerical analysis, data analysis, statistics and the formal aspects of computer and information science to support detailed analysis and modeling applicable to the discipline",
+  3:"A systematic, theory-based formulation of engineering fundamentals required in the engineering discipline",
+  4:"Engineering specialist knowledge that provides theoretical frameworks and bodies of knowledge for the accepted practice areas in the engineering discipline; much is at the forefront of the discipline",
+  5:"Knowledge, including efficient resource use, environmental impacts, whole-life cost, re-use of resources, net zero carbon, and similar concepts, that supports engineering design and operations in a practice area",
+  6:"Knowledge of engineering practice (technology) in the practice areas in the engineering discipline",
+  7:"Knowledge of the role of engineering in society and identified issues in engineering practice in the discipline, such as professional responsibility of an engineer to public safety and sustainable development",
+  8:"Engagement with selected knowledge in the current research literature of the discipline, awareness of the power of critical thinking and creative approaches to evaluate emerging issues",
+  9:"Ethics, inclusive behavior and conduct. Knowledge of professional ethics, responsibilities, and norms of engineering practice. Awareness of the need for diversity by reason of ethnicity, gender, age, physical ability etc. with mutual understanding and respect, and of inclusive attitudes"}},
+ wp: { pre:"WP", max:7, tip:{
+  1:"(Depth of knowledge required) Problems require in-depth knowledge at WK3–WK6 or WK8 levels and a fundamentals-based, first-principles analytical approach",
+  2:"(Range of conflicting requirements) Involve wide-ranging or conflicting technical, non-technical, ethical, sustainability, or societal issues",
+  3:"(Depth of analysis required) Have no obvious solution and demand abstract thinking, creativity, and originality in modeling",
+  4:"(Familiarity of issues) Involve infrequently encountered or novel issues",
+  5:"(Extent of applicable codes) Not encompassed by established standards or codes of practice",
+  6:"(Extent of stakeholder involvement) Require collaboration across disciplines and among diverse stakeholders with differing needs",
+  7:"(Interdependence) Comprise high-level problems involving multiple components or sub-systems needing a systems approach"}},
+ ea: { pre:"EA", max:5, tip:{
+  1:"(Range of resources) Involve diverse resources — people, data, finances, materials, technologies, and analytical/design tools",
+  2:"(Level of interactions) Require optimal resolution of interactions among wide-ranging or conflicting technical and non-technical issues",
+  3:"(Innovation) Demand creative and research-based application of engineering principles to achieve innovative solutions",
+  4:"(Consequences) Have significant consequences for society and the environment, often difficult to predict or mitigate",
+  5:"(Familiarity) Extend beyond prior experience, requiring principles-based approaches"}}
+};
+const ATTR_V22 = {
+ wk: { pre:"K", max:8, tip:{
+  1:"A systematic, theory-based understanding of the natural sciences applicable to the discipline.",
+  2:"Conceptually based mathematics, numerical analysis, statistics and the formal aspects of computer and information science to support analysis and modeling applicable to the discipline.",
+  3:"A systematic, theory-based formulation of engineering fundamentals required in the engineering discipline.",
+  4:"Engineering specialist knowledge that provides theoretical frameworks and bodies of knowledge for the accepted practice areas in the engineering discipline; much is at the forefront of the discipline.",
+  5:"Knowledge that supports engineering design in a practice area.",
+  6:"Knowledge of engineering practice (technology) in the practice areas in the engineering discipline.",
+  7:"Comprehension of the role of engineering in society and identified issues in engineering practice in the discipline: ethics and the engineer’s professional responsibility to public safety; the impacts of engineering activity; economic, social, cultural, environmental and sustainability.",
+  8:"Engagement with selected knowledge in the research literature of the discipline."}},
+ wp: { pre:"P", max:7, tip:{
+  1:"(Depth of knowledge required) Cannot be resolved without in-depth engineering knowledge at the level of one or more of K3, K4, K5, K6 or K8 which allows a fundamentals-based, first principles analytical approach.",
+  2:"(Range of conflicting requirements) Involve wide-ranging or conflicting technical, engineering and other issues.",
+  3:"(Depth of analysis required) Have no obvious solution and require abstract thinking, originality in analysis to formulate suitable models.",
+  4:"(Familiarity of issues) Involve infrequently encountered issues.",
+  5:"(Extent of applicable codes) Are outside problems encompassed by standards and codes of practice for professional engineering.",
+  6:"(Extent of stakeholder involvement) Involve diverse groups of stakeholders with widely varying needs.",
+  7:"(Interdependence) Are high-level problems including many component parts or sub-problems."}},
+ ea: { pre:"A", max:5, tip:{
+  1:"(Range of resources) Involve the use of diverse resources (and for this purpose resources include people, money, equipment, materials, information and technologies).",
+  2:"(Level of interaction) Require resolution of significant problems arising from interactions between wide-ranging or conflicting technical, engineering or other issues.",
+  3:"(Innovation) Involve creative use of engineering principles and research-based knowledge in novel ways.",
+  4:"(Consequences for society and the environment) Have significant consequences in a range of contexts, characterized by difficulty of prediction and mitigation.",
+  5:"(Familiarity) Can extend beyond previous experiences by applying principles-based approaches."}}
+};
+function attrDef(c, g){
+  const a = fwV3(c)? ATTR_V3[g] : ATTR_V22[g];
+  return { pre:a.pre, max:a.max, tip:k=> a.tip[k] || "" };
+}
+function attrStr(c, g, arr){
+  const d = attrDef(c, g);
+  return (arr||[]).filter(k=>k>=1&&k<=d.max).sort((a,b)=>a-b).map(k=>d.pre+k).join(", ");
+}
+/* Write-through: the chip selections are canonical; the legacy free-text fields
+   (co.kp / co.cep / co.cea) are regenerated from them so the printed Outline §14,
+   the CQI 3.8 table and the AI prompts keep working unchanged. A CO whose arrays
+   were never ticked keeps whatever free text it already had. */
+function syncAttrStrings(c, co){
+  if(Array.isArray(co.wk)) co.kp  = attrStr(c,'wk',co.wk);
+  if(Array.isArray(co.wp)) co.cep = attrStr(c,'wp',co.wp);
+  if(Array.isArray(co.ea)) co.cea = attrStr(c,'ea',co.ea);
+}
+/* v3 PO ↔ WK citations (from the official PO statements) — for the soft consistency hint. */
+const PO_WK_V3 = {1:[1,2,3,4],2:[1,2,3,4],3:[5],4:[8],5:[2,6],6:[1,5,7],7:[9],8:[9],11:[8]};
 function fwV3(c){ return !!(c && c.aust && c.aust.fw === "v3"); }
 function poInfo(c, n){ return fwV3(c)? PO_INFO_V3[n] : PO_INFO[n]; }
 function piLetter(k){ return String.fromCharCode(97 + k); }
@@ -339,7 +412,7 @@ function coursePIs(c){
   return c.aust.pis;
 }
 const BLOOMS = ["Remember","Understand","Apply","Analyze","Evaluate","Create"];
-const ASSESS_TYPES = ["Class Performance","Quiz","Assignment","Mid Term","Final Exam","Lab/Sessional","Project","Presentation","Viva","Attendance","Other"];
+const ASSESS_TYPES = ["Class Performance","Quiz","Assignment","Mid Term","Final Exam","Final Report","Lab/Sessional","Project","Presentation","Viva","Attendance","Other"];
 /* "Class Test" was retired from the list — assessments already saved with it keep working,
    and the type dropdown still shows it for those assessments only. */
 const STORE_KEY = "obe_course_manager_v1";
@@ -430,7 +503,11 @@ function ensureAust(c){
   a.survey.fbOn = Object.assign({ tla:true, res:true, align:true, rubric:true, fbk:true, pace:true }, a.survey.fbOn||{});   // Block B toggles
   a.survey.fbTally = a.survey.fbTally || {};    // Block B: item key -> [n1..n5]
   if(a.survey.resFbOn === undefined) a.survey.resFbOn = true;
-  a.survey.resTally = a.survey.resTally || {};  // Block C: resource title -> [n1..n5]
+  a.survey.resTally = a.survey.resTally || {};
+  a.survey.coText = a.survey.coText || {};       // per-CO wording overrides for the survey item (display only — attainment stays CO-keyed)
+  a.survey.fbText = a.survey.fbText || {};       // Block B wording overrides
+  if(!Array.isArray(a.survey.openQ))             // custom open-ended questions (printed; not tallied) + response summaries for the CQI prompts
+    a.survey.openQ = [ {q:"The best aspect of this course", sum:""}, {q:"One suggested improvement", sum:""} ];  // Block C: resource title -> [n1..n5]
   a.cqi = Object.assign({ complex:"", effective:"", design:"", moderation:"" }, a.cqi||{});
   if(!Array.isArray(a.cqi.stakeholders)) a.cqi.stakeholders = [];  // {src,date,summary,action}
   if(!a.cqi.evid || typeof a.cqi.evid!=="object") a.cqi.evid = {}; // evidence checklist flags
@@ -705,7 +782,7 @@ const SUBSECTS = {
   attain: [["dco","Direct — CO"],["dpo","Direct — PO"],["survey","Survey (Indirect)"],["combined","Combined"]],
   data:   [["file","File & Backups"],["pools","Pools"],["misc","Danger Zone & About"]],
   tla:    [["plan","Planning per CO"],["resources","Learning Resources"],["topics","Topic-wise Plan"],["summary","Summary Tables"]],
-  assess: [["plan","Assessment Plan"],["summary","Summary & Tips"]]
+  assess: [["plan","Assessment Plan"],["cepcea","CEP & CEA"],["rubric","Rubric"],["summary","Summary & Tips"]]
 };
 function subSect(tab){
   const list = SUBSECTS[tab]; if(!list) return null;
@@ -763,7 +840,7 @@ function foldClickM(ev, k, rr){
   if(ev && ev.target && ev.target.closest && (ev.target.closest("button")||ev.target.closest("a"))) return;
   window._miscFold = window._miscFold || {};
   window._miscFold[k] = !window._miscFold[k];
-  ({ tla: renderTLA, data: renderData, assess: renderAssess, ca: renderCA }[rr] || renderTLA)();
+  ({ tla: renderTLA, data: renderData, assess: renderAssess, ca: renderCA, cos: renderCOs, attain: renderAttain }[rr] || renderTLA)();
 }
 function foldOpenT(id){ return !!(window._tlaFold||{})[id]; }
 function toggleFoldT(id){
@@ -789,7 +866,7 @@ function subBar(tab){
 }
 function renderTab(name){
   const map = { dashboard:renderDashboard, course:renderCourse, cos:renderCOs, tla:renderTLA, assess:renderAssess,
-                ca:renderCA, marks:renderMarks, attain:renderAttain, cqi:renderCQI, docs:renderDocs, data:renderData };
+                ca:renderCA, marks:renderMarks, attain:renderAttain, cqi:renderCQI, docs:renderDocs, data:renderData, about:renderAbout };
   if(map[name]) map[name]();
   if(typeof injectGuide === "function") injectGuide(name);   // per-tab guidance card (additive)
 }
@@ -818,7 +895,8 @@ function renderDashboard(){
       <p class="hint">This app helps you manage a course from the OBE perspective: define Course Outcomes (COs), map them to Program Outcomes (POs), plan CO-based assessments, enter marks, and get CO/PO attainment automatically — ready for accreditation evidence (BAETE / Washington Accord).</p>
       <p>Start by adding your first course.</p>
       <div class="btn-row"><button class="btn" onclick="openNewCourse()">+ Add a Course</button>
-      <button class="btn secondary" onclick="loadSample()">Load Sample Course (demo)</button></div></div>`;
+      <button class="btn secondary" onclick="loadSample()">Load Sample Course (demo)</button>
+      <button class="btn secondary" onclick="loadSampleSessional()">Load Sample Sessional (demo)</button></div></div>`;
     return;
   }
   const nStu = c.students.length;
@@ -1012,6 +1090,7 @@ function setFramework(v, el){
   }
   c.aust.fw = v;
   if(v === "v3" && !c.aust.pis) c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  c.cos.forEach(co=>syncAttrStrings(c, co));   // §14 strings follow the framework's labels (WK/WP/EA vs K/P/A)
   save(); renderCourse(); toast(v==="v3"? "Framework v3 — updated PO names and indicators active" : "Framework v2.2 — current PO names, no indicators");
 }
 function setCfgField(k, v){
@@ -1061,6 +1140,68 @@ function itemLevelTag(it, co){
   const t = levelTagOf(info, it.level);
   return t || primeTag(co);   // unset item level falls back to the CO's level
 }
+/* ===== Per-item WP/EA (complex-attribute) tagging ===== */
+function itemCogIdx(it){ const s=String(it.level||""); const i=BLOOMS.indexOf(s); if(i>=0) return i+1; const m=/^C(\d)/.exec(s); return m? +m[1] : 0; }   // Bloom name ("Analyze") or C-tag ("C4"); 0 = not a cognitive level
+function itemWpExpected(it){ return itemCogIdx(it) >= 4; }   // strong suggestion: Cognitive C4+ items should exercise WP attributes
+function itemAttrChip(c, it){
+  const dw = attrDef(c,'wp'), de = attrDef(c,'ea');
+  const w = (it.wp||[]).slice().sort((a,b)=>a-b), e = (it.ea||[]).slice().sort((a,b)=>a-b);
+  if(w.length||e.length){
+    const txt = [w.length? dw.pre+w.join(","):null, e.length? de.pre+e.join(","):null].filter(Boolean).join(" · ");
+    return `<span class="badge blue" style="font-size:10px" title="Complex-attribute tags — edit in the “Complex attributes per item” matrix below">${txt}</span>`;
+  }
+  if(itemWpExpected(it))
+    return `<span class="badge amber" style="font-size:10px" title="An Analyze/Evaluate/Create-level item is expected to exercise complex-problem attributes (${dw.pre}) — tag them in the “Complex attributes per item” matrix below, or reconsider the level">${dw.pre} expected</span>`;
+  return "";
+}
+function toggleItemAttr(aid, iid, g, k){
+  const c = activeCourse(); if(!c) return;
+  const a = c.assessments.find(x=>x.id===aid); if(!a) return;
+  const it = a.items.find(x=>x.id===iid); if(!it) return;
+  if(!Array.isArray(it[g])) it[g] = [];
+  const i = it[g].indexOf(k);
+  if(i>=0) it[g].splice(i,1); else it[g].push(k);
+  save(); renderAssess();
+}
+/* Collapsed per-assessment tick matrix (rows = CO-tagged items; WP | EA columns). */
+function itemAttrMatrix(c, a){
+  if(isCP(a)) return "";
+  const items = a.items.filter(it=>it.coId);
+  if(!items.length) return "";
+  const dw = attrDef(c,'wp'), de = attrDef(c,'ea');
+  const fk = 'wpea_'+a.id;
+  const nT = items.filter(it=>(it.wp||[]).length||(it.ea||[]).length).length;
+  const nEx = items.filter(it=>itemWpExpected(it) && !(it.wp||[]).length).length;
+  if(!foldOpenM(fk)) return `
+      <div style="border:1px dashed var(--border);border-radius:10px;padding:6px 12px;margin-top:8px">
+        <p class="cqi-fold" style="margin:0;font-weight:700;font-size:12.5px;color:var(--primary-dark)" onclick="foldClickM(event,'${fk}','assess')"><span class="fold-caret">&#9656;</span> Complex attributes (${dw.pre}/${de.pre}) per item
+          <span style="font-weight:400;color:var(--muted)"> — ${nT} of ${items.length} item(s) tagged${nEx? ` · <span class="badge amber" style="font-size:10px">${nEx} C4+ item(s) untagged</span>`:""}</span></p>
+      </div>`;
+  const cells = (it,g,d) => Array.from({length:d.max},(_,q)=>{
+    const k=q+1, on = Array.isArray(it[g]) && it[g].includes(k);
+    return `<td class="map-cell m${on?3:0}" title="${esc(d.pre+k)}${d.tip(k)? " — "+esc(d.tip(k)):""}" onclick="toggleItemAttr('${a.id}','${it.id}','${g}',${k})">${on?"✓":"·"}</td>`;
+  }).join("");
+  const rows = items.map(it=>{
+    const co = c.cos.find(x=>x.id===it.coId);
+    const beyond = [];
+    (it.wp||[]).forEach(k=>{ if(co && Array.isArray(co.wp) && co.wp.length && !co.wp.includes(k)) beyond.push(attrDef(c,'wp').pre+k); });
+    (it.ea||[]).forEach(k=>{ if(co && Array.isArray(co.ea) && co.ea.length && !co.ea.includes(k)) beyond.push(attrDef(c,'ea').pre+k); });
+    return `<tr>
+      <td style="white-space:nowrap"><b>${esc(it.label)}</b> <span style="color:var(--muted);font-size:11px">${coLabel(c,it.coId)} · ${esc(it.level||"")}</span>${itemWpExpected(it)&&!(it.wp||[]).length? ' <span class="badge amber" style="font-size:10px" title="C4+ item without complex-problem tags">!</span>':''}</td>
+      ${cells(it,'wp',dw)}${cells(it,'ea',de)}
+    </tr>${beyond.length? `<tr><td></td><td colspan="${dw.max+de.max}" style="font-size:11px;color:var(--warn);text-align:left;padding:2px 8px">⚠ ${beyond.join(", ")} not declared for ${coLabel(c,it.coId)} in §14 — tick it there too, or reconsider.</td></tr>`:""}`;
+  }).join("");
+  return `
+      <div style="border:1px dashed var(--border);border-radius:10px;padding:6px 12px;margin-top:8px">
+        <p class="cqi-fold" style="margin:0 0 6px;font-weight:700;font-size:12.5px;color:var(--primary-dark)" onclick="foldClickM(event,'${fk}','assess')"><span class="fold-caret">&#9662;</span> Complex attributes (${dw.pre}/${de.pre}) per item</p>
+        <p class="hint" style="margin-bottom:6px">Tick which complex-problem (${dw.pre}) and complex-activity (${de.pre}) attributes each question actually exercises — the evidence behind the CO claims in §14. Cognitive C4+ items are expected to carry at least one ${dw.pre} attribute (amber ! until tagged). Hover a column for the official descriptor. Prints in the Specifications 5.1 blueprint.</p>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th rowspan="2" style="min-width:120px">Item</th><th colspan="${dw.max}" style="text-align:center">${dw.pre}1–${dw.pre}${dw.max}</th><th colspan="${de.max}" style="text-align:center">${de.pre}1–${de.pre}${de.max}</th></tr>
+          <tr>${Array.from({length:dw.max},(_,q)=>`<th class="map-cell" title="${esc(dw.tip(q+1))}">${dw.pre}${q+1}</th>`).join("")}${Array.from({length:de.max},(_,q)=>`<th class="map-cell" title="${esc(de.tip(q+1))}">${de.pre}${q+1}</th>`).join("")}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>`;
+}
 function itemExceedsCO(it, co){
   if(!co) return false;
   const info = coLevelInfo(co);
@@ -1091,6 +1232,29 @@ function updateCODomain(id, val){
   co.btDomain = val;
   save(); renderCOs(); toast("Saved");
 }
+/* ===== Non-measurable action-verb alarm (Popenici & Millar; Anderson & Krathwohl; Harden) ===== */
+const VAGUE_VERBS = [
+  { re:/^(know|knows|knowing)\b|^(have|has|gain|acquire)( a| an| the)? knowledge\b/i, v:"know / have knowledge of", why:"does not indicate how the knowledge will be demonstrated", alt:"identify, define, recall, describe, calculate" },
+  { re:/^(understand|comprehend|grasp)\b/i, v:"understand / comprehend / grasp", why:"the intended evidence of understanding is unclear", alt:"explain, interpret, compare, classify, predict, apply" },
+  { re:/^learn\b/i, v:"learn", why:"describes a process rather than its assessable result", alt:"demonstrate, perform, solve, construct, design" },
+  { re:/^appreciate\b/i, v:"appreciate", why:"refers to an internal attitude or feeling", alt:"justify, critique, defend, evaluate" },
+  { re:/^(be|become) aware( of)?\b/i, v:"be aware of", why:"awareness cannot be directly observed", alt:"identify, describe, recognize, select" },
+  { re:/^(be|become) familiar( with)?\b/i, v:"be familiar with", why:"does not specify the required level of performance", alt:"locate, explain, operate, use" },
+  { re:/^think\b/i, v:"think / think critically", why:"does not state what observable work students will produce", alt:"analyze, evaluate, formulate, justify" },
+  { re:/^(believe|realize|realise)\b|^(be|become) interested( in)?\b/i, v:"believe / realize / be interested in", why:"describes an internal disposition", alt:"argue, advocate, participate, propose" },
+  { re:/^(undertake|engage in)\b/i, v:"undertake / engage in", why:"indicates activity but not the expected result", alt:"conduct, complete, produce, report" }
+];
+function vagueVerbCheck(stmt){
+  let s = String(stmt||"").trim();
+  s = s.replace(/^(the )?students?( will| should| can| must)?( be able to| are able to)?\s+/i,"").replace(/^to\s+/i,"");
+  for(const x of VAGUE_VERBS){ if(x.re.test(s)) return x; }
+  return null;
+}
+function vagueVerbWarn(co){
+  const w = vagueVerbCheck(co.statement);
+  if(!w) return "";
+  return `<p style="font-size:11.5px;color:#c0392b;font-weight:600;margin:4px 0 0;line-height:1.45">⚠ <b>“${w.v}”</b> describes an internal mental state, not an observable performance — ${w.why}. Prefer an observable verb such as <i>${w.alt}</i>, then state the content, conditions and expected standard. A useful test: can students produce something observable that demonstrates this outcome? ${typeof refCite==="function"? refCite([5,17,18,19]) : ""}</p>`;
+}
 function renderCOs(){
   const el = document.getElementById("tab-cos");
   const c = activeCourse();
@@ -1100,7 +1264,7 @@ function renderCOs(){
     return `
     <tr>
       <td style="white-space:nowrap"><b>CO${i+1}</b></td>
-      <td><textarea class="ag" onchange="updateCO('${co.id}','statement',this.value)" rows="2" oninput="autoGrowTA(this)" style="width:100%;overflow-y:hidden;border:1px solid var(--border);border-radius:6px;padding:6px;font-family:inherit;font-size:13.5px">${esc(co.statement)}</textarea></td>
+      <td><textarea class="ag" onchange="updateCO('${co.id}','statement',this.value)" rows="2" oninput="autoGrowTA(this)" style="width:100%;overflow-y:hidden;border:1.5px solid ${vagueVerbCheck(co.statement)? "#c0392b":"var(--border)"};border-radius:6px;padding:6px;font-family:inherit;font-size:13.5px">${esc(co.statement)}</textarea>${vagueVerbWarn(co)}</td>
       <td><select onchange="updateCODomain('${co.id}',this.value)" style="padding:6px;border:1px solid var(--border);border-radius:6px;font-family:inherit">
         ${BT_DOMAINS.map(d=>`<option ${(co.btDomain||"Cognitive")===d?"selected":""}>${d}</option>`).join("")}
       </select></td>
@@ -1117,12 +1281,12 @@ function renderCOs(){
       const v = (co.po&&co.po[p+1])||0;
       return `<td class="map-cell m${v?3:0}" title="Click to toggle (${esc(poInfo(c,p+1))})" onclick="togglePO('${co.id}',${p+1})">${v?"✓":"·"}</td>`;
     }).join("");
-    return `<tr><td style="white-space:nowrap"><b>CO${i+1}</b></td>${cells}</tr>`;
+    return `<tr><td style="white-space:nowrap"><b>CO${i+1}</b></td><td style="min-width:220px;max-width:320px;font-size:12px;color:var(--muted)">${esc(co.statement)||"<i>(no statement yet — write it in the Course Outcomes table above)</i>"}</td>${cells}</tr>`;
   }).join("");
   el.innerHTML = `
   <div class="card">
     <h2>Course Outcomes (COs)</h2>
-    <p class="hint">Write measurable CO statements using action verbs, choose the Bloom's Taxonomy (BT) Domain, and set the matching Level. Edits save automatically.</p>
+    <p class="hint">Write measurable CO statements using observable action verbs, choose the Bloom's Taxonomy (BT) Domain, and set the matching Level. A statement opening with a non-measurable verb (know, understand, appreciate, be aware of…) triggers a warning with observable alternatives. Edits save automatically.</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>#</th><th style="min-width:300px">CO Statement</th><th>BT Domain</th><th>Level</th><th>Mapped POs</th><th></th></tr></thead>
       <tbody>${coRows || `<tr><td colspan="6" class="empty">No COs yet — add your first CO below.</td></tr>`}</tbody>
@@ -1131,15 +1295,79 @@ function renderCOs(){
   </div>
   <div class="card">
     <h2>CO–PO Mapping Matrix</h2>
-    <p class="hint">Click a cell to tick (✓) the POs addressed by each CO — click again to remove. Hover a PO heading for its Washington Accord graduate attribute name.</p>
+    <p class="hint">Click a cell to tick (✓) the POs addressed by each CO — click again to remove. Hover a PO heading for its Washington Accord graduate attribute name. CO statements are copied from the Course Outcomes table above; edit them there.</p>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th></th>${mapHeader}</tr></thead>
-      <tbody>${mapRows || `<tr><td colspan="13" class="empty">Add COs first.</td></tr>`}</tbody>
+      <thead><tr><th></th><th style="min-width:220px">CO Statement</th>${mapHeader}</tr></thead>
+      <tbody>${mapRows || `<tr><td colspan="14" class="empty">Add COs first.</td></tr>`}</tbody>
     </table></div>
     <span class="pill-note">${Array.from({length:N_PO},(_,i)=>`PO${i+1} ${esc(poInfo(c,i+1))}`).join(" · ")}${fwV3(c)? ' <span class="badge blue" title="This course uses OBE Framework Version 3 (set in Course Info)">Framework v3</span>':''}</span>
   </div>
+  ${attrMapCard(c)}
   ${piCard(c)}`;
   autoGrowAll("tab-cos");
+}
+/* ===== §14 mapping card: WK / WP / EA (v3) or K / P / A (v2.2) tick-chips per CO ===== */
+function attrMapCard(c){
+  if(!c.cos.length) return "";
+  const v3 = fwV3(c);
+  const D = { wk: attrDef(c,'wk'), wp: attrDef(c,'wp'), ea: attrDef(c,'ea') };
+  const tagged = c.cos.filter(co=>['wk','wp','ea'].some(g=>Array.isArray(co[g])&&co[g].length)).length;
+  const title = "Mapping of COs with Knowledge Profiles, Complex Engineering Problem Solving and Complex Engineering Activities";
+  if(!foldOpenM('attrMap')) return `
+  <div class="card folded">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'attrMap','cos')"><span class="fold-caret">&#9656;</span> ${title}</h2>
+    <p class="fold-sum">${tagged} of ${c.cos.length} CO(s) tagged — click to tick the ${D.wk.pre}/${D.wp.pre}/${D.ea.pre} attributes (prints as Course Outline §14).</p>
+  </div>`;
+  const cellRow = (co, g) => {
+    const d = D[g];
+    return Array.from({length:d.max},(_,q)=>{
+      const k=q+1, on = Array.isArray(co[g]) && co[g].includes(k);
+      return `<td class="map-cell m${on?3:0}" title="${esc(d.pre+k)}${d.tip(k)? " — "+esc(d.tip(k)):""} (click to toggle)" onclick="toggleAttr('${co.id}','${g}',${k})">${on?"✓":"·"}</td>`;
+    }).join("");
+  };
+  const headCells = g => Array.from({length:D[g].max},(_,q)=>`<th class="map-cell" title="${esc(D[g].tip(q+1))}">${D[g].pre}${q+1}</th>`).join("");
+  const rows = c.cos.map((co,i)=>{
+    const hints=[];
+    if(Array.isArray(co.wp) && co.wp.some(k=>k>=2) && !co.wp.includes(1))
+      hints.push(`${D.wp.pre}2–${D.wp.pre}${D.wp.max} are ticked without ${D.wp.pre}1 — complexity requires ${D.wp.pre}1 (in-depth, first-principles knowledge) plus one or more of the others.`);
+    if(v3){
+      const mapped = Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>+p);
+      const expect = [...new Set(mapped.flatMap(p=>PO_WK_V3[p]||[]))];
+      const missing = expect.filter(k=>!(Array.isArray(co.wk)&&co.wk.includes(k)));
+      if(Array.isArray(co.wk) && co.wk.length && missing.length)
+        hints.push(`Mapped PO(s) cite WK${missing.join(", WK")} — consider ticking, or review the CO–PO mapping.`);
+    }
+    const span = D.wk.max + D.wp.max + D.ea.max;
+    return `<tr>
+      <td style="white-space:nowrap"><b>CO${i+1}</b></td>
+      ${cellRow(co,'wk')}${cellRow(co,'wp')}${cellRow(co,'ea')}
+    </tr>${hints.length? `<tr><td></td><td colspan="${span}" style="font-size:11.5px;color:var(--warn);padding:2px 8px;text-align:left">${hints.map(h=>"⚠ "+h).join("<br>")}</td></tr>`:""}`;
+  }).join("");
+  return `
+  <div class="card">
+    <h2 class="cqi-fold" onclick="foldClickM(event,'attrMap','cos')"><span class="fold-caret">&#9662;</span> ${title}</h2>
+    <p class="hint">Tick, per CO, the ${v3? "Knowledge Profile (WK1–WK9), Complex Engineering Problem attributes (WP1–WP7) and Complex Engineering Activity attributes (EA1–EA5) of BAETE Version 3 — hover a chip for the official descriptor"
+      : "Knowledge Profile (K1–K8), Complex Problem Solving (P1–P7) and Complex Engineering Activities (A1–A5) of Version 2.2"}. Selections print in Course Outline §14 and appear in the CQI 3.8 table. Tag honestly: a knowledge-level CO legitimately has empty ${D.wp.pre}/${D.ea.pre} cells — the attributes must be visible in the assessment.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead>
+        <tr><th rowspan="2" style="width:44px">CO</th>
+          <th colspan="${D.wk.max}" style="text-align:center">Knowledge Profile (${D.wk.pre}1–${D.wk.pre}${D.wk.max})</th>
+          <th colspan="${D.wp.max}" style="text-align:center">Complex Problem Solving (${D.wp.pre}1–${D.wp.pre}${D.wp.max})</th>
+          <th colspan="${D.ea.max}" style="text-align:center">Complex Activities (${D.ea.pre}1–${D.ea.pre}${D.ea.max})</th></tr>
+        <tr>${headCells('wk')}${headCells('wp')}${headCells('ea')}</tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </div>`;
+}
+function toggleAttr(coId, g, k){
+  const c = activeCourse(); if(!c) return;
+  const co = c.cos.find(x=>x.id===coId); if(!co) return;
+  if(!Array.isArray(co[g])) co[g] = [];
+  const i = co[g].indexOf(k);
+  if(i>=0) co[g].splice(i,1); else co[g].push(k);
+  syncAttrStrings(c, co);
+  save(); renderCOs();
 }
 /* ===== PO Indicators (Framework v3 only, documentary) ===== */
 function piCard(c){
@@ -1241,7 +1469,9 @@ function updateCO(id, field, val){
   const c = activeCourse(); if(!c) return;
   const co = c.cos.find(x=>x.id===id); if(!co) return;
   co[field] = field==="statement" ? val.trim() : val;
-  save(); toast("Saved");
+  save();
+  if(field==="statement") renderCOs();   // refresh the matrix copy and the measurable-verb alarm
+  toast("Saved");
 }
 function deleteCO(id){
   const c = activeCourse(); if(!c) return;
@@ -1295,7 +1525,7 @@ const TLA_POOL = [
   {n:"Online discussion forum task", d:"Moderated asynchronous discussion with assessed contributions (e.g., LMS/Google Classroom).", b:[2,4,5], mode:"Online", size:"Any", dom:"A"},
   {n:"Interactive e-learning module / infographics", d:"Self-paced interactive HTML modules or infographics with embedded self-checks.", b:[1,2,3], mode:"Online", size:"Any", dom:""},
   {n:"Traditional classroom lecture", d:"Structured oral exposition with board/slides — the efficient baseline for delivering foundational content to any class size.", b:[1,2,3], mode:"Any", size:"Any", dom:""},
-  {n:"Inductive teaching & learning", d:"Instruction begins with specifics — data, a case or a real problem — from which students induce the governing principles (umbrella covering inquiry, discovery and just-in-time approaches; Prince & Felder 2006).", b:[2,3,4,5], mode:"Any", size:"Any", dom:""},
+  {n:"Inductive teaching & learning", d:"Instruction begins with specifics — data, a case or a real problem — from which students induce the governing principles (an umbrella covering inquiry, problem-, project-, case- and just-in-time approaches; Prince & Felder, 2006).", b:[2,3,4,5], mode:"Any", size:"Any", dom:""},
   {n:"In-class group discussion", d:"Facilitated small-group discussion of a focused question, with groups reporting their conclusions to the class.", b:[2,4,5], mode:"In-person", size:"Any", dom:"A"},
   {n:"Guided inquiry session", d:"Students investigate a driving question through structured, scaffolded steps toward the target concept.", b:[3,4,5], mode:"Any", size:"Small", dom:""},
   {n:"Just-in-time teaching (JiTT)", d:"Short web-based responses submitted before class shape that day's session around the revealed gaps.", b:[1,2,3], mode:"Any", size:"Any", dom:""}
@@ -1333,7 +1563,7 @@ const TLA_TIPS = {
   "XR (AR/VR) demonstration":"Keep sessions ≤10 minutes per group; pair with a worksheet; keep a video fallback for motion-sensitive students.",
   "Online discussion forum task":"Grade two posts plus one reply per topic with a rubric; seed with a provocative question; summarize threads weekly.",
   "Interactive e-learning module / infographics":"Chunk to ≤5 screens per module; self-check after every chunk; require completion before the related class.",
-  "Traditional classroom lecture":"Punctuate every 15-20 minutes with a question, a one-minute paper or a pair discussion — sustained passive listening is where lectures fail (Freeman et al. 2014).",
+  "Traditional classroom lecture":"Punctuate exposition with questions, a one-minute paper or pair discussion. Across 225 undergraduate STEM studies, active learning improved examination performance and reduced failure risk relative to traditional lecturing (Freeman et al., 2014).",
   "Inductive teaching & learning":"Lead with the specific (a dataset, a failure, a case) before naming the theory; let students commit to an explanation first, then formalize the principle.",
   "In-class group discussion":"Groups of 3-4 with a named reporter; give a written prompt and a time box; collect one written conclusion per group so every group commits.",
   "Guided inquiry session":"Sequence the scaffold: observation → student hypothesis → guided test; resist giving the answer — guide with questions (this is what separates guided inquiry from unguided discovery).",
@@ -1667,11 +1897,11 @@ const RES_POOL = [
   {n:"Interactive video with embedded questions (Edpuzzle / H5P)", cat:"Video & interactive content", t:"Video / recording", d:"Videos that pause to ask questions.", j:"Converts passive watching into active responding (multimedia and testing principles, Mayer).", tip:"2-3 questions per 10 minutes; completion counts as the pre-class task.", pair:"Flipped classroom; Just-in-time teaching (JiTT)"},
   {n:"Google Colab / Jupyter notebooks", cat:"Computational notebooks & math tools", t:"Computational tool", d:"Zero-install Python notebooks in the browser.", j:"Computational thinking and data analysis without lab-PC dependence; shareable and reproducible.", tip:"Distribute half-completed notebooks students must finish.", pair:"Data analysis assignment; Research mini-project"},
   {n:"PhET Interactive Simulations", cat:"Simulation & virtual labs", t:"Simulation / virtual-lab tool", d:"Free research-based interactive simulations for physics, math and circuits (CU Boulder).", j:"One of the strongest evidence bases in simulation-based learning (Wieman's group); studies show conceptual gains when sims replace or precede equipment.", tip:"Set a prediction task before students touch the sim.", pair:"Simulation / virtual lab; Demonstration with prediction"},
-  {n:"Virtual Labs", cat:"Simulation & virtual labs", t:"Simulation / virtual-lab tool", d:"India's NMEICT remote/virtual engineering laboratories.", j:"Regionally relevant, syllabus-aligned lab access beyond physical capacity (virtual-lab access/cost case: de Jong et al., Science 2013).", tip:"Pair each virtual experiment with a short results-comparison viva.", pair:"Laboratory experiment"},
+  {n:"Virtual Labs", cat:"Simulation & virtual labs", t:"Simulation / virtual-lab tool", d:"India's NMEICT remote/virtual engineering laboratories.", j:"Can extend access and support conceptual investigation, but should be selected to complement—not automatically replace—the affordances of physical laboratories (de Jong et al., 2013).", tip:"Pair each virtual experiment with a short results-comparison viva.", pair:"Laboratory experiment"},
   {n:"MIT OpenCourseWare", cat:"OER & courseware", t:"OER / courseware", d:"Complete MIT course materials, notes and exams.", j:"Benchmark problem sets and alternative explanations for advanced topics.", tip:"Use their exam problems as parallel practice, not as your paper.", pair:"Worked examples & tutorial problem solving"},
   {n:"Manufacturer datasheets & application notes", cat:"Reference, standards & practice", t:"Standards / datasheets", d:"Real component and equipment documentation.", j:"Reading datasheets is authentic professional practice no textbook replicates.", tip:"Base one assignment on selecting a component from real datasheets.", pair:"Troubleshooting / failure analysis exercise; Design review / critique session"},
   {n:"Engineering standards & codes (IEEE, ASTM, ASME, BNBC)", cat:"Reference, standards & practice", t:"Standards / datasheets", d:"The governing documents used as constraints in design tasks.", j:"Authentic constraint sources; complex-engineering-activity (CEA) evidence in design work.", tip:"Require one cited clause per design deliverable.", pair:"Capstone-style mini design project; Case study analysis"},
-  {n:"Rubric banks & templates (AAC&U VALUE, departmental)", cat:"Assessment support", t:"Rubric", d:"Reusable analytic rubric collections.", j:"Rubric quality drives reliability (Jonsson & Svingby 2007); shared banks raise consistency across sections.", tip:"Adapt, never adopt verbatim — re-anchor descriptors to your CO levels.", pair:"Peer review with rubric; Design review / critique session"},
+  {n:"Rubric banks & templates (AAC&U VALUE, departmental)", cat:"Assessment support", t:"Rubric", d:"Reusable analytic rubric collections.", j:"Well-designed analytic, task-specific rubrics—especially with exemplars and rater preparation—can improve scoring reliability; a shared bank is a starting point, not evidence of reliability by itself (Jonsson & Svingby, 2007; Panadero & Jonsson, 2013).", tip:"Adapt, never adopt verbatim — re-anchor descriptors to your CO levels.", pair:"Peer review with rubric; Design review / critique session"},
   {n:"E-portfolios (Google Sites / Mahara)", cat:"Assessment support", t:"E-portfolio", d:"Student-curated evidence of their work.", j:"Longitudinal evidence of PO attainment; valued in accreditation visits.", tip:"One required artifact per CO.", pair:"Prototype / poster presentation"}
 ];
 function resPool(){ return RES_POOL.concat(state.customRes||[]); }
@@ -2058,6 +2288,20 @@ function caSuggestions(c, d){
   const s = [];
   if(!d.coItems.length)
     s.push({t:"No assessment item measures this CO — add at least one item in the Assessments Section."});
+  // Complex-attribute claim ↔ evidence checks
+  {
+    const dw = attrDef(c,'wp'), de = attrDef(c,'ea');
+    const untagged = d.coItems.filter(it=>itemWpExpected(it) && !(it.wp||[]).length);
+    if(untagged.length)
+      s.push({t:`Analyze/Evaluate/Create-level item(s) carry no complex-problem (${dw.pre}) tags: `+untagged.map(it=>`${it.aName} ${it.label}`).join(", ")+` — tag the attributes in the Assessments Section's per-item matrix, or reconsider the level.`});
+    const evW = new Set(d.coItems.flatMap(it=>it.wp||[]));
+    const evE = new Set(d.coItems.flatMap(it=>it.ea||[]));
+    const noEvW = (Array.isArray(d.co.wp)? d.co.wp:[]).filter(k=>!evW.has(k));
+    const noEvE = (Array.isArray(d.co.ea)? d.co.ea:[]).filter(k=>!evE.has(k));
+    const claims = [...noEvW.map(k=>dw.pre+k), ...noEvE.map(k=>de.pre+k)];
+    if(claims.length)
+      s.push({t:`§14 claims ${claims.join(", ")} for this CO, but no assessment item carries ${claims.length>1? "them":"it"} — a claim without evidence: tag an item in the per-item matrix, or untick §14.`});
+  }
   if(d.exceeds.length)
     s.push({t:"Item(s) exceed the CO's declared level: "+d.exceeds.map(it=>`${it.aName} ${it.label} (${itemLevelTag(it,d.co)})`).join(", ")+" — reword/split the item(s), or raise the CO's level if the higher demand is intended."});
   if(d.allOptional)
@@ -2084,7 +2328,8 @@ function caSuggestions(c, d){
    authentic assessment and rubric-based grading for engineering courses
    (Wiggins 1990; Gulikers et al. 2004; Jonsson & Svingby 2007; Panadero & Jonsson 2013;
    Biggs & Tang). References: Faculty Manual, "Authentic assessment & rubrics". */
-function rubricTypes(){ return ["Assignment","Project","Presentation","Viva"]; }
+const AUDIT_TYPES = ["Project","Assignment","Final Report","Presentation","Viva","Lab/Sessional"];   // types that carry a CEP/CEA audit form and an analytic rubric
+function rubricTypes(){ return AUDIT_TYPES; }
 function assessTips(c, d){
   if(!d.coItems.length) return { pending:[], tips:[{names:"", t:"Unassessed — add at least one item first", red:true}] };
   const acts = c.assessments.filter(a=>a.items.some(it=>it.coId===d.co.id));
@@ -2174,7 +2419,7 @@ function renderCA(){
   ensureAust(c);
   if(!c.cos.length){
     el.innerHTML = `<div class="card"><h2>Constructive Alignment (CA)</h2>
-      <p class="hint">Define your Course Outcomes first (COs &amp; CO–PO Mapping Section) — CA then visualises how your COs, T&amp;L activities and assessments align (Biggs, 2003).</p></div>`;
+      <p class="hint">Define your Course Outcomes first (COs &amp; CO–PO Mapping Section) — CA then visualises how your COs, T&amp;L activities and assessments align (Biggs, 1996; Biggs &amp; Tang, 2011) ${refCite([2,3])}.</p></div>`;
     return;
   }
   const data = caCoData(c);
@@ -2223,7 +2468,7 @@ function renderCA(){
   el.innerHTML = `
   <div class="card">
     <h2>Constructive Alignment (CA)</h2>
-    <p class="hint">"In constructive alignment, we start with the outcomes we intend students to learn, and align teaching and assessment to those outcomes" (Biggs). The triangle below summarises the whole course: each edge is colored by the actual state — green when every CO is aligned on that edge, amber when partially, red when gaps exist. Below it, <b>each CO card repeats the triangle for that CO alone</b> — live from its own adopted activities (⛓ T&amp;L Section) and assessment items (⛓ Assessments Section) — with the CO statement, Bloom's domain &amp; level, and suggestions.</p>
+    <p class="hint">Constructive alignment begins with intended learning outcomes, then deliberately aligns teaching–learning activities and assessment evidence with those outcomes ${refCite([2,3,31])}. The triangle below summarises the whole course: each edge is colored by the actual state — green when every CO is aligned on that edge, amber when partially, red when gaps exist. Below it, <b>each CO card repeats the triangle for that CO alone</b> — live from its own adopted activities (⛓ T&amp;L Section) and assessment items (⛓ Assessments Section) — with the CO statement, Bloom's domain &amp; level, and suggestions.</p>
     ${caTriangle(leftAll, rightAll, baseAll)}
     <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:6px">
       KSA = Knowledge, Skills, Attitudes · <span class="badge green">Aligned</span> <span class="badge amber">Partially aligned</span> <span class="badge red">Not aligned</span> · Activity chips: <span class="badge green">verified fit</span> <span class="badge amber">level mismatch</span> <span class="badge grey">unverified free-text</span> · Items: † choice question, ↑ exceeds CO level
@@ -2261,7 +2506,7 @@ function renderAssess(){
           return `<span style="display:flex;align-items:center;gap:4px">
             <select title="This item's Bloom level (defaults to the CO's level; a warning appears if set above it)" onchange="setItemLevel('${a.id}','${it.id}',this.value)" style="flex:1;min-width:0;padding:6px 4px;border:1.5px solid ${exceeds? "var(--warn)":"var(--border)"};border-radius:6px;font-family:inherit;font-size:12px">
               ${info.list.map(b=>`<option ${it.level===b?"selected":""}>${b}</option>`).join("")}
-            </select>${exceeds? '<span class="badge amber" title="Exceeds the CO\'s declared Bloom level — constructive alignment issue">↑</span>':''}</span>`;
+            </select>${exceeds? '<span class="badge amber" title="Exceeds the CO\'s declared Bloom level — constructive alignment issue">↑</span>':''}${itemAttrChip(c, it)}</span>`;
         })()}
         <input type="checkbox" title="Mandatory: a blank mark counts as 0. Choice question (unticked): one of a pool from which students select (answer k of n) — a blank means legitimately skipped, not penalized." style="justify-self:center" ${it.mandatory!==false?"checked":""} onchange="updateItem('${a.id}','${it.id}','mandatory',this.checked)">
         <span style="display:flex;gap:4px;justify-content:center;align-items:center">
@@ -2276,7 +2521,7 @@ function renderAssess(){
       const rub = rubricTypes().includes(a.type)? (a.rubric? " · rubric ready" : " · rubric pending") : "";
       return `
     <div class="card">
-      <h2 class="cqi-fold" onclick="toggleFoldA('${a.id}')"><span class="fold-caret">&#9656;</span> ${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span></h2>
+      <h2 class="cqi-fold" onclick="toggleFoldA('${a.id}')"><span class="fold-caret">&#9656;</span> ${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span>${a.oel? ' <span class="badge green">Open-ended</span>':''}</h2>
       <p class="fold-sum">${total} marks · ${a.items.length} item(s)${nOptQ? " · "+nOptQ+" choice question(s)":""}${rub} — click to open.</p>
     </div>`;
     }
@@ -2289,10 +2534,15 @@ function renderAssess(){
           ${(ASSESS_TYPES.includes(a.type)? ASSESS_TYPES : [a.type, ...ASSESS_TYPES]).map(t=>`<option ${a.type===t?"selected":""}>${t}</option>`).join("")}
         </select>
         <span class="badge blue">Total: ${total} marks</span>
+        ${a.type==="Lab/Sessional"? `<label style="font-size:12.5px;white-space:nowrap;color:var(--muted)" title="Open-ended lab: students design the experiment/procedure themselves instead of following a manual — prime complex-engineering (CEP/CEA) evidence"><input type="checkbox" ${a.oel?"checked":""} onchange="updateAssessment('${a.id}','oel',this.checked)"> Open-ended lab</label>`:""}
         ${rubricTypes().includes(a.type)? `<label style="font-size:12.5px;white-space:nowrap;color:var(--muted)" title="Analytic rubric prepared and shared with students — required for assignments, projects and oral assessments"><input type="checkbox" ${a.rubric?"checked":""} onchange="updateAssessment('${a.id}','rubric',this.checked)"> Rubric prepared</label>`:""}
         <span style="display:flex;gap:4px"><button class="icon-btn" title="Move assessment up (the order flows to the marks grid and CSV)" onclick="moveAssessment('${a.id}',-1)">▲</button><button class="icon-btn" title="Move assessment down" onclick="moveAssessment('${a.id}',1)">▼</button></span>
         <button class="btn danger small" onclick="deleteAssessment('${a.id}')">Delete</button>
       </div>
+      ${a.oel? `<div style="margin-top:8px">
+        <p style="font-size:12.5px;font-weight:700;color:var(--primary-dark);margin:0 0 2px">Open-ended task statement <span style="font-weight:400;color:var(--muted)">(the problem posed to students — prints on the student sheets and the audit form)</span></p>
+        <textarea class="di" rows="2" style="width:100%;overflow-y:hidden" oninput="autoGrowTA(this)" placeholder="e.g., Design and conduct an experiment to determine the loss coefficient of the supplied fitting. Choose the apparatus, plan the measurements, and quantify your uncertainty." onchange="updateAssessment('${a.id}','oelTask',this.value)">${esc(a.oelTask||"")}</textarea>
+      </div>`:""}
       ${(()=>{
         const optItems = a.items.filter(it=>it.mandatory===false);
         if(!optItems.length) return "";
@@ -2319,6 +2569,7 @@ function renderAssess(){
       <div class="item-row" style="color:var(--muted);font-size:12px;font-weight:600"><span>Label</span><span>Max marks</span><span>CO</span><span>Level</span><span style="justify-self:center">Mandatory?</span><span style="justify-self:center">Move / Del</span></div>
       ${rows || '<p class="hint">No items yet.</p>'}
       <div class="btn-row"><button class="btn secondary small" onclick="addItem('${a.id}')">+ Add Item</button></div>
+      ${itemAttrMatrix(c, a)}
     </div>`;
   }).join("");
   const planGroup = `
@@ -2331,11 +2582,272 @@ function renderAssess(){
   </div>
   ${blocks || '<div class="empty">No assessments yet.</div>'}`;
   const sec = subSect("assess");
-  el.innerHTML = subBar("assess") + ( sec==="summary"
-    ? (assessSummaryCard(c) || '<div class="empty">No assessment items yet — set them up in the Assessment Plan sub-section.</div>')
+  el.innerHTML = subBar("assess") + (
+    sec==="summary"? (assessSummaryCard(c) || '<div class="empty">No assessment items yet — set them up in the Assessment Plan sub-section.</div>')
+    : sec==="cepcea"? cepCeaGroup(c)
+    : sec==="rubric"? rubricGroup(c)
     : planGroup );
   drawMarksShareChart(c);
   autoGrowAll("tab-assess");
+}
+/* ===== CEP & CEA audit forms (Projects & Assignments) ===== */
+function auditOf(a){ if(!a.audit) a.audit = { stmt:"", just:{} }; return a.audit; }
+function auditAttrs(c, a){
+  const w=[...new Set(a.items.flatMap(it=>it.wp||[]))].sort((x,y)=>x-y);
+  const e=[...new Set(a.items.flatMap(it=>it.ea||[]))].sort((x,y)=>x-y);
+  return [...w.map(k=>({g:'wp',k})), ...e.map(k=>({g:'ea',k}))];
+}
+function setAuditJust(aid, key, v){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a) return;
+  auditOf(a).just[key]=String(v).trim(); save();
+}
+function setAuditStmt(aid, v){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a) return;
+  auditOf(a).stmt=String(v).trim(); save();
+}
+function cepCeaGroup(c){
+  const list = c.assessments.filter(a=>AUDIT_TYPES.includes(a.type));
+  const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+  if(!list.length) return `<div class="empty">No Project, Assignment, Final Report, Presentation, Viva or Lab/Sessional assessments yet — add one in the Assessment Plan sub-section. The audit form documents WHY such an assessment qualifies as complex engineering (${dw.pre}/${de.pre}).</div>`;
+  const cards = list.map(a=>{
+    const attrs = auditAttrs(c, a);
+    const au = a.audit || { stmt:"", just:{} };
+    const nJ = attrs.filter(x=>String(au.just[x.g+x.k]||"").trim()).length;
+    const rows = attrs.map(x=>{
+      const d = x.g==='wp'? dw : de; const key=x.g+x.k;
+      return `<tr>
+        <td style="white-space:nowrap;vertical-align:top"><span class="badge blue">${d.pre}${x.k}</span></td>
+        <td style="font-size:12px;vertical-align:top;max-width:280px;color:var(--muted)">${esc(d.tip(x.k)||"")}</td>
+        <td><textarea class="di" rows="2" style="width:100%;overflow-y:hidden" oninput="autoGrowTA(this)" placeholder="Justify: where and how does this ${a.type.toLowerCase()} exercise ${d.pre}${x.k}?" onchange="setAuditJust('${a.id}','${key}',this.value)">${esc(au.just[key]||"")}</textarea></td></tr>`;
+    }).join("");
+    const oelMissW=a.oel? [1,3].filter(k=>!a.items.some(it=>(it.wp||[]).includes(k))) : [];
+    const oelMissE=a.oel? [1,3].filter(k=>!a.items.some(it=>(it.ea||[]).includes(k))) : [];
+    const oelNudge=a.oel && (oelMissW.length||oelMissE.length)? `<p class="hint" style="color:#8a6d00">Open-ended labs almost always exercise ${dw.pre}1 &amp; ${dw.pre}3 (no obvious solution — students formulate the model) and ${de.pre}1 &amp; ${de.pre}3 (diverse resources, creative application). Consider tagging ${[...oelMissW.map(k=>dw.pre+k),...oelMissE.map(k=>de.pre+k)].join(", ")} on the items — if the lab truly exercises them. An open-ended lab is prime Annexure-H evidence, so the justifications below are worth filling carefully.</p>`:"";
+    return `
+  <div class="card">
+    <h2>${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span>${a.oel? ' <span class="badge green">Open-ended</span>':''} ${attrs.length? `<span class="badge ${nJ===attrs.length? "green":"amber"}">${nJ} of ${attrs.length} attribute(s) justified</span>`:""}</h2>
+    ${a.oel && String(a.oelTask||"").trim()? `<p style="font-size:12.5px;background:var(--bg,#f4f8f6);border-left:3px solid var(--primary);padding:6px 10px;border-radius:4px"><b>Task:</b> ${esc(a.oelTask)}</p>`:""}
+    ${oelNudge}
+    ${attrs.length? `
+    <p class="hint">The audit form is the narrative evidence behind the tags: for each ${dw.pre}/${de.pre} attribute this assessment's items carry, justify in one or two sentences where the attribute actually appears. Prints as <b>CEP &amp; CEA Audit Forms</b> under Accreditation Documents and counts toward Annexure H evidence.</p>
+    <p style="font-size:12.5px;font-weight:700;color:var(--primary-dark);margin:6px 0 2px">Overall complexity statement</p>
+    <textarea class="di" rows="2" style="width:100%;overflow-y:hidden" oninput="autoGrowTA(this)" placeholder="In 2–3 sentences: why does this ${a.type.toLowerCase()} constitute complex engineering (problem and/or activity) as a whole?" onchange="setAuditStmt('${a.id}',this.value)">${esc(au.stmt||"")}</textarea>
+    <div class="tbl-wrap" style="margin-top:8px"><table class="tbl">
+      <thead><tr><th style="width:60px">Attribute</th><th style="width:300px">Official descriptor</th><th>Justification for this assessment</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="btn-row"><button class="btn secondary small" onclick="printAuditSheet('${a.id}')" title="Opens a formatted sheet in a new window — print it or save as PDF to share with students why this task is complex engineering">🖨 Print / Share with Students</button></div>`
+    : `<p class="hint">No ${dw.pre}/${de.pre} attributes tagged on this assessment's items yet — open <b>Assessment Plan → Complex attributes per item</b> and tick what each question exercises; the audit rows then appear here.</p>`}
+  </div>`;
+  }).join("");
+  return cards;
+}
+/* ===== Rubric generator (Assignment / Project / Presentation / Viva) ===== */
+const RUB_SCALE_DEFAULT = ["Excellent","Good","Satisfactory","Poor"];
+const RUB_WP_CRIT = {1:"Depth of analysis (first principles)",2:"Handling conflicting requirements",3:"Originality of approach & modelling",4:"Handling novel / unfamiliar issues",5:"Engineering judgment beyond standard codes",6:"Stakeholder & interdisciplinary considerations",7:"Systems-level integration"};
+const RUB_EA_CRIT = {1:"Use of diverse resources & tools",2:"Resolution of technical trade-offs",3:"Innovation in the solution",4:"Societal & environmental consequences addressed",5:"Extension beyond prior practice"};
+function genRubric(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a) return;
+  if(a.rub && a.rub.criteria.length && !confirm(`Regenerate the rubric for "${a.name||a.type}"?\n\nThe current criteria and descriptors will be replaced by freshly seeded ones.`)) return;
+  const crit = [];
+  if(a.oel){
+    /* Open-ended lab: the observable behaviors that distinguish an OEL from a recipe lab */
+    ["Problem formulation & experiment design","Methodology developed by the student","Data collection & analysis","Interpretation & validity discussion","Safety & resource use","Report quality & communication"]
+      .forEach(n=>crit.push({ name:n, w:0, d:["","","",""] }));
+  } else {
+  const cos = [...new Set(a.items.map(it=>it.coId).filter(Boolean))];
+  cos.forEach(id=>{ const j=c.cos.findIndex(x=>x.id===id);
+    if(j>=0) crit.push({ name:`CO${j+1} — ${String(c.cos[j].statement||"").split("\n")[0].slice(0,60)}`, w:0, d:["","","",""] }); });
+  [...new Set(a.items.flatMap(it=>it.wp||[]))].sort((x,y)=>x-y).forEach(k=>crit.push({ name:RUB_WP_CRIT[k]||("Attribute "+k), w:0, d:["","","",""] }));
+  [...new Set(a.items.flatMap(it=>it.ea||[]))].sort((x,y)=>x-y).forEach(k=>crit.push({ name:RUB_EA_CRIT[k]||("Activity "+k), w:0, d:["","","",""] }));
+  crit.push({ name:"Report quality & communication", w:0, d:["","","",""] });
+  }
+  const total = a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0) || 10;
+  const each = round4(total/crit.length);
+  crit.forEach(x=>x.w=each);
+  a.rub = { scale: RUB_SCALE_DEFAULT.slice(), criteria: crit };
+  a.rubric = true;   // a generated rubric honestly earns the "Rubric prepared" tick
+  save(); renderAssess(); toast("Rubric seeded from the COs and complex-attribute tags — edit freely");
+}
+function setRubCrit(aid, ci, f, v, el){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  const cr=a.rub.criteria[ci]; if(!cr) return;
+  if(f==='w'){
+    const p=parseMarkInput(v);
+    if(p===null||isNaN(p)){ toast(`Could not read “${v}”`); if(el) el.value=cr.w; return; }
+    cr.w=round4(Math.max(0,p));
+  } else cr.name=String(v).trim();
+  save(); renderAssess();
+}
+function setRubDesc(aid, ci, li, v){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  const cr=a.rub.criteria[ci]; if(!cr) return;
+  cr.d[li]=String(v).trim(); save();
+}
+function setRubScale(aid, li, v){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  a.rub.scale[li]=String(v).trim()||RUB_SCALE_DEFAULT[li]; save(); renderAssess();
+}
+function addRubCrit(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  a.rub.criteria.push({name:"",w:0,d:a.rub.scale.map(()=>"")}); save(); renderAssess();
+}
+function addRubLevel(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  if(a.rub.scale.length>=6){ toast("Six performance levels is the practical maximum for a printable rubric"); return; }
+  a.rub.scale.push("Level "+(a.rub.scale.length+1));
+  a.rub.criteria.forEach(cr=>cr.d.push(""));
+  save(); renderAssess();
+}
+function delRubLevel(aid, li){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  if(a.rub.scale.length<=2){ toast("A rubric needs at least two performance levels"); return; }
+  const hasText=a.rub.criteria.some(cr=>String(cr.d[li]||"").trim());
+  if(hasText && !confirm(`Delete the level "${a.rub.scale[li]}"?\n\nIts descriptor cells will be removed from every criterion.`)) return;
+  a.rub.scale.splice(li,1);
+  a.rub.criteria.forEach(cr=>cr.d.splice(li,1));
+  save(); renderAssess();
+}
+function delRubCrit(aid, ci){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub) return;
+  const cr=a.rub.criteria[ci];
+  if(cr && (cr.name||cr.d.some(x=>x)) && !confirm(`Delete criterion "${cr.name||"(unnamed)"}"?`)) return;
+  a.rub.criteria.splice(ci,1);
+  if(!a.rub.criteria.length) a.rubric=false;
+  save(); renderAssess();
+}
+function buildRubricPrompt(a){
+  const c=activeCourse(); ensureAust(c);
+  const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+  const out=[];
+  out.push(`You are helping an engineering faculty member draft an ANALYTIC RUBRIC.`);
+  out.push(`Course: ${c.code} — ${c.title}${c.semester? " ("+c.semester+")":""}`);
+  out.push(`Assessment: ${a.name||a.type} (${a.type}), total ${a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0)} marks.`);
+  out.push(`COs it measures:`);
+  [...new Set(a.items.map(it=>it.coId).filter(Boolean))].forEach(id=>{ const j=c.cos.findIndex(x=>x.id===id); if(j>=0) out.push(`- CO${j+1}: ${c.cos[j].statement||""}`); });
+  const w=[...new Set(a.items.flatMap(it=>it.wp||[]))].sort((x,y)=>x-y), e=[...new Set(a.items.flatMap(it=>it.ea||[]))].sort((x,y)=>x-y);
+  if(w.length||e.length){
+    out.push(`Complex-engineering attributes it exercises:`);
+    w.forEach(k=>out.push(`- ${dw.pre}${k}: ${dw.tip(k)||""}`));
+    e.forEach(k=>out.push(`- ${de.pre}${k}: ${de.tip(k)||""}`));
+  }
+  out.push(`Rubric criteria (performance levels: ${a.rub.scale.join(" / ")}):`);
+  a.rub.criteria.forEach((cr,i)=>out.push(`${i+1}. ${cr.name||"(unnamed)"} — ${cr.w} marks`));
+  out.push(``);
+  out.push(`TASK: For EACH criterion, write one concise, observable descriptor per performance level (${a.rub.scale.length} levels). Descriptors must be specific to this assessment and criterion (never generic praise), distinguish adjacent levels by observable differences, and be usable verbatim by any grader. Output as a table: Criterion | ${a.rub.scale.join(" | ")}. Do not invent criteria or change the marks.`);
+  return out.join("\n");
+}
+function copyRubricPrompt(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub||!a.rub.criteria.length){ toast("Generate the rubric first"); return; }
+  const txt=buildRubricPrompt(a);
+  const done=()=>toast("Rubric prompt copied — paste into your AI tool, then paste the descriptors into the cells");
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(()=>copyAIFallback(txt, done));
+  else copyAIFallback(txt, done);
+}
+/* ---- Student-facing print sheets (self-contained window, no external resources) ---- */
+function printSheet(title, bodyHtml){
+  const w = window.open("", "_blank");
+  if(!w){ toast("Pop-up blocked — allow pop-ups for this page to print"); return; }
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+    *{box-sizing:border-box} body{font-family:'Segoe UI',system-ui,Arial,sans-serif;color:#1c2b28;margin:28px;font-size:13px}
+    .band{background:#0f6b5c;color:#fff;border-radius:10px;padding:16px 20px;margin-bottom:16px}
+    .band h1{margin:0 0 4px;font-size:20px;font-weight:700} .band .sub{font-size:12.5px;opacity:.92}
+    .meta{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12.5px;color:#41564f;margin-bottom:14px}
+    .meta b{color:#0a4a40}
+    table{border-collapse:collapse;width:100%;margin:8px 0 14px} th,td{border:1px solid #cfe0db;padding:7px 9px;text-align:left;vertical-align:top;font-size:12px}
+    thead th{color:#fff;font-weight:700} tbody tr:nth-child(even){background:#f6faf8}
+    .crit{font-weight:700;color:#0a4a40} .marks{display:inline-block;background:#e3f1ec;color:#0a4a40;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700;margin-left:6px;white-space:nowrap}
+    .panel{background:#eef6f3;border-left:4px solid #0f6b5c;border-radius:6px;padding:10px 14px;margin:10px 0 14px;font-size:12.5px}
+    .attr{display:inline-block;background:#0f6b5c;color:#fff;border-radius:10px;padding:1px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+    .foot{margin-top:18px;padding-top:10px;border-top:1px solid #cfe0db;font-size:11px;color:#7a8b87;display:flex;justify-content:space-between}
+    @media print{ body{margin:10mm} .band{-webkit-print-color-adjust:exact;print-color-adjust:exact} *{-webkit-print-color-adjust:exact;print-color-adjust:exact} }
+  </style></head><body>${bodyHtml}
+  <div class="foot"><span>Prepared with OBE Course Manager</span><span>Printed: ${new Date().toLocaleDateString()}</span></div>
+  </body></html>`);
+  w.document.close(); w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 350);
+}
+function lvlTint(i, n){ const h = 150 - (n<2?0:(i/(n-1)))*115; return `hsl(${Math.round(h)},46%,38%)`; }   // green → amber/red header shades
+function printRubricSheet(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a||!a.rub||!a.rub.criteria.length){ toast("Generate the rubric first"); return; }
+  const total=a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0);
+  const n=a.rub.scale.length;
+  const rows=a.rub.criteria.map(cr=>`<tr><td style="min-width:150px"><span class="crit">${esc(cr.name)}</span><span class="marks">${esc(cr.w)} marks</span></td>${cr.d.map(dv=>`<td>${esc(dv)||"&nbsp;"}</td>`).join("")}</tr>`).join("");
+  printSheet(`Rubric — ${a.name||a.type}`, `
+  <div class="band"><h1>${esc(a.name||a.type)} — Assessment Rubric</h1>
+    <div class="sub">${esc(c.code)} · ${esc(c.title)}${c.semester? " · "+esc(c.semester):""}</div></div>
+  <div class="meta"><span><b>Type:</b> ${esc(a.type)}${a.oel? " (open-ended lab)":""}</span><span><b>Total marks:</b> ${total}</span><span><b>Instructor:</b> ${esc(c.instructor)}</span></div>
+  ${a.oel && String(a.oelTask||"").trim()? `<div class="panel"><b>Your task:</b> ${esc(a.oelTask)}</div>`:""}
+  <p style="font-size:12.5px;color:#41564f">Your work is graded against the criteria below. Read the level descriptors before you start — they tell you exactly what excellent work looks like.</p>
+  <table><thead><tr><th style="background:#0a4a40">Criterion</th>${a.rub.scale.map((s2,i)=>`<th style="background:${lvlTint(i,n)}">${esc(s2)}</th>`).join("")}</tr></thead>
+    <tbody>${rows}</tbody></table>`);
+}
+function printAuditSheet(aid){
+  const c=activeCourse(); if(!c) return;
+  const a=c.assessments.find(x=>x.id===aid); if(!a) return;
+  const attrs=auditAttrs(c,a);
+  if(!attrs.length){ toast("Tag this assessment's items with complex attributes first"); return; }
+  const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+  const au=a.audit||{stmt:"",just:{}};
+  const rows=attrs.map(x=>{ const d=x.g==='wp'?dw:de; const key=x.g+x.k;
+    return `<tr><td style="white-space:nowrap;text-align:center"><span class="attr">${d.pre}${x.k}</span></td><td style="width:38%;color:#41564f">${esc(d.tip(x.k)||"")}</td><td>${esc(au.just[key]||"")||"&nbsp;"}</td></tr>`; }).join("");
+  printSheet(`CEP & CEA — ${a.name||a.type}`, `
+  <div class="band"><h1>${esc(a.name||a.type)} — Why This Is Complex Engineering</h1>
+    <div class="sub">${esc(c.code)} · ${esc(c.title)}${c.semester? " · "+esc(c.semester):""} · Complex Engineering Problem (${dw.pre}) &amp; Activity (${de.pre}) attributes</div></div>
+  <div class="meta"><span><b>Type:</b> ${esc(a.type)}${a.oel? " (open-ended lab)":""}</span><span><b>Instructor:</b> ${esc(c.instructor)}</span></div>
+  ${a.oel && String(a.oelTask||"").trim()? `<div class="panel"><b>The task:</b> ${esc(a.oelTask)}</div>`:""}
+  ${String(au.stmt||"").trim()? `<div class="panel"><b>What makes this task complex:</b> ${esc(au.stmt)}</div>`:""}
+  <table><thead><tr><th style="background:#0a4a40;width:70px;text-align:center">Attribute</th><th style="background:#0f6b5c">What the attribute means</th><th style="background:#0f6b5c">Where it appears in this ${esc(a.type.toLowerCase())}</th></tr></thead>
+    <tbody>${rows}</tbody></table>`);
+}
+function rubricGroup(c){
+  const list = c.assessments.filter(a=>rubricTypes().includes(a.type));
+  if(!list.length) return '<div class="empty">No Project / Assignment / Final Report / Presentation / Viva / Lab-Sessional assessments yet — add one in the Assessment Plan sub-section, then generate its analytic rubric here.</div>';
+  const cards = list.map(a=>{
+    if(!a.rub || !a.rub.criteria.length) return `
+  <div class="card">
+    <h2>${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span>${a.oel? ' <span class="badge green">Open-ended</span>':''} ${a.rubric? '':'<span class="badge amber">rubric pending</span>'}</h2>
+    <p class="hint">${a.oel? "Generate an analytic rubric seeded with open-ended-lab criteria (problem formulation, student-developed methodology, analysis, validity, safety, communication)":"Generate an analytic rubric seeded from this assessment's COs and its tagged complex attributes"} — then edit criteria, weights and level descriptors freely. Completing it ticks “Rubric prepared”.</p>
+    <div class="btn-row"><button class="btn" onclick="genRubric('${a.id}')">⚙ Generate Rubric</button></div>
+  </div>`;
+    const total=a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0);
+    const wSum=a.rub.criteria.reduce((s,x)=>s+(parseFloat(x.w)||0),0);
+    const rows=a.rub.criteria.map((cr,ci)=>`
+      <tr>
+        <td style="min-width:170px"><textarea class="di" rows="1" style="width:100%;overflow-y:hidden;font-weight:600" oninput="autoGrowTA(this)" placeholder="Criterion" onchange="setRubCrit('${a.id}',${ci},'name',this.value)">${esc(cr.name)}</textarea></td>
+        <td style="width:70px;text-align:center"><input class="di" style="width:56px;text-align:center" value="${esc(cr.w)}" title="Marks for this criterion" onchange="setRubCrit('${a.id}',${ci},'w',this.value,this)"></td>
+        ${cr.d.map((dv,li)=>`<td style="min-width:150px"><textarea class="di" rows="2" style="width:100%;overflow-y:hidden;font-size:12px" oninput="autoGrowTA(this)" placeholder="${esc(a.rub.scale[li]||"")} descriptor…" onchange="setRubDesc('${a.id}',${ci},${li},this.value)">${esc(dv)}</textarea></td>`).join("")}
+        <td class="no-print" style="width:40px"><button class="icon-btn" onclick="delRubCrit('${a.id}',${ci})">✕</button></td>
+      </tr>`).join("");
+    return `
+  <div class="card">
+    <h2>${esc(a.name||a.type)} <span class="badge blue">${esc(a.type)}</span>${a.oel? ' <span class="badge green">Open-ended</span>':''} <span class="badge green">rubric ready</span>
+      ${Math.abs(wSum-total)>0.01? `<span class="badge amber" title="The criterion marks sum to ${wSum}, but the assessment carries ${total} marks">weights ${wSum} ≠ ${total} marks</span>`:""}</h2>
+    <p class="hint">Analytic rubric — criteria × ${a.rub.scale.length} performance levels. Weights should sum to the assessment's ${total} marks. Prints as <b>Assessment Rubrics</b> under Accreditation Documents; share it with students in advance.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Criterion</th><th style="width:70px">Marks</th>${a.rub.scale.map((s2,li)=>`<th style="min-width:150px"><div style="display:flex;align-items:center;gap:4px"><input class="di" style="width:100%;font-weight:700" value="${esc(s2)}" onchange="setRubScale('${a.id}',${li},this.value)">${a.rub.scale.length>2? `<button class="icon-btn no-print" title="Delete this performance level" onclick="delRubLevel('${a.id}',${li})">✕</button>`:""}</div></th>`).join("")}<th class="no-print" style="width:40px"></th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="btn-row">
+      <button class="btn secondary small" onclick="addRubCrit('${a.id}')">+ Add Criterion</button>
+      <button class="btn secondary small" onclick="addRubLevel('${a.id}')" title="Add a performance-level column (up to six)">+ Add Level</button>
+      <button class="btn secondary small" onclick="printRubricSheet('${a.id}')" title="Opens a formatted rubric sheet in a new window — print it or save as PDF to share with students">🖨 Print / Share with Students</button>
+      <button class="btn secondary small" onclick="copyRubricPrompt('${a.id}')" title="Copies a prompt carrying this assessment's COs, complex-attribute descriptors and criteria — ask your AI tool to draft the level descriptors, then paste them into the cells">📋 Copy AI Prompt (rubric descriptors)</button>
+      <button class="btn secondary small" onclick="genRubric('${a.id}')" title="Replace the criteria with a freshly seeded set (confirmation asked)">⟲ Regenerate</button>
+    </div>
+  </div>`;
+  }).join("");
+  return cards;
 }
 const CO_COLORS = ["#0F6B5C","#C98A1B","#3E6FB0","#8E4FA8","#C0392B","#2E8B57","#B25B1A","#5B5EA6","#7A8B24","#9F3B60","#2B7A9E","#6B4F2A"];
 function assessSummaryCard(c){
@@ -2528,7 +3040,9 @@ function updateAssessment(id, field, val){
     return;
   }
   a[field] = val.trim ? val.trim() : val;
-  save(); toast("Saved");
+  save();
+  if(field==="oel") renderAssess();   // the task-statement box appears/disappears with the flag
+  toast("Saved");
 }
 function deleteAssessment(id){
   const c = activeCourse(); if(!c) return;
@@ -3040,7 +3554,7 @@ function tallyStats(t){
 /* All non-CO survey results (Blocks B and C) with n, average and % >= 4. */
 function computeFeedback(c){
   const s = c.aust.survey;
-  const fb = FB_ITEMS.filter(([k])=>s.fbOn[k]).map(([k,label])=>Object.assign({ key:k, label }, tallyStats(s.fbTally[k])));
+  const fb = FB_ITEMS.filter(([k])=>s.fbOn[k]).map(([k,label])=>Object.assign({ key:k, label: svyFbLabel(c,k,label) }, tallyStats(s.fbTally[k])));
   const res = [];
   if(s.resFbOn){
     c.aust.learnRes.filter(r=>(r.title||"").trim()).forEach(r=>{
@@ -3149,6 +3663,104 @@ function clearSurvey(){
   save(); renderAttain();
 }
 /* CSV from Google Forms etc.: one column per CO (header containing CO1/CO2/...), one row per respondent, ratings 1-5 */
+/* ===== Open-ended questions — inline, below the survey grids ===== */
+function surveyEditor(c){
+  const s = c.aust.survey;
+  const oqRows = (s.openQ||[]).map((o,i)=>`
+    <div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin:6px 0">
+      <div style="display:flex;gap:6px;align-items:flex-start">
+        <b style="white-space:nowrap;font-size:12.5px;margin-top:6px">Q${i+1}</b>
+        <textarea class="di" rows="1" style="flex:1;overflow-y:hidden" oninput="autoGrowTA(this)" placeholder="Open-ended question" onchange="setOpenQ(${i},'q',this.value)">${esc(o.q||"")}</textarea>
+        <button class="icon-btn" title="Move up" onclick="moveOpenQ(${i},-1)">▲</button>
+        <button class="icon-btn" title="Move down" onclick="moveOpenQ(${i},1)">▼</button>
+        <button class="icon-btn" title="Delete this question" onclick="delOpenQ(${i})">✕</button>
+      </div>
+      <textarea class="di" rows="1" style="width:100%;overflow-y:hidden;margin-top:4px" oninput="autoGrowTA(this)" placeholder="Summary of responses (optional — after collecting, paste the distilled themes here; cited by the CQI AI prompts)" onchange="setOpenQ(${i},'sum',this.value)">${esc(o.sum||"")}</textarea>
+    </div>`).join("");
+  return `
+    <div style="margin:12px 0">
+      <p style="font-size:13px;font-weight:700;color:var(--primary-dark);margin:0 0 2px">Open-ended questions</p>
+      <p class="hint" style="margin-bottom:6px">Printed at the end of the survey form (and added to the Google Form as paragraph answers); not tallied. After collecting, paste a short summary of the responses under each question — the CQI AI prompts cite these summaries. Survey item wording above is edited <b>in place</b>: type over an item's text (clearing it reverts to the auto wording); a reworded CO item must still ask whether the student <b>can do that CO</b>.</p>
+      ${oqRows || '<p class="hint">None yet.</p>'}
+      <div class="btn-row" style="margin-top:4px"><button class="btn secondary small" onclick="addOpenQ()">+ Add open-ended question</button></div>
+    </div>`;
+}
+function svyCoLabel(c, co){ return ((c.aust.survey.coText||{})[co.id]||"").trim() || co.statement || ""; }
+function svyFbLabel(c, k, label){ return ((c.aust.survey.fbText||{})[k]||"").trim() || label; }
+function setSvyCoText(coId, v){
+  const c=activeCourse(); if(!c) return;
+  const co = c.cos.find(x=>x.id===coId);
+  v = String(v).trim();
+  if(!v || (co && v===String(co.statement||"").trim())) delete c.aust.survey.coText[coId];   // empty or identical → back to auto
+  else c.aust.survey.coText[coId]=v;
+  save(); renderAttain();
+}
+function setSvyFbText(k, v){
+  const c=activeCourse(); if(!c) return;
+  const def = (FB_ITEMS.find(([kk])=>kk===k)||[])[1]||"";
+  v = String(v).trim();
+  if(!v || v===def) delete c.aust.survey.fbText[k];
+  else c.aust.survey.fbText[k]=v;
+  save(); renderAttain();
+}
+function setOpenQ(i, f, v){ const c=activeCourse(); if(!c) return; const o=c.aust.survey.openQ[i]; if(o){ o[f]=String(v).trim(); save(); } }
+function addOpenQ(){ const c=activeCourse(); if(!c) return; c.aust.survey.openQ.push({q:"",sum:""}); save(); renderAttain(); }
+function delOpenQ(i){ const c=activeCourse(); if(!c) return;
+  const o=c.aust.survey.openQ[i];
+  if(o && (o.q||o.sum) && !confirm(`Delete open question "${(o.q||"").slice(0,60)}"${o.sum? " and its response summary":""}?`)) return;
+  c.aust.survey.openQ.splice(i,1); save(); renderAttain(); }
+function moveOpenQ(i, dir){ const c=activeCourse(); if(!c) return; const a=c.aust.survey.openQ; const j=i+dir;
+  if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; save(); renderAttain(); }
+/* ===== Google Apps Script generator — builds the whole survey as a Google Form =====
+   Item titles use EXACTLY the conventions applySurveyCSV matches ("CO1: …", "FB-key: …",
+   "Resource: title"), so the linked response sheet's CSV imports straight back. */
+function downloadFormScript(){
+  const c = activeCourse(); if(!c) return;
+  if(!c.cos.length){ toast("Define your COs first (COs & CO–PO Mapping Section)"); return; }
+  ensureAust(c);
+  const s = c.aust.survey;
+  const J = v => JSON.stringify(String(v||""));
+  const L = [];
+  L.push("/**");
+  L.push(" * Course Evaluation Survey — generated by OBE Course Manager " + APP_VERSION);
+  L.push(" * Course: " + (c.code||"") + " — " + (c.title||"") + (c.semester? " ("+c.semester+")":""));
+  L.push(" *");
+  L.push(" * HOW TO USE:  script.google.com → New project → replace the code with this file → Run ▶ once.");
+  L.push(" * Google will ask you to authorize (your own account; the Form is yours, in your Drive).");
+  L.push(" * The execution log then shows the share link and the edit link.");
+  L.push(" * Collect responses → open the linked Sheet → File → Download → CSV → ⬆ Import Survey CSV in the app.");
+  L.push(" */");
+  L.push("function createSurveyForm() {");
+  L.push("  var form = FormApp.create(" + J((c.code||"Course") + " — Course Evaluation Survey" + (c.semester? " ("+c.semester+")":"")) + ");");
+  L.push("  form.setDescription(" + J("Anonymous — your responses do not affect your grade. For each statement, choose the response that best reflects your own ability now that the course is complete. 5 = Strongly Agree … 1 = Strongly Disagree.") + ");");
+  L.push("  form.setCollectEmail(false);");
+  L.push("  form.addSectionHeaderItem().setTitle(" + J("After completing this course, I am able to:") + ");");
+  c.cos.forEach((co,i)=>{
+    L.push("  form.addScaleItem().setTitle(" + J("CO"+(i+1)+": "+svyCoLabel(c,co)) + ").setBounds(1,5).setLabels(" + J("Strongly Disagree") + "," + J("Strongly Agree") + ").setRequired(true);");
+  });
+  const fb = FB_ITEMS.filter(([k])=>s.fbOn[k]);
+  if(fb.length){
+    L.push("  form.addSectionHeaderItem().setTitle(" + J("About the course:") + ");");
+    fb.forEach(([k,label])=>{
+      L.push("  form.addScaleItem().setTitle(" + J("FB-"+k+": "+svyFbLabel(c,k,label)) + ").setBounds(1,5).setLabels(" + J("Strongly Disagree") + "," + J("Strongly Agree") + ");");
+    });
+  }
+  const regRes = s.resFbOn? c.aust.learnRes.filter(r=>(r.title||"").trim()) : [];
+  if(regRes.length){
+    L.push("  form.addSectionHeaderItem().setTitle(" + J("How useful were the shared resources? (5 = very useful … 1 = not useful; skip if not used)") + ");");
+    regRes.forEach(r=>{
+      L.push("  form.addScaleItem().setTitle(" + J("Resource: "+r.title.trim()) + ").setBounds(1,5).setLabels(" + J("Not useful") + "," + J("Very useful") + ");");
+    });
+  }
+  (s.openQ||[]).filter(o=>(o.q||"").trim()).forEach(o=>{
+    L.push("  form.addParagraphTextItem().setTitle(" + J(o.q.trim()) + ");");
+  });
+  L.push("  Logger.log(\"Share this link with students: \" + form.getPublishedUrl());");
+  L.push("  Logger.log(\"Edit the form here: \" + form.getEditUrl());");
+  L.push("}");
+  downloadFile(`${(c.code||"course").replace(/\s+/g,"_")}_survey_form.gs`, L.join("\n"), "text/plain");
+  toast("Script downloaded — paste it at script.google.com and Run once");
+}
 function applySurveyCSV(text){
   const c = activeCourse(); if(!c) return 0;
   const rows = parseCSV(text);
@@ -3181,8 +3793,8 @@ function exportSurveyTemplateCSV(){
   if(!c.cos.length){ toast("Define your COs first (COs & CO–PO Mapping Section)"); return; }
   ensureAust(c);
   const s = c.aust.survey;
-  const head = ["Timestamp", ...c.cos.map((co,i)=>`CO${i+1}: ${co.statement||""}`),
-    ...FB_ITEMS.filter(([k])=>s.fbOn[k]).map(([k,label])=>`FB-${k}: ${label}`),
+  const head = ["Timestamp", ...c.cos.map((co,i)=>`CO${i+1}: ${svyCoLabel(c,co)}`),
+    ...FB_ITEMS.filter(([k])=>s.fbOn[k]).map(([k,label])=>`FB-${k}: ${svyFbLabel(c,k,label)}`),
     ...(s.resFbOn? c.aust.learnRes.filter(r=>(r.title||"").trim()).map(r=>`Resource: ${r.title.trim()}`):[])];
   downloadFile(`${(c.code||"course").replace(/\s+/g,"_")}_course_evaluation_survey_template.csv`,
     head.map(csvCell).join(",") + "\n", "text/csv");
@@ -3260,7 +3872,12 @@ function indirectCards(c, att, only){
     const d = ind.cos[i];
     return `<tr>
       <td><b>CO${i+1}</b></td>
-      <td style="font-size:12.5px">${esc(co.statement)}</td>
+      <td style="min-width:240px">
+        <div style="display:flex;gap:4px;align-items:flex-start">
+          <textarea class="di" rows="1" style="flex:1;overflow-y:hidden;font-size:12.5px" oninput="autoGrowTA(this)" title="Survey wording — edit in place; clearing the box reverts to the CO statement. Responses stay keyed to this CO whatever the wording." onchange="setSvyCoText('${co.id}',this.value)">${esc((c.aust.survey.coText||{})[co.id] || co.statement || "")}</textarea>
+          ${(c.aust.survey.coText||{})[co.id]? `<span class="badge blue" title="Custom wording — attainment stays keyed to this CO" style="margin-top:5px">edited</span><button class="icon-btn" title="Reset to the CO statement" onclick="setSvyCoText('${co.id}','')">⟲</button>`:''}
+        </div>
+      </td>
       ${[4,3,2,1,0].map(k=>`<td style="text-align:center"><input class="marks-input" style="width:52px" type="number" min="0" value="${d.t[k]||""}" onchange="setTally('${co.id}',${k},this.value)"></td>`).join("")}
       <td style="text-align:center"><b>${d.n}</b></td>
       <td style="text-align:center">${d.avgRating===null?"—":d.avgRating.toFixed(2)}</td>
@@ -3292,7 +3909,10 @@ function indirectCards(c, att, only){
       const s = c.aust.survey;
       const fbRows = FB_ITEMS.filter(([k])=>s.fbOn[k]).map(([k,label])=>{
         const t = s.fbTally[k]||[]; const st = tallyStats(t);
-        return `<tr><td style="font-size:12.5px">${label}</td>
+        return `<tr><td style="min-width:220px"><div style="display:flex;gap:4px;align-items:flex-start">
+          <textarea class="di" rows="1" style="flex:1;overflow-y:hidden;font-size:12.5px" oninput="autoGrowTA(this)" title="Edit this feedback item's wording in place — clearing reverts to the standard text" onchange="setSvyFbText('${k}',this.value)">${esc(svyFbLabel(c,k,label))}</textarea>
+          ${(s.fbText||{})[k]? `<button class="icon-btn" title="Reset to the standard wording" onclick="setSvyFbText('${k}','')">⟲</button>`:''}
+        </div></td>
           ${[4,3,2,1,0].map(x=>`<td style="text-align:center"><input class="marks-input" style="width:52px" type="number" min="0" value="${t[x]||""}" onchange="setFbTally('${k}',${x},this.value)"></td>`).join("")}
           <td style="text-align:center">${st.n}</td><td style="text-align:center">${st.avg===null?"—":st.avg.toFixed(2)}</td><td style="text-align:center">${st.pct===null?"—":st.pct.toFixed(0)+"%"}</td></tr>`;
       }).join("");
@@ -3317,9 +3937,11 @@ function indirectCards(c, att, only){
       <thead><tr><th>Resource</th><th style="width:64px">5</th><th style="width:64px">4</th><th style="width:64px">3</th><th style="width:64px">2</th><th style="width:64px">1</th><th style="width:56px">n</th><th style="width:64px">Avg</th><th style="width:70px">% ≥ 4</th></tr></thead>
       <tbody>${resRows}</tbody></table></div>` : '<p class="hint">No resources registered yet (T&L Section → Learning Resources shared with students).</p>') : ""}`;
     })()}
+    ${surveyEditor(c)}
     <div class="btn-row">
       <button class="btn secondary" onclick="exportSurveyTemplateCSV()">⬇ Download Survey CSV Template</button>
       <label class="btn secondary" style="cursor:pointer">⬆ Import Survey CSV<input type="file" accept=".csv" style="display:none" onchange="importSurveyCSV(this)"></label>
+      <button class="btn secondary" onclick="downloadFormScript()" title="Generates a ready-to-paste Google Apps Script (script.google.com → New project → paste → Run once) that builds this whole survey as a Google Form in YOUR account — item titles match the CSV import, so the response sheet imports straight back">⬇ Google Form Script (.gs)</button>
       <button class="btn secondary" onclick="showDoc('survey');showTab('docs')">🖨 Printable Survey Form</button>
       <button class="btn danger small" onclick="clearSurvey()">Clear Tallies</button>
     </div>
@@ -3541,6 +4163,9 @@ function aiFeedbackLines(c){
   const out = [];
   fbd.fb.filter(x=>x.n>0).forEach(x=>out.push(`- ${x.label} → n=${x.n}, avg ${x.avg.toFixed(2)}/5, ${x.pct.toFixed(0)}% rated ≥4`));
   fbd.res.filter(x=>x.n>0).forEach(x=>out.push(`- ${x.label} → n=${x.n}, avg ${x.avg.toFixed(2)}/5, ${x.pct.toFixed(0)}% rated ≥4`));
+  ((c.aust.survey||{}).openQ||[]).forEach(o=>{
+    if((o.sum||"").trim()) out.push(`- Open response summary — "${(o.q||"").trim()}": ${o.sum.trim()}`);
+  });
   return out;
 }
 /* Recorded low-attainment analyses (CQI Section) — chained into the later prompts */
@@ -4189,9 +4814,10 @@ function renderDocs(){
   ensureAust(c);
   const sel = window._docSel || "outline";
   const docs = { outline:["Course Outline",docOutline], spec:["Course Specifications",docSpec],
-                 vet:["Final Exam Vetting Form",docVet], calc:["Direct CO-PO Calculations",docCalc],
+                 vet:["Final Exam Vetting Form",docVet], vetcep:["Final Exam Vetting Form with CEP/CEA",docVetCEP], calc:["Direct CO-PO Calculations",docCalc],
                  survey:["Course Evaluation Survey",docSurvey], report:["Course Report",docReport],
-                 cqi:["CQI Report",docCQI] };
+                 cqi:["CQI Report",docCQI], audit:["CEP & CEA Audit Forms",docAudit],
+                 rubrics:["Assessment Rubrics",docRubrics] };
   el.innerHTML = `
   <div class="doc-nav no-print">
     ${Object.entries(docs).map(([k,[n]])=>`<button class="${k===sel?"on":""}" onclick="showDoc('${k}')">${n}</button>`).join("")}
@@ -4241,9 +4867,9 @@ function docOutline(c){
       <td style="text-align:center">${lvlTag(co.bloomP)||pod(coSel(co.id,'bloomP',co.bloomP,BLOOM_P),"")}</td></tr>`).join("");
   const kpRows = c.cos.map((co,i)=>`
     <tr><td><b>CO${i+1}</b></td>
-      <td>${pod(coIn(co.id,'kp',co.kp,'e.g., K3, K4'), co.kp)}</td>
-      <td>${pod(coIn(co.id,'cep',co.cep,'e.g., P1, P3'), co.cep)}</td>
-      <td>${pod(coIn(co.id,'cea',co.cea,'e.g., A1, A2'), co.cea)}</td></tr>`).join("");
+      <td>${pod(coIn(co.id,'kp',co.kp, fwV3(c)? 'e.g., WK3, WK4':'e.g., K3, K4'), co.kp)}</td>
+      <td>${pod(coIn(co.id,'cep',co.cep, fwV3(c)? 'e.g., WP1, WP3':'e.g., P1, P3'), co.cep)}</td>
+      <td>${pod(coIn(co.id,'cea',co.cea, fwV3(c)? 'e.g., EA1, EA3':'e.g., A1, A2'), co.cea)}</td></tr>`).join("");
   const methodRows = o.methods.map((m,i)=>`<tr>
       <td>${di('outline.methods.'+i+'.name', m.name, 'e.g., Attendance')}</td>
       <td style="text-align:center"><input class="di" style="width:80px;text-align:center" value="${esc(m.pct)}" onchange="austSetR('outline.methods.${i}.pct',this.value)"> %</td>
@@ -4281,7 +4907,7 @@ function docOutline(c){
     <tbody>${coRows || '<tr><td colspan="6" style="text-align:center">Define COs in the "COs & CO–PO Mapping" Section</td></tr>'}</tbody></table>
   ${piPrintTable(c)}
   <h2>14. Mapping of COs with Knowledge Profiles, Complex Engineering Problem Solving and Complex Engineering Activities</h2>
-  <table class="tbl"><thead><tr><th style="width:90px">Course Outcome</th><th>Knowledge Profile (K1–K8)</th><th>Complex Problem Solving (P1–P7)</th><th>Complex Engineering Activities (A1–A5)</th></tr></thead>
+  <table class="tbl"><thead><tr><th style="width:90px">Course Outcome</th><th>Knowledge Profile (${fwV3(c)? "WK1–WK9":"K1–K8"})</th><th>Complex Problem Solving (${fwV3(c)? "WP1–WP7":"P1–P7"})</th><th>Complex Engineering Activities (${fwV3(c)? "EA1–EA5":"A1–A5"})</th></tr></thead>
     <tbody>${kpRows || '<tr><td colspan="4" style="text-align:center">—</td></tr>'}</tbody></table>
   <h2>15. Percentages of Assessment Methods</h2>
   <table class="tbl" style="max-width:480px"><thead><tr><th>Method</th><th style="width:130px">Percentage</th><th class="no-print" style="width:54px;font-size:11px">Delete</th></tr></thead>
@@ -4353,6 +4979,12 @@ function docSpec(c){
       <td style="text-align:center">${di('spec.topics.'+i+'.planned', t.planned, 'hrs', 'width:70px;text-align:center')}</td>
       <td class="no-print"><button class="icon-btn" onclick="delTopic(${i})">✕</button></td></tr>`).join("");
   const totalPlanned = sp.topics.reduce((s,t)=>s+(parseFloat(t.planned)||0),0);
+  const anyAttr = allItems(c).some(it=>(it.wp||[]).length||(it.ea||[]).length);
+  const bpAttr = it => {
+    const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+    const w=(it.wp||[]).slice().sort((a,b)=>a-b), e=(it.ea||[]).slice().sort((a,b)=>a-b);
+    return [w.length? dw.pre+w.join(", "+dw.pre):null, e.length? de.pre+e.join(", "+de.pre):null].filter(Boolean).join("; ") || "—";
+  };
   const bpRows = c.cos.flatMap((co,i)=>{
     const its = allItems(c).filter(it=>it.coId===co.id);
     return its.map(it=>`
@@ -4361,7 +4993,7 @@ function docSpec(c){
         <td style="text-align:center">${totalMax? ((parseFloat(it.max)||0)/totalMax*100).toFixed(1):"—"}%</td>
         <td style="text-align:center">${(co.btDomain||"Cognitive")==="Cognitive"? itemLevelTag(it, co) : cLevel(co)}</td>
         <td style="text-align:center">${(co.btDomain||"Cognitive")==="Affective"? itemLevelTag(it, co) : lvlTag(co.bloomA)}</td>
-        <td style="text-align:center">${(co.btDomain||"Cognitive")==="Psychomotor"? itemLevelTag(it, co) : lvlTag(co.bloomP)}</td></tr>`);
+        <td style="text-align:center">${(co.btDomain||"Cognitive")==="Psychomotor"? itemLevelTag(it, co) : lvlTag(co.bloomP)}</td>${anyAttr? `<td style="text-align:center;font-size:11.5px">${bpAttr(it)}</td>`:""}</tr>`);
   }).join("");
   const cqiLabels = [["A. CQI Loop for COs","Direct Measurement"],["A. CQI Loop for COs","Indirect Measurement from Surveys (if any)"],["B. CQI Loop for POs","Direct Measurement"],["B. CQI Loop for POs","Indirect Measurement from Surveys (if any)"],["C. CQI Loop for PEOs","Indirect Measurement from Surveys (if any)"]];
   const cqiRows = cqiLabels.map((L,i)=>`
@@ -4398,7 +5030,7 @@ function docSpec(c){
     <tr><th rowspan="2" style="width:50px">CO No.</th><th rowspan="2">CO statement</th><th rowspan="2" style="width:75px">Corresponding PO No.</th><th colspan="3">Bloom's Taxonomy</th><th rowspan="2">Delivery Methods and Activities</th><th rowspan="2">Assessment Method</th></tr>
     <tr><th style="width:45px">C</th><th style="width:45px">A</th><th style="width:45px">P</th></tr></thead>
     <tbody>${caRows || '<tr><td colspan="8" style="text-align:center">Define COs first</td></tr>'}</tbody></table>
-  <p style="font-size:11.5px;color:var(--muted)">* Filled out through constructive alignment (Biggs): outcomes → teaching/learning activities → assessments. Delivery Methods carry the activities adopted in the T&amp;L Section; Assessment Method is auto-filled from the assessments measuring each CO (⛓ Assessments Section) — the dotted box below it accepts additional methods.</p>
+  <p style="font-size:11.5px;color:var(--muted)">* Filled out through constructive alignment: outcomes → teaching/learning activities → assessments ${refCite([2,3])}. Delivery Methods carry the activities adopted in the T&amp;L Section; Assessment Method is auto-filled from the assessments measuring each CO (⛓ Assessments Section) — the dotted box below it accepts additional methods.</p>
   ${piPrintTable(c)}
   <h2>4. Teaching &amp; Learning Activities</h2>
   <h2>4.1 Planned Contact Hours for Different Topics</h2>
@@ -4413,7 +5045,7 @@ function docSpec(c){
   <h2>5. Assessments</h2>
   <h2>5.1 Assessment Blueprint</h2>
   <table class="tbl"><thead>
-    <tr><th rowspan="2" style="width:55px">CO No.</th><th rowspan="2">Assessment Item</th><th rowspan="2" style="width:95px">% of Total Marks</th><th colspan="3">Bloom's Taxonomy</th></tr>
+    <tr><th rowspan="2" style="width:55px">CO No.</th><th rowspan="2">Assessment Item</th><th rowspan="2" style="width:95px">% of Total Marks</th><th colspan="3">Bloom's Taxonomy</th>${anyAttr? `<th rowspan="2" style="width:110px">Complex Attributes (${attrDef(c,'wp').pre}/${attrDef(c,'ea').pre})</th>`:""}</tr>
     <tr><th style="width:70px">Cognitive</th><th style="width:70px">Affective</th><th style="width:85px">Psychomotor</th></tr></thead>
     <tbody>${bpRows || '<tr><td colspan="6" style="text-align:center">Define assessment items first</td></tr>'}</tbody></table>
   <h2>6. Continuous Quality Improvement (CQI) Measures</h2>
@@ -4486,6 +5118,67 @@ function docVet(c){
   <p><br>Signature of the Head of the Department: __________________ &nbsp;&nbsp; Date: __________<br>Name: ______________________________</p>`;
 }
 
+/* ---- Final Exam Vetting Form with CEP/CEA ---- */
+function docVetCEP(c){
+  const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+  const finals = c.assessments.filter(a=>a.type==="Final Exam");
+  const title = "Final Exam Vetting Form with CEP/CEA";
+  if(!finals.length) return `${docHead(title,"")}<p class="hint">No assessment of type <b>Final Exam</b> is defined yet — add one in the Assessments Section, tag its questions with ${dw.pre}/${de.pre} attributes (Complex attributes per item), and this form fills itself.</p>`;
+  const body = finals.map(a=>{
+    const total = a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0);
+    const qRows = a.items.map(it=>{
+      const j = c.cos.findIndex(x=>x.id===it.coId);
+      const co = j>=0? c.cos[j] : null;
+      return `<tr>
+        <td style="text-align:center">${esc(it.label)}${it.mandatory===false?"†":""}</td>
+        <td style="text-align:center">${j>=0? "CO"+(j+1):"—"}</td>
+        <td style="text-align:center">${esc(itemLevelTag(it, co)||"—")}</td>
+        <td style="text-align:center">${it.max??""}</td>
+        <td style="text-align:center">${attrStr(c,'wp',it.wp)||"—"}</td>
+        <td style="text-align:center">${attrStr(c,'ea',it.ea)||"—"}</td></tr>`;
+    }).join("");
+    const coMarks = c.cos.map((co,i)=>{ const m=a.items.filter(it=>it.coId===co.id).reduce((s,it)=>s+(parseFloat(it.max)||0),0); return {i,m}; });
+    const covered = coMarks.filter(x=>x.m>0), missing = coMarks.filter(x=>!x.m);
+    const lvls = {}; a.items.forEach(it=>{ const j=c.cos.findIndex(x=>x.id===it.coId); const t=itemLevelTag(it, j>=0?c.cos[j]:null)||"—"; lvls[t]=(lvls[t]||0)+(parseFloat(it.max)||0); });
+    const wpSet=[...new Set(a.items.flatMap(it=>it.wp||[]))].sort((x,y)=>x-y);
+    const eaSet=[...new Set(a.items.flatMap(it=>it.ea||[]))].sort((x,y)=>x-y);
+    const gate = wpSet.length && !wpSet.includes(1)? `<p style="font-size:12px;color:#8a6d00"><b>⚠ ${dw.pre}1 (Depth of knowledge required) is not tagged on any question.</b> ${dw.pre}1 is the defining characteristic of a complex engineering problem — a paper cannot claim complex-problem coverage without it.</p>` : "";
+    return `
+  <h2>${esc(a.name||a.type)} — Question Analysis <span style="font-weight:400;font-size:13px">(auto-filled from the Assessment Plan)</span></h2>
+  <table class="tbl"><thead><tr><th style="width:70px;text-align:center">Question</th><th style="width:55px;text-align:center">CO</th><th style="width:55px;text-align:center">Level</th><th style="width:55px;text-align:center">Marks</th><th style="text-align:center">CEP attributes (${dw.pre})</th><th style="text-align:center">CEA attributes (${de.pre})</th></tr></thead>
+    <tbody>${qRows || `<tr><td colspan="6" style="text-align:center">No questions defined yet</td></tr>`}</tbody></table>
+  <p style="font-size:11.5px;color:var(--muted)">† = choice question (the student selects from a pool, e.g., answer any 5 of 7). Full marks: <b>${total}</b>. Duration: __________</p>
+  <h2>Coverage Summary</h2>
+  <table class="tbl"><tbody>
+    <tr><th style="width:220px">COs covered</th><td>${covered.map(x=>`CO${x.i+1} (${x.m} marks)`).join(", ")||"—"}</td></tr>
+    <tr><th>COs not assessed in this exam</th><td>${missing.map(x=>"CO"+(x.i+1)).join(", ")||"None"}</td></tr>
+    <tr><th>Bloom-level distribution (marks)</th><td>${Object.keys(lvls).sort().map(k=>`${k}: ${lvls[k]}`).join(" · ")||"—"}</td></tr>
+    <tr><th>CEP attributes exercised</th><td>${wpSet.length? wpSet.map(k=>`<b>${dw.pre}${k}</b> — ${esc(dw.tip(k)||"")}`).join("<br>") : "None tagged"}</td></tr>
+    <tr><th>CEA attributes exercised</th><td>${eaSet.length? eaSet.map(k=>`<b>${de.pre}${k}</b> — ${esc(de.tip(k)||"")}`).join("<br>") : "None tagged"}</td></tr>
+  </tbody></table>
+  ${gate}
+  <h2>Vetting Checklist (To Be Completed by the Vetting Committee)</h2>
+  <table class="tbl"><thead><tr><th>Item</th><th style="width:50px;text-align:center">Yes</th><th style="width:50px;text-align:center">No</th><th style="width:180px">Comments</th></tr></thead><tbody>
+    ${["The questions align with the stated COs and their Bloom's taxonomy levels",
+       "The mark distribution matches the assessment plan and is appropriate",
+       `At least one question addresses complex engineering problem characteristics (${dw.pre}1 together with other ${dw.pre} attributes)`,
+       `The tagged ${dw.pre}/${de.pre} attributes are genuinely exercised by the corresponding questions`,
+       "The language is clear and free from ambiguity, including choice instructions",
+       "The difficulty is balanced across the paper",
+       "The required data/charts/figures are included with appropriate clarity"]
+      .map((x,i)=>`<tr><td>${i+1}. ${x}</td><td style="text-align:center" class="cbx">□</td><td style="text-align:center" class="cbx">□</td><td></td></tr>`).join("")}
+  </tbody></table>
+  <h2>Sign-off</h2>
+  <p style="margin-top:10px">Signature of the Course Teacher: __________________ &nbsp;&nbsp; Date: __________<br>Name: ${esc(c.instructor)}</p>
+  <table class="tbl" style="margin-top:8px"><tr>
+    <td style="width:50%">Signature of the Vetting Committee Member 1: __________________<br>Date: __________<br>Name: ______________________________</td>
+    <td style="width:50%">Signature of the Vetting Committee Member 2: __________________<br>Date: __________<br>Name: ______________________________</td>
+  </tr></table>
+  <p><br>Signature of the Head of the Department: __________________ &nbsp;&nbsp; Date: __________<br>Name: ______________________________</p>`;
+  }).join("");
+  return `${docHead(title,"Complex Engineering Problem (" + dw.pre + ") and Activity (" + de.pre + ") coverage of the final examination — evidence auto-filled, judgment by the vetting committee")}${body}`;
+}
+
 /* ---- Document 4: Direct CO-PO Calculations ---- */
 function docCalc(c){
   const att = computeAttainment(c);
@@ -4526,7 +5219,7 @@ function docCalc(c){
 function docSurvey(c){
   const rows = c.cos.map((co,i)=>`
     <tr><td style="text-align:center"><b>CO${i+1}</b></td>
-      <td style="font-size:12.5px">${esc(co.statement)}</td>
+      <td style="font-size:12.5px">${esc(svyCoLabel(c,co))}</td>
       ${[5,4,3,2,1].map(()=>`<td style="text-align:center" class="cbx">□</td>`).join("")}
     </tr>`).join("");
   return `${docHead("Course Evaluation Survey","Indirect Measurement of COs — anonymous, to be completed at the end of the semester")}
@@ -4546,7 +5239,7 @@ function docSurvey(c){
     if(!fb.length) return "";
     return `<p style="font-size:13px;margin-top:14px"><b>About the course:</b></p>
   <table class="tbl"><thead><tr><th>Statement</th><th style="width:46px;text-align:center">5</th><th style="width:46px;text-align:center">4</th><th style="width:46px;text-align:center">3</th><th style="width:46px;text-align:center">2</th><th style="width:46px;text-align:center">1</th></tr></thead>
-    <tbody>${fb.map(([k,label])=>`<tr><td style="font-size:12.5px">${label}</td>${[5,4,3,2,1].map(()=>`<td style="text-align:center" class="cbx">□</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    <tbody>${fb.map(([k,label])=>`<tr><td style="font-size:12.5px">${esc(svyFbLabel(c,k,label))}</td>${[5,4,3,2,1].map(()=>`<td style="text-align:center" class="cbx">□</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   })()}
   ${(()=>{
     const s = c.aust.survey;
@@ -4556,13 +5249,50 @@ function docSurvey(c){
   <table class="tbl"><thead><tr><th>Resource</th><th style="width:46px;text-align:center">5</th><th style="width:46px;text-align:center">4</th><th style="width:46px;text-align:center">3</th><th style="width:46px;text-align:center">2</th><th style="width:46px;text-align:center">1</th></tr></thead>
     <tbody>${regRes.map(r=>`<tr><td style="font-size:12.5px">${esc(r.title.trim())} <span style="color:var(--muted);font-size:11px">(${esc(r.type||"")})</span></td>${[5,4,3,2,1].map(()=>`<td style="text-align:center" class="cbx">□</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   })()}
-  <p style="font-size:13px;margin-top:14px"><b>The best aspect of this course (optional):</b></p>
-  <p>…………………………………………………………………………………………………………………<br>…………………………………………………………………………………………………………………</p>
-  <p style="font-size:13px;margin-top:10px"><b>One suggested improvement (optional):</b></p>
-  <p>…………………………………………………………………………………………………………………<br>…………………………………………………………………………………………………………………</p>
+  ${(c.aust.survey.openQ||[]).filter(o=>(o.q||"").trim()).map(o=>`
+  <p style="font-size:13px;margin-top:12px"><b>${esc(o.q.trim())} (optional):</b></p>
+  <p>…………………………………………………………………………………………………………………<br>…………………………………………………………………………………………………………………</p>`).join("")}
   <p style="font-size:11.5px;color:var(--muted)">For online delivery, replicate this form as a Google Form and import the response CSV in the Attainment Section — CO columns headed CO1, CO2, …; the additional columns exactly as in ⬇ Download Survey CSV Template.</p>`;
 }
 
+/* ---- Printable CEP & CEA Audit Forms (Projects & Assignments) ---- */
+function docAudit(c){
+  const dw=attrDef(c,'wp'), de=attrDef(c,'ea');
+  const list = c.assessments.filter(a=>AUDIT_TYPES.includes(a.type) && auditAttrs(c,a).length);
+  const body = list.map(a=>{
+    const au = a.audit || { stmt:"", just:{} };
+    const rows = auditAttrs(c,a).map(x=>{
+      const d = x.g==='wp'? dw:de; const key=x.g+x.k;
+      return `<tr><td style="width:60px;text-align:center;white-space:nowrap"><b>${d.pre}${x.k}</b></td>
+        <td style="width:300px;font-size:11.5px">${esc(d.tip(x.k)||"")}</td>
+        <td style="font-size:12.5px;white-space:pre-wrap">${esc(au.just[key]||"")||"<i>(not yet justified)</i>"}</td></tr>`;
+    }).join("");
+    return `
+  <h2>${esc(a.name||a.type)} <span style="font-weight:400;font-size:13px">(${esc(a.type)}${a.oel? " — open-ended lab":""})</span></h2>
+  ${a.oel && String(a.oelTask||"").trim()? `<p style="font-size:12.5px"><b>Open-ended task:</b> ${esc(a.oelTask)}</p>`:""}
+  ${String(au.stmt||"").trim()? `<p style="font-size:12.5px"><b>Complexity statement:</b> ${esc(au.stmt)}</p>`:""}
+  <table class="tbl"><thead><tr><th>Attribute</th><th>Official descriptor</th><th>Justification for this assessment</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  }).join("");
+  return `${docHead("CEP & CEA Audit Forms","Complex Engineering Problem (" + dw.pre + ") and Activity (" + de.pre + ") attributes — justification per Project / Assignment")}
+  ${body || `<p class="hint">No Project or Assignment assessment carries ${dw.pre}/${de.pre} tags yet — tag items in the Assessments Section (Complex attributes per item), then justify them in the CEP &amp; CEA sub-section.</p>`}`;
+}
+/* ---- Printable Assessment Rubrics ---- */
+function docRubrics(c){
+  const list = c.assessments.filter(a=>a.rub && a.rub.criteria && a.rub.criteria.length);
+  const body = list.map(a=>{
+    const total=a.items.reduce((s,it)=>s+(parseFloat(it.max)||0),0);
+    const rows=a.rub.criteria.map(cr=>`
+      <tr><td style="font-weight:600">${esc(cr.name)}</td><td style="text-align:center;width:60px">${esc(cr.w)}</td>
+        ${cr.d.map(dv=>`<td style="font-size:11.5px;white-space:pre-wrap">${esc(dv)||"—"}</td>`).join("")}</tr>`).join("");
+    return `
+  <h2>${esc(a.name||a.type)} <span style="font-weight:400;font-size:13px">(${esc(a.type)} · ${total} marks)</span></h2>
+  <table class="tbl"><thead><tr><th style="min-width:150px">Criterion</th><th>Marks</th>${a.rub.scale.map(s2=>`<th style="min-width:140px">${esc(s2)}</th>`).join("")}</tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  }).join("");
+  return `${docHead("Assessment Rubrics","Analytic rubrics for assignments, projects and oral assessments — shared with students in advance")}
+  ${body || '<p class="hint">No rubrics generated yet — use the Rubric sub-section of the Assessments Section.</p>'}`;
+}
 /* ---- Printable CQI Report (BAETE Criteria 3.8 & 5.4.3, Annexure H) ---- */
 function docCQI(c){
   const q = c.aust.cqi;
@@ -5003,25 +5733,179 @@ function clearAll(){
   save(); refresh(); toast("All data erased");
 }
 
+/* ============ About Section: scholarly basis & references ============ */
+const REFS = [
+  "Spady, W. G. (1994). <i>Outcome-Based Education: Critical Issues and Answers.</i> American Association of School Administrators, Arlington, VA. <a href=\"https://eric.ed.gov/?id=ED380910\" target=\"_blank\" rel=\"noopener\">ERIC ED380910</a>.",
+  "Biggs, J. (1996). Enhancing teaching through constructive alignment. <i>Higher Education</i>, 32(3), 347–364. <a href=\"https://doi.org/10.1007/BF00138871\" target=\"_blank\" rel=\"noopener\">doi:10.1007/BF00138871</a>.",
+  "Biggs, J., &amp; Tang, C. (2011). <i>Teaching for Quality Learning at University</i> (4th ed.). McGraw-Hill / Open University Press, Maidenhead. <a href=\"https://search.worldcat.org/title/772697952\" target=\"_blank\" rel=\"noopener\">WorldCat record</a>.",
+  "Bloom, B. S. (Ed.) (1956). <i>Taxonomy of Educational Objectives: The Classification of Educational Goals, Handbook I: Cognitive Domain.</i> David McKay, New York. <a href=\"https://search.worldcat.org/title/28003975\" target=\"_blank\" rel=\"noopener\">WorldCat record</a>.",
+  "Anderson, L. W., &amp; Krathwohl, D. R. (Eds.) (2001). <i>A Taxonomy for Learning, Teaching, and Assessing: A Revision of Bloom’s Taxonomy of Educational Objectives.</i> Longman, New York. <a href=\"https://www.loc.gov/item/00063423/\" target=\"_blank\" rel=\"noopener\">Library of Congress record</a>.",
+  "Krathwohl, D. R., Bloom, B. S., &amp; Masia, B. B. (1964). <i>Taxonomy of Educational Objectives: The Classification of Educational Goals, Handbook II: Affective Domain.</i> David McKay, New York. <a href=\"https://search.worldcat.org/title/768451499\" target=\"_blank\" rel=\"noopener\">WorldCat record</a>.",
+  "Simpson, E. J. (1972). The classification of educational objectives in the psychomotor domain. In <i>The Psychomotor Domain</i> (Vol. 3). Gryphon House, Washington, DC. <a href=\"https://eric.ed.gov/?id=ED010368\" target=\"_blank\" rel=\"noopener\">Foundational ERIC report ED010368</a>. (The app uses Simpson’s seven-level scheme; other psychomotor taxonomies also exist.)",
+  "International Engineering Alliance (2021). <i>Graduate Attributes and Professional Competencies</i> (Version 4, approved 21 June 2021). <a href=\"https://www.internationalengineeringalliance.org/about/documents\" target=\"_blank\" rel=\"noopener\">Official IEA document page</a>.",
+  "Board of Accreditation for Engineering and Technical Education (BAETE). <i>Accreditation Manual for Undergraduate Engineering Programs</i>, ACC-MAN-02, <a href=\"https://baetebangladesh.org/acc-man-02-v2-2-f.html\" target=\"_blank\" rel=\"noopener\">Version 2.2</a> and <a href=\"https://baetebangladesh.org/acc-man-02-v3-f.html\" target=\"_blank\" rel=\"noopener\">Version 3.0</a>. Institution of Engineers, Bangladesh. (Authoritative accreditation source; not a peer-reviewed study.)",
+  "Felder, R. M., &amp; Brent, R. (2003). Designing and teaching courses to satisfy the ABET engineering criteria. <i>Journal of Engineering Education</i>, 92(1), 7–25. <a href=\"https://doi.org/10.1002/j.2168-9830.2003.tb00734.x\" target=\"_blank\" rel=\"noopener\">doi:10.1002/j.2168-9830.2003.tb00734.x</a>.",
+  "Jonsson, A., &amp; Svingby, G. (2007). The use of scoring rubrics: Reliability, validity and educational consequences. <i>Educational Research Review</i>, 2(2), 130–144. <a href=\"https://doi.org/10.1016/j.edurev.2007.05.002\" target=\"_blank\" rel=\"noopener\">doi:10.1016/j.edurev.2007.05.002</a>.",
+  "Brookhart, S. M. (2013). <i>How to Create and Use Rubrics for Formative Assessment and Grading.</i> ASCD, Alexandria, VA. <a href=\"https://www.ascd.org/books/how-to-create-and-use-rubrics-for-formative-assessment-and-grading\" target=\"_blank\" rel=\"noopener\">Publisher record</a>.",
+  "Feisel, L. D., &amp; Rosa, A. J. (2005). The role of the laboratory in undergraduate engineering education. <i>Journal of Engineering Education</i>, 94(1), 121–130. <a href=\"https://doi.org/10.1002/j.2168-9830.2005.tb00833.x\" target=\"_blank\" rel=\"noopener\">doi:10.1002/j.2168-9830.2005.tb00833.x</a>.",
+  "Moen, R. D., &amp; Norman, C. L. (2010). Circling back: Clearing up myths about the Deming cycle and seeing how it keeps evolving. <i>Quality Progress</i>, 43(11), 22–28. <a href=\"https://asq.org/quality-progress/articles/circling-back?id=5e4d20950fad4b519133490466ccbf0a\" target=\"_blank\" rel=\"noopener\">ASQ record</a>. (Clarifies the PDCA/PDSA lineage; Deming himself used PDSA.)",
+  "Richardson, J. T. E. (2005). Instruments for obtaining student feedback: A review of the literature. <i>Assessment &amp; Evaluation in Higher Education</i>, 30(4), 387–415. <a href=\"https://doi.org/10.1080/02602930500099193\" target=\"_blank\" rel=\"noopener\">doi:10.1080/02602930500099193</a>.",
+  "Wiggins, G., &amp; McTighe, J. (2005). <i>Understanding by Design</i> (expanded 2nd ed.). ASCD, Alexandria, VA. <a href=\"https://eric.ed.gov/?id=ED509029\" target=\"_blank\" rel=\"noopener\">ERIC ED509029</a>.",
+  "Popenici, S., &amp; Millar, V. (2015). <i>Writing Learning Outcomes: A Practical Guide for Academics.</i> Melbourne Centre for the Study of Higher Education, University of Melbourne. <a href=\"https://doi.org/10.13140/RG.2.1.1215.6246\" target=\"_blank\" rel=\"noopener\">doi:10.13140/RG.2.1.1215.6246</a>. (Scholarly practice guide; not a peer-reviewed journal article.)",
+  "Brabrand, C., &amp; Dahl, B. (2009). Using the SOLO taxonomy to analyze competence progression of university science curricula. <i>Higher Education</i>, 58(4), 531–549. <a href=\"https://doi.org/10.1007/s10734-009-9210-4\" target=\"_blank\" rel=\"noopener\">doi:10.1007/s10734-009-9210-4</a>.",
+  "Harden, R. M. (2002). Learning outcomes and instructional objectives: Is there a difference? <i>Medical Teacher</i>, 24(2), 151–155. <a href=\"https://doi.org/10.1080/0142159022020687\" target=\"_blank\" rel=\"noopener\">doi:10.1080/0142159022020687</a>.",
+  "Hussey, T., &amp; Smith, P. (2008). Learning outcomes: A conceptual analysis. <i>Teaching in Higher Education</i>, 13(1), 107–115. <a href=\"https://doi.org/10.1080/13562510701794159\" target=\"_blank\" rel=\"noopener\">doi:10.1080/13562510701794159</a>.",
+  "Freeman, S., Eddy, S. L., McDonough, M., Smith, M. K., Okoroafor, N., Jordt, H., &amp; Wenderoth, M. P. (2014). Active learning increases student performance in science, engineering, and mathematics. <i>Proceedings of the National Academy of Sciences</i>, 111(23), 8410–8415. <a href=\"https://doi.org/10.1073/pnas.1319030111\" target=\"_blank\" rel=\"noopener\">doi:10.1073/pnas.1319030111</a>.",
+  "Prince, M. J., &amp; Felder, R. M. (2006). Inductive teaching and learning methods: Definitions, comparisons, and research bases. <i>Journal of Engineering Education</i>, 95(2), 123–138. <a href=\"https://doi.org/10.1002/j.2168-9830.2006.tb00884.x\" target=\"_blank\" rel=\"noopener\">doi:10.1002/j.2168-9830.2006.tb00884.x</a>.",
+  "de Jong, T., Linn, M. C., &amp; Zacharia, Z. C. (2013). Physical and virtual laboratories in science and engineering education. <i>Science</i>, 340(6130), 305–308. <a href=\"https://doi.org/10.1126/science.1230579\" target=\"_blank\" rel=\"noopener\">doi:10.1126/science.1230579</a>.",
+  "Gulikers, J. T. M., Bastiaens, T. J., &amp; Kirschner, P. A. (2004). A five-dimensional framework for authentic assessment. <i>Educational Technology Research and Development</i>, 52(3), 67–86. <a href=\"https://doi.org/10.1007/BF02504676\" target=\"_blank\" rel=\"noopener\">doi:10.1007/BF02504676</a>.",
+  "Panadero, E., &amp; Jonsson, A. (2013). The use of scoring rubrics for formative assessment purposes revisited: A review. <i>Educational Research Review</i>, 9, 129–144. <a href=\"https://doi.org/10.1016/j.edurev.2013.01.002\" target=\"_blank\" rel=\"noopener\">doi:10.1016/j.edurev.2013.01.002</a>.",
+  "Wiggins, G. (1990). The case for authentic assessment. <i>Practical Assessment, Research &amp; Evaluation</i>, 2, Article 2. <a href=\"https://doi.org/10.7275/ffb1-mm19\" target=\"_blank\" rel=\"noopener\">doi:10.7275/ffb1-mm19</a>.",
+  "Prados, J. W., Peterson, G. D., &amp; Lattuca, L. R. (2005). Quality assurance of engineering education through accreditation: The impact of Engineering Criteria 2000 and its global influence. <i>Journal of Engineering Education</i>, 94(1), 165–184. <a href=\"https://doi.org/10.1002/j.2168-9830.2005.tb00836.x\" target=\"_blank\" rel=\"noopener\">doi:10.1002/j.2168-9830.2005.tb00836.x</a>.",
+  "Besterfield-Sacre, M., Shuman, L. J., Wolfe, H., Atman, C. J., McGourty, J., Miller, R. L., Olds, B. M., &amp; Rogers, G. M. (2000). Defining the outcomes: A framework for EC-2000. <i>IEEE Transactions on Education</i>, 43(2), 100–110. <a href=\"https://doi.org/10.1109/13.848060\" target=\"_blank\" rel=\"noopener\">doi:10.1109/13.848060</a>.",
+  "Spooren, P., Brockx, B., &amp; Mortelmans, D. (2013). On the validity of student evaluation of teaching: The state of the art. <i>Review of Educational Research</i>, 83(4), 598–642. <a href=\"https://doi.org/10.3102/0034654313496870\" target=\"_blank\" rel=\"noopener\">doi:10.3102/0034654313496870</a>.",
+  "Taylor, M. J., McNicholas, C., Nicolay, C., Darzi, A., Bell, D., &amp; Reed, J. E. (2014). Systematic review of the application of the plan–do–study–act method to improve quality. <i>BMJ Quality &amp; Safety</i>, 23(4), 290–298. <a href=\"https://doi.org/10.1136/bmjqs-2013-001862\" target=\"_blank\" rel=\"noopener\">doi:10.1136/bmjqs-2013-001862</a>.",
+  "Webb, N. L. (1997). <i>Criteria for Alignment of Expectations and Assessments in Mathematics and Science Education</i> (Research Monograph No. 6). National Institute for Science Education, University of Wisconsin–Madison. <a href=\"https://eric.ed.gov/?id=ED414305\" target=\"_blank\" rel=\"noopener\">ERIC ED414305</a>."
+];
+const GUIDE_REFS = { dashboard:[14,30], course:[9,10,28], cos:[1,2,4,5,6,7,8,9,10,17,18,19,20,28], tla:[2,3,16,21,22,23], assess:[2,11,12,13,24,25,26,31], ca:[2,3,10,31], marks:[10,28], attain:[8,9,10,28], cqi:[10,14,27,30], docs:[9] };
+function refCite(ns){ return ns.map(n=>`<a href="javascript:void(0)" style="color:var(--primary);text-decoration:none;font-weight:600" onclick="showRef(${n})">[${n}]</a>`).join(" "); }
+function showRef(n){
+  showTab('about');
+  setTimeout(()=>{ const el=document.getElementById('ref-'+n); if(!el) return;
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.style.background='#fff3c4'; setTimeout(()=>{ el.style.background=''; }, 2200); }, 60);
+}
+const ABOUT_BASIS = [
+  ["Dashboard", "The suggested workflow uses the familiar PDCA/PDSA family as an organizing metaphor: plan the course, deliver it, study the evidence, act on findings, and repeat. The literature treats this as an iterative learning cycle, not a guarantee that improvement has occurred.", [14,30]],
+  ["Course Info", "The app records pre-declared, criterion-referenced attainment thresholds and direct/indirect weights so results can be interpreted consistently. Their numerical values are local policy choices: neither the IEA nor BAETE prescribes a universal pass mark, KPI, or 80/20 weighting.", [8,9,10,28]],
+  ["COs &amp; CO–PO Mapping", "Course Outcomes are written as observable statements in the outcome-based tradition and classified in cognitive, affective or psychomotor domains. The app warns when a CO opens with a vague mental-state verb because the intended assessment evidence is unclear; observable alternatives are suggested. A useful CO identifies an assessable performance and its content and, where appropriate, conditions or criteria—while retaining enough flexibility for complex and emergent learning. The CO–PO matrix makes the intended relationship explicit. PO and engineering-attribute texts come from the official IEA and BAETE frameworks.", [1,2,5,6,7,8,9,10,17,18,19,20,28]],
+  ["T&amp;L", "Teaching–learning activities and resources are selected backwards from the intended outcomes and assessment evidence. The activity pool is pedagogical decision support rather than an automatic effectiveness guarantee; faculty must consider the discipline, students, class size, resources and local evidence.", [2,3,16,21,22]],
+  ["Assessments", "Assessment items are mapped to COs and intended cognitive levels to make coverage inspectable. Rubrics can support more reliable and transparent judgments of complex performance when criteria, descriptors, exemplars and rater processes are well designed. Authenticity and complex-engineering attributes require evidence from suitable tasks; a tag or checkbox alone does not establish validity.", [2,8,9,11,12,13,24,25,26,31]],
+  ["CA (Constructive Alignment)", "The alignment checks compare declared outcomes, learning opportunities and assessment evidence. Misalignment is a recognized threat to the validity of inferences about outcome achievement; the app’s flags are diagnostics for faculty review, not empirical proof that a course is aligned.", [2,3,10,31]],
+  ["Students &amp; Marks", "Item-level marks permit evidence to be attributed to the CO assessed by each item. This is more transparent for outcome analysis than relying only on an overall course grade, but the inference is sound only when the item–CO mapping and scoring are valid.", [10,28]],
+  ["Attainment", "The app aggregates direct item-level evidence to COs and then to POs through the declared mapping, and can combine it with an indirect student-perception measure. The formula implements the institution’s declared rules; IEA and BAETE do not establish one universal aggregation method or direct/indirect weighting.", [8,9,10,28]],
+  ["CQI", "Closing the loop means using findings to choose an action, implementing it, and examining later evidence—not merely recording that an action was completed. The app supports that audit trail; causal claims about improvement still require appropriate evidence.", [10,14,27,30]],
+  ["Accreditation Documents", "Document structures (Course Outline, Specifications, Vetting Forms, CO–PO calculations, Course Report, CQI Report) follow the formats and evidence expectations of the BAETE accreditation manual.", [9]],
+  ["Course Evaluation Survey", "The end-of-course survey supplies an indirect student-perception measure through CO-aligned ratings and open comments. Student reports can inform improvement, but validity depends on questionnaire design and interpretation; they should not be treated as direct demonstrations of CO attainment or used as the sole evidence.", [15,29]]
+];
+function renderAbout(){
+  const el = document.getElementById("tab-about");
+  el.innerHTML = `
+  <div class="card">
+    <h2>About OBE Course Manager</h2>
+    <p class="hint">OBE Course Manager <b>${APP_VERSION}</b> is a free, single-file web application for outcome-based teaching, learning &amp; assessment management under the BAETE / Washington Accord framework. It runs fully in your browser — no server, no account, no data leaving your device.</p>
+    <p class="hint">© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener">mazhar17.github.io/ocm</a> · feedback: <a href="mailto:mazharul.islam.mpe@aust.edu">mazharul.islam.mpe@aust.edu</a></p>
+  </div>
+  <div class="card">
+    <h2>Methodological and Evidence Basis</h2>
+    <p class="hint">Each Section draws on engineering-education, curriculum and assessment literature. The bracketed numbers cite the References below; the same citations appear at the foot of each Section’s guidance card. Peer-reviewed studies and reviews supply research evidence; foundational books supply conceptual frameworks; IEA and BAETE documents [8–9] are authoritative standards sources, not peer-reviewed research.</p>
+    <table class="tbl"><tbody>
+      ${ABOUT_BASIS.map(([n,txt,ns])=>`<tr><th style="width:190px;vertical-align:top">${n}</th><td style="font-size:12.5px">${txt} ${refCite(ns)}</td></tr>`).join("")}
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>References</h2>
+    <ol style="font-size:12.5px;line-height:1.55;padding-left:22px;margin:6px 0">
+      ${REFS.map((r,i)=>`<li id="ref-${i+1}" style="margin:5px 0;border-radius:4px;padding:2px 6px;transition:background .4s">${r}</li>`).join("")}
+    </ol>
+    <p class="hint" style="margin-top:4px">The PO statements, PO Indicators, and K/P/A &amp; WK/WP/EA attribute texts inside the app are reproduced verbatim from the BAETE manual [9] and the IEA Graduate Attributes [8].</p>
+  </div>`;
+}
+
 /* ============ Sample Course ============ */
 function loadSample(){
-  const co1={id:uid(),statement:"Explain the fundamental principles of renewable energy conversion systems.",bloom:"Understand",po:{1:3,7:2}};
-  const co2={id:uid(),statement:"Analyze the performance of wind and solar energy systems under given conditions.",bloom:"Analyze",po:{2:3,4:2}};
-  const co3={id:uid(),statement:"Design a small-scale renewable energy system for a specified application.",bloom:"Create",po:{3:3,5:2,7:1}};
+  /* Demo convention: each CO maps exactly ONE PO (and each PO belongs to one CO); CEA (A/EA) sits only with the communication PO (PO10 in v2.2, PO9 in v3) */
+  const co1={id:uid(),statement:"Explain the fundamental principles of renewable energy conversion systems.",bloom:"Understand",po:{1:3},wk:[1,3]};
+  const co2={id:uid(),statement:"Analyze the performance of wind and solar energy systems under given conditions.",bloom:"Analyze",po:{2:3},wk:[2,3,4],wp:[1]};
+  const co3={id:uid(),statement:"Design a small-scale renewable energy system for a specified application.",bloom:"Create",po:{3:3},wk:[4,5,6],wp:[1,2,3]};
+  const co4={id:uid(),statement:"Communicate the design process and outcomes of complex engineering activities through written reports and presentations.",bloom:"Apply",po:{10:3},ea:[1,3]};
   const items=(co,pre,n,max)=>Array.from({length:n},(_,i)=>({id:uid(),label:pre+(i+1),max,coId:co.id}));
   const q1={id:uid(),name:"Quiz 1",type:"Quiz",items:items(co1,"Q",2,5)};
-  const mid={id:uid(),name:"Mid Term",type:"Mid Term",items:[...items(co1,"Q",1,10),...items(co2,"P",2,10)]};
+  const mid={id:uid(),name:"Mid Term",type:"Mid Term",items:[...items(co1,"Q",1,10),...items(co2,"Prob",2,10)]};
   const fin={id:uid(),name:"Final Exam",type:"Final Exam",items:[...items(co2,"Q",2,15),...items(co3,"D",2,20)]};
   fin.items[1].mandatory=false; fin.items[3].mandatory=false;  // demo: students choose which optional questions to answer
+  /* Complex-attribute tags on selected questions (some C4+ items stay untagged on purpose,
+     so the amber "expected" badge and the claim-vs-evidence checks have something to show) */
+  mid.items[1].wp=[1];                                  // Prob1 (Analyze) — depth of knowledge
+  fin.items[0].wp=[1];                                  // Q1 (Analyze)
+  fin.items[2].wp=[1,3]; fin.items[3].wp=[1,2];         // design questions
+  const asg={id:uid(),name:"Assignment 1 — Wind Resource Assessment",type:"Assignment",
+    items:[{id:uid(),label:"A1",max:10,coId:co2.id,wp:[1]}]};          // audit + rubric left blank: fill them live in a demo
+  const proj={id:uid(),name:"Design Project — Solar–Wind Hybrid System",type:"Project",items:[
+    {id:uid(),label:"R1",max:10,coId:co3.id,wp:[1,2,3]},
+    {id:uid(),label:"R2",max:6, coId:co3.id,wp:[1,3]},
+    {id:uid(),label:"R3",max:4, coId:co4.id,ea:[1,3]}]};   // report & presentation item carries the CEA evidence, under the communication CO
+  proj.audit={stmt:"Students size, simulate and cost a standalone hybrid system for an off-grid site from real resource data. The task has no unique correct answer, couples resource intermittency with load, storage and budget constraints, and demands first-principles energy-balance analysis — a complex engineering problem addressed through a complex activity.",
+    just:{wp1:"Sizing requires first-principles energy-yield and storage-autonomy calculations from wind/solar resource models — beyond formula substitution.",
+          wp2:"Reliability, cost and footprint conflict: students must trade off battery capacity against diesel backup and justify the compromise.",
+          wp3:"No standard configuration fits the site; each team formulates its own load model and system architecture before analysis.",
+          ea1:"Teams combine resource datasets, simulation software, cost databases and vendor specifications.",
+          ea3:"Hybrid dispatch strategy is developed by the team, applying engineering principles in a configuration not covered in class."}};
+  proj.rubric=true;
+  proj.rub={scale:["Excellent","Good","Satisfactory","Poor"],criteria:[
+    {name:"CO3 — Design a small-scale renewable energy system",w:5,d:["Complete, feasible design; all subsystems sized and integrated correctly","Sound design with minor sizing gaps","Workable design with notable omissions","Design incomplete or infeasible"]},
+    {name:"Depth of analysis (first principles)",w:3,d:["Energy balance derived from first principles and validated","Correct analysis with minor shortcuts","Mostly formula-based analysis","Little or no analysis"]},
+    {name:"Handling conflicting requirements",w:3,d:["","","",""]},
+    {name:"Originality of approach & modelling",w:3,d:["","","",""]},
+    {name:"Use of diverse resources & tools",w:2,d:["","","",""]},
+    {name:"Innovation in the solution",w:2,d:["","","",""]},
+    {name:"Report quality & communication",w:2,d:["","","",""]}]};
   const students=["20250108001 Ayesha Rahman","20250108002 Tanvir Hasan","20250108003 Nusrat Jahan","20250108004 Sabbir Ahmed","20250108005 Farhana Akter","20250108006 Mehedi Hasan","20250108007 Sadia Islam","20250108008 Rakib Hossain"].map(s=>{const [sid,...n]=s.split(" ");return {id:uid(),sid,name:n.join(" ")};});
-  const c={id:uid(),code:"ME 4011",title:"Renewable Energy (Sample)",credit:"3.0",semester:"Spring 2026",program:"B.Sc. in Mechanical Engineering",section:"A",instructor:"Prof. Dr. Mazharul Islam",cos:[co1,co2,co3],assessments:[q1,mid,fin],students,marks:{},cfg:defaultCfg(),remarks:""};
+  const c={id:uid(),code:"ME 4011",title:"Renewable Energy (Sample)",credit:"3.0",semester:"Spring 2026",program:"B.Sc. in Mechanical Engineering",section:"A",instructor:"Prof. Dr. Mazharul Islam",cos:[co1,co2,co3,co4],assessments:[q1,asg,mid,proj,fin],students,marks:{},cfg:defaultCfg(),remarks:""};
   const rnd=(max)=>Math.round(Math.max(0,Math.min(max,(0.45+Math.random()*0.6)*max))*2)/2;
-  students.forEach(s=>{c.marks[s.id]={};[q1,mid,fin].forEach(a=>a.items.forEach(it=>{c.marks[s.id][it.id]=rnd(it.max);}));});
+  students.forEach(s=>{c.marks[s.id]={};[q1,asg,mid,proj,fin].forEach(a=>a.items.forEach(it=>{c.marks[s.id][it.id]=rnd(it.max);}));});
   ensureAust(c);
+  c.cos.forEach(co=>syncAttrStrings(c,co));   // K/P/A (or WK/WP/EA) strings from the arrays, per the course's framework
   c.aust.outline.dept = "Mechanical and Production Engineering (MPE)";
   c.aust.spec.topics = [{name:"Introduction to renewable energy",planned:"6",actual:"",reason:""},{name:"Wind energy systems",planned:"12",actual:"",reason:""},{name:"Solar PV and thermal systems",planned:"12",actual:"",reason:""},{name:"Other renewables and integration",planned:"12",actual:"",reason:""}];
   state.courses.push(c); state.activeCourseId=c.id;
   save(); refresh(); toast("Sample course loaded — explore each Section");
+}
+function loadSampleSessional(){
+  /* Demo convention: each CO maps exactly ONE PO (and each PO belongs to one CO); CEA (A/EA) sits only with the communication PO (PO10 in v2.2, PO9 in v3) */
+  /* A sessional is largely skill-based: apparatus handling is Psychomotor, the report/viva performance too; the analysis and design COs stay Cognitive. */
+  const co1={id:uid(),statement:"Operate standard fluid mechanics apparatus and acquire reliable experimental data.",btDomain:"Psychomotor",bloomP:"Mechanism (P4)",bloom:"Apply",po:{5:3},wk:[6]};
+  const co2={id:uid(),statement:"Analyze experimental data, including measurement uncertainty, and compare the results with theoretical predictions.",bloom:"Analyze",po:{4:3},wk:[2,3],wp:[1]};
+  const co3={id:uid(),statement:"Design and conduct an experiment to investigate a fluid-flow phenomenon.",bloom:"Create",po:{3:2},wk:[5,6],wp:[1,3]};
+  const co4={id:uid(),statement:"Communicate experimental procedures and findings of complex engineering activities through written laboratory reports and viva-voce.",btDomain:"Psychomotor",bloomP:"Complex Overt Response (P5)",bloom:"Apply",po:{10:2},ea:[1,3]};
+  const co5={id:uid(),statement:"Comply with laboratory safety rules and share responsibility for apparatus, data and teamwork during experimental sessions.",btDomain:"Affective",bloomA:"Valuing (A3)",po:{9:2}};
+  const rep=(co,names,max)=>names.map(n=>({id:uid(),label:n,max,coId:co.id}));
+  const labs={id:uid(),name:"Lab Reports (Expt. 1–6)",type:"Lab/Sessional",items:[
+    ...rep(co1,["E1 Flow measurement (venturi & orifice)","E2 Impact of a jet","E3 Friction losses in pipes"],5),
+    ...rep(co2,["E4 Minor losses in fittings","E5 Centrifugal pump characteristics","E6 Open-channel flow"],5),
+    ...rep(co5,["Lab conduct, safety & teamwork"],5)]};
+  const quiz={id:uid(),name:"Lab Quiz",type:"Quiz",items:[{id:uid(),label:"Q1",max:10,coId:co2.id}]};
+  const oel1={id:uid(),name:"OEL-1 — Loss Coefficient of an Unfamiliar Fitting",type:"Lab/Sessional",oel:true,
+    oelTask:"You are given a pipe fitting not covered in the manual. Design and conduct an experiment to determine its loss coefficient: select the apparatus, plan the measurements and flow range, estimate the uncertainty of your result, and compare it with published values for similar fittings.",
+    items:[{id:uid(),label:"OEL1",max:12,coId:co3.id,wp:[1,3]},
+           {id:uid(),label:"OEL1-R",max:3,coId:co4.id,ea:[1,3]}]};   // report & defense item carries the CEA evidence under the communication CO
+  oel1.audit={stmt:"Students face an artifact with no prescribed procedure: they must choose a measurement principle, design the experimental matrix, and defend the credibility of their own result. The problem has no obvious solution route and the experiment is planned, executed and validated entirely by the team.",
+    just:{wp1:"Determining a loss coefficient demands first-principles application of the energy equation and dimensional reasoning — the manual offers no recipe.",
+          wp3:"Several measurement strategies are viable; teams must formulate their own model of the fitting's behavior and justify the chosen approach.",
+          ea1:"Teams select from available benches, instruments and data-logging tools, and manage a fixed lab-time budget.",
+          ea3:"The experimental design itself is the creative product — apparatus and analysis are combined in a way not demonstrated in class."}};
+  oel1.rubric=true;
+  oel1.rub={scale:["Excellent","Good","Satisfactory","Poor"],criteria:[
+    {name:"Problem formulation & experiment design",w:4,d:["Objective, variables and flow range chosen and justified quantitatively","Sound design with minor gaps in justification","Workable design largely adapted from a familiar experiment","Design unclear or borrowed without adaptation"]},
+    {name:"Methodology developed by the student",w:3,d:["Procedure is original, complete and repeatable from the report alone","Procedure sound; small omissions","Procedure works but leans on the manual","Procedure incomplete or dictated by others"]},
+    {name:"Data collection & analysis",w:3,d:["","","",""]},
+    {name:"Interpretation & validity discussion",w:2,d:["","","",""]},
+    {name:"Safety & resource use",w:1,d:["","","",""]},
+    {name:"Report quality & communication",w:2,d:["","","",""]}]};
+  const oel2={id:uid(),name:"OEL-2 — Nozzle Geometry & Jet Impact Force",type:"Lab/Sessional",oel:true,
+    oelTask:"Investigate how nozzle geometry affects the force exerted by a water jet on a target. Formulate the question precisely, design the experiment, and quantify the trend you observe.",
+    items:[{id:uid(),label:"OEL2",max:15,coId:co3.id}]};   // untagged on purpose: the amber nudge and badge demo live here
+  const viva={id:uid(),name:"Viva",type:"Viva",items:[{id:uid(),label:"V1",max:10,coId:co2.id},{id:uid(),label:"V2",max:5,coId:co4.id,ea:[1]}]};
+  const students=["20250108001 Ayesha Rahman","20250108002 Tanvir Hasan","20250108003 Nusrat Jahan","20250108004 Sabbir Ahmed","20250108005 Farhana Akter","20250108006 Mehedi Hasan","20250108007 Sadia Islam","20250108008 Rakib Hossain"].map(s=>{const [sid,...n]=s.split(" ");return {id:uid(),sid,name:n.join(" ")};});
+  const c={id:uid(),code:"ME 3120",title:"Fluid Mechanics Sessional (Sample)",credit:"1.0",semester:"Spring 2026",program:"B.Sc. in Mechanical Engineering",section:"A1",instructor:"Prof. Dr. Mazharul Islam",cos:[co1,co2,co3,co4,co5],assessments:[labs,quiz,oel1,oel2,viva],students,marks:{},cfg:defaultCfg(),remarks:""};
+  const rnd=(max)=>Math.round(Math.max(0,Math.min(max,(0.45+Math.random()*0.6)*max))*2)/2;
+  students.forEach(s=>{c.marks[s.id]={};c.assessments.forEach(a=>a.items.forEach(it=>{c.marks[s.id][it.id]=rnd(it.max);}));});
+  ensureAust(c);
+  c.cos.forEach(co=>syncAttrStrings(c,co));
+  c.aust.outline.dept = "Mechanical and Production Engineering (MPE)";
+  c.aust.spec.topics = [{name:"Standard experiments (flow, losses, machines)",planned:"18",actual:"",reason:""},{name:"Open-ended labs",planned:"9",actual:"",reason:""},{name:"Quiz & viva",planned:"3",actual:"",reason:""}];
+  state.courses.push(c); state.activeCourseId=c.id;
+  save(); refresh(); toast("Sample sessional loaded — see the two open-ended labs under Assessments");
 }
 
 
@@ -5064,11 +5948,14 @@ const TAB_GUIDE = {
     dos:["Export the JSON at the end of every semester and keep it as your official record \u2014 it\u2019s also what your department would need if it consolidates course data for accreditation reporting.", "Treat the export as your archive \u2014 clearing browser data removes everything that was never exported.", "Prefer \u201cWork on a file\u201d so each change auto-saves to a file you own rather than to browser storage alone.", "Import restores a whole course including the shared pools, so a department can distribute one curated set.", "Export before Duplicate for New Semester or any deletion; both are quick and neither can be undone."],
     i:["This course\u2019s complete data"], d:["Save to a file", "Export a backup", "Hand over the semester file"], o:["The JSON the program imports", "A restorable archive"] }
 };
-function guidePanelHTML(g){
+function guidePanelHTML(g, tab){
+  const basis = (typeof GUIDE_REFS!=="undefined" && GUIDE_REFS[tab] && GUIDE_REFS[tab].length)?
+    `<p style="font-size:11.5px;color:var(--muted);margin:8px 0 0">Evidence basis: ${refCite(GUIDE_REFS[tab])} — see the <a href="javascript:void(0)" style="color:var(--primary);font-weight:600;text-decoration:none" onclick="showTab('about')">About</a> Section.</p>` : "";
   return `<div class="guide-panel">
       <div class="guide-label">${g.ttl} · ${g.n}</div>
       <p>${g.intro}</p>
       <ul>${g.dos.map(x=>`<li>${x}</li>`).join("")}</ul>
+      ${basis}
     </div>
     <div class="oio" style="--oc:${g.c};--ot:${g.t}">
       <div class="oio-p oio-in"><div class="oio-cap">What comes in</div><ul>${g.i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
@@ -5085,7 +5972,7 @@ function guideCard(tab){
     <h2 class="guide-head" onclick="toggleGuide('${tab}')" title="${open? "Hide the guidance":"Show the guidance for this Section"}">
       <span class="guide-caret">${open? "&#9662;":"&#9656;"}</span>${g.ttl}
     </h2>
-    ${open? guidePanelHTML(g) : `<p class="guide-sum">${g.sum}</p>`}
+    ${open? guidePanelHTML(g, tab) : `<p class="guide-sum">${g.sum}</p>`}
   </div>`;
 }
 function injectGuide(tab){
