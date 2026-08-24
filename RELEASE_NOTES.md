@@ -1,6 +1,6 @@
 # OBE Course Manager — Release Notes
 
-**Version:** v2.10 · **First release:** July 13, 2026
+**Version:** v2.19 · **First release:** July 13, 2026
 **Live at:** https://mazhar17.github.io/ocm/
 **License:** © 2026 Prof. Mazharul Islam ([mazhar17.github.io/MI](https://mazhar17.github.io/MI)) · Creative Commons Attribution (CC BY) 4.0 International
 
@@ -29,7 +29,7 @@ The underlying OBE implementation framework was developed at **Ahsanullah Univer
 - **"Duplicate for New Semester"** — carries CQI action plans from the Course Report into the next offering's Course Specifications automatically, closing the loop.
 - **Data safety** — work directly on a `.json` file with auto-save (Chrome/Edge), keep it in a cloud-synced folder, exchange it with colleagues; JSON export/import for backups and sharing.
 
-## Accreditation Documents Produced
+## Documents Produced
 
 All auto-filled from the course data, editable in place, and printable to PDF:
 
