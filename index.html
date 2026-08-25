@@ -218,7 +218,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.20</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.21</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -260,14 +260,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-about"></section>
 </main>
 
-<footer>OBE Course Manager <b>v2.20</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v2.21</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v2.20";
+const APP_VERSION = "v2.21";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -435,6 +435,8 @@ const INST_DEFAULT = {
   addr:"141-142 Love Road, Tejgaon Industrial Area, Dhaka-1208, Bangladesh",
   logo:"",                    /* data URL; empty = use the bundled AUST logo file */
   faculty:"Engineering", dept:"",
+  sis:"IUMS",                 /* the academic management system the grade distribution is taken from —
+                                 institution-specific, so it is named here rather than hard-coded in the report */
   roles:{ hod:"Head of the Department", coord:"OBE Program Coordinator", vetter:"Vetter",
           moderator:"Moderator", committee:"Specialization Committee", convener:"Convener" },
   defaults:{ passMarks:40, kpiMarks:50, kpiTarget:50, wDirect:80, fw:"v2.2" }
@@ -447,9 +449,11 @@ function inst(){
   if(i.name===undefined) i.name=INST_DEFAULT.name;
   if(i.addr===undefined) i.addr=INST_DEFAULT.addr;
   if(i.logo===undefined) i.logo="";
+  if(i.sis===undefined) i.sis=INST_DEFAULT.sis;
   return i;
 }
 function role(k){ return inst().roles[k] || INST_DEFAULT.roles[k]; }
+function sisName(){ return String(inst().sis||"").trim(); }   /* "" = the institution named no system */
 function instSet(path, v){
   const i=inst(); const p=path.split("."); let o=i;
   while(p.length>1){ const k=p.shift(); if(typeof o[k]!=="object"||!o[k]) o[k]={}; o=o[k]; }
@@ -4328,7 +4332,7 @@ function buildAIContext(c){
     const GR = ["A+","A","A-","B+","B","B-","C+","C","D","F"];
     const g = (c.aust.report && c.aust.report.grades) || {};
     const gTotal = GR.reduce((s,k)=>s+(parseFloat(g[k])||0),0);
-    if(gTotal>0) L.push(`Overall grade distribution (IUMS): ${GR.filter(k=>parseFloat(g[k])>0).map(k=>k+": "+g[k]).join(", ")} (total ${gTotal})`);
+    if(gTotal>0) L.push(`Overall grade distribution${sisName()? " ("+sisName()+")":""}: ${GR.filter(k=>parseFloat(g[k])>0).map(k=>k+": "+g[k]).join(", ")} (total ${gTotal})`);
   }
   if(ind.n>0){
     L.push("");
@@ -6409,13 +6413,13 @@ function docReport(c){
   ${res33Section(c, "3.3.4 Network Resources", "net")}
   ${res33Section(c, "3.3.5 Media Resources", "med")}
   <h2>4. Direct Assessments</h2>
-  <p><b>4.1 Grade Distributions from IUMS</b>${gTotal? ` <span style="font-size:12px;color:var(--muted)">(total entered: ${gTotal} students)</span>`:""}</p>
+  <p><b>4.1 Grade Distributions${sisName()? " from "+esc(sisName()):""}</b>${gTotal? ` <span style="font-size:12px;color:var(--muted)">(total entered: ${gTotal} students)</span>`:""}</p>
   <table class="tbl"><thead><tr><th>Grade</th>${GR.map(g=>`<th style="text-align:center">${g}</th>`).join("")}</tr></thead><tbody>
     <tr><th>No. of Students</th>${GR.map(g=>`<td style="text-align:center"><input class="di" style="width:44px;text-align:center" value="${esc(r.grades[g])}" onchange="austSetR('report.grades.${g}',this.value)"></td>`).join("")}</tr>
     <tr><th>% of Students based on Grade</th>${GR.map(g=>`<td style="text-align:center">${gTotal? (((parseFloat(r.grades[g])||0)/gTotal*100).toFixed(1)) : "—"}</td>`).join("")}</tr>
   </tbody></table>
   <div class="no-print" style="margin:6px 0 10px">
-    <textarea id="gradePaste" rows="2" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-family:inherit;font-size:12.5px" placeholder="Paste grade counts from IUMS — either one line per grade like “A+  5” (grade then count), or a single row of 10 counts in the order A+ A A- B+ B B- C+ C D F"></textarea>
+    <textarea id="gradePaste" rows="2" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:6px 8px;font-family:inherit;font-size:12.5px" placeholder="Paste grade counts from ${esc(sisName()||"your academic management system")} — either one line per grade like “A+  5” (grade then count), or a single row of 10 counts in the order A+ A A- B+ B B- C+ C D F"></textarea>
     <div class="btn-row" style="margin-top:4px"><button class="btn secondary small" onclick="pasteGrades()">⬆ Fill Grades from Pasted Data</button></div>
   </div>
   <h2>4.2 Analysis of Course Outcomes</h2>
@@ -6425,7 +6429,11 @@ function docReport(c){
     <tr><th>Attained?</th>${att.cos.map(x=>`<td style="text-align:center">${x.pct===null?"—":(x.attained?"Yes":"No")}</td>`).join("")}</tr>
   </tbody></table>
   ${att.cos.some(x=>x.pct!==null)? `<div style="max-width:760px;height:230px;margin:10px auto"><canvas id="repCoChart"></canvas></div>` : `<p style="font-size:12px;color:var(--muted);text-align:center">The CO attainment chart appears here once marks are entered.</p>`}
-  <p><b>Comments about the KPI attainments for COs</b> ${dta('report.coComment', r.coComment, 2)}</p>
+  <p><b>Comments about the KPI attainments for COs</b>
+    <span class="no-print" style="display:block;font-weight:400;font-size:11.5px;color:var(--muted);line-height:1.5;margin:3px 0 2px">
+      Name every CO below target and, for each, say which of three causes it points to — the <b>teaching</b>, the <b>assessment design</b>, or the students' <b>preparation</b> — and what in the evidence supports that reading. Compare against the previous offering where you have one (<b>Attainment → Cohort Comparison</b>). Every cause named here should reappear as an action in 6.1.
+    </span>
+    ${dta('report.coComment', r.coComment, 2)}</p>
   <h2>4.3 Analysis of Program Outcomes</h2>
   <p style="font-size:12.5px">Target Key Performance Indicator (KPI): ${c.cfg.kpiTarget}</p>
   <table class="tbl"><thead><tr><th></th>${att.pos.map(x=>`<th style="text-align:center">PO${x.po}</th>`).join("")}</tr></thead><tbody>
@@ -6433,7 +6441,11 @@ function docReport(c){
     <tr><th>Attained?</th>${att.pos.map(x=>`<td style="text-align:center">${x.pct===null?"—":(x.attained?"Yes":"No")}</td>`).join("")}</tr>
   </tbody></table>
   ${att.pos.some(x=>x.pct!==null)? `<div style="max-width:760px;height:230px;margin:10px auto"><canvas id="repPoChart"></canvas></div>` : `<p style="font-size:12px;color:var(--muted);text-align:center">The PO attainment chart appears here once marks are entered.</p>`}
-  <p><b>Comments about the KPI attainments for POs</b> ${dta('report.poComment', r.poComment, 2)}</p>
+  <p><b>Comments about the KPI attainments for POs</b>
+    <span class="no-print" style="display:block;font-weight:400;font-size:11.5px;color:var(--muted);line-height:1.5;margin:3px 0 2px">
+      These figures are a marks-weighted restatement of the COs above, so avoid repeating 4.2. Comment instead on what <i>this course</i> contributes to each PO, whether that contribution is substantial enough for the programme to rely on it, and on any PO carried by a single CO — there, one weak outcome moves the whole figure.
+    </span>
+    ${dta('report.poComment', r.poComment, 2)}</p>
   ${fbRows? `<h2>4.4 Feedback Returned to Students <span style="font-weight:400;font-size:11.5px;color:var(--muted)">(BAETE Criterion 5.5(3))</span></h2>
   <table class="tbl"><thead><tr><th>Assessment</th><th style="width:130px">Results returned</th><th>How feedback was given</th></tr></thead><tbody>${fbRows}</tbody></table>`:""}
   <h2>5. Indirect Assessments</h2>
@@ -6863,6 +6875,9 @@ function renderSetup(){
     <div class="grid c2" style="max-width:820px;margin-top:6px">
       ${fld("Faculty / School (default for new courses)","faculty",i.faculty,"e.g., Engineering","Each course can override this in its own Outline data")}
       ${fld("Department (default for new courses)","dept",i.dept,"e.g., Mechanical and Production Engineering (MPE)","Each course can override this — one installation may serve cross-listed courses")}
+    </div>
+    <div class="grid c2" style="max-width:820px;margin-top:6px">
+      ${fld("Academic management system","sis",i.sis,"e.g., IUMS — leave blank if none","The system your grade sheet comes from. Its name is printed beside the grade distribution in the Course Report (4.1). Leave blank and the heading simply reads “Grade Distributions”.")}
     </div>
     <h3 style="margin-top:14px">Official logo</h3>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
