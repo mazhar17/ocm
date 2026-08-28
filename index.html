@@ -144,6 +144,12 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
 
 /* ===== Sub-section bar (long Sections split into sub-sections) ===== */
 .subbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.foldbar{display:flex;gap:6px;align-items:center;margin:-6px 0 14px}
+.foldbar .fb-lbl{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.foldbar button{border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;
+  padding:4px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.foldbar button:hover{border-color:var(--primary);color:var(--primary)}
+.foldbar button.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .sub-btn{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;
   padding:7px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .sub-btn:hover{border-color:var(--primary)}
@@ -218,7 +224,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.21</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.22</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -260,14 +266,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-about"></section>
 </main>
 
-<footer>OBE Course Manager <b>v2.21</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v2.22</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v2.21";
+const APP_VERSION = "v2.22";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -871,11 +877,10 @@ function setSubSect(tab, id){
    The six content cards collapse to their headings (independent toggles, collapsed by
    default); each collapsed card shows a one-line status, so the collapsed view doubles
    as a progress board. Jumping to a step auto-expands it. */
-function cqiFoldOpen(k){ return !!(window._cqiFold||{})[k]; }
+function cqiFoldOpen(k){ return foldIsOpen("cqi", k); }
 function cqiFoldClick(ev, k){
   if(ev && ev.target && ev.target.closest && (ev.target.closest("button")||ev.target.closest("a"))) return;   // heading buttons must not toggle
-  window._cqiFold = window._cqiFold || {};
-  window._cqiFold[k] = !window._cqiFold[k];
+  foldSet("cqi", k, !cqiFoldOpen(k));
   renderCQI();
 }
 function foldCls(k){ return cqiFoldOpen(k)? "card" : "card folded"; }
@@ -899,30 +904,62 @@ function cqiFoldSums(c){
 }
 /* Folded cards outside CQI: per-assessment cards (Assessments) and per-CO cards (T&L).
    Same idiom — collapsed by default, one-line status, independent toggles. */
-function foldOpenA(id){ return !!(window._assessFold||{})[id]; }
+/* ===== What is open, and what the user has dismissed =====
+   Folded cards keep long Sections readable, and their status lines double as a progress
+   board. But a collapsed card teaches a newcomer nothing, and until now nothing was
+   remembered either — every reload closed everything again. So the guidance card opens
+   by default until it is dismissed, each Section carries Expand all / Collapse all, and
+   every choice is saved with the data instead of living in a page variable. */
+function ui(){
+  if(!state.ui || typeof state.ui!=="object") state.ui={};
+  const u=state.ui;
+  ["guideClosed","fold","openAll"].forEach(k=>{ if(!u[k] || typeof u[k]!=="object") u[k]={}; });
+  return u;
+}
+function curTab(){ return window._currentTab || "dashboard"; }
+function foldIsOpen(tab,k){
+  const u=ui(), kk=tab+"|"+k;
+  return (kk in u.fold)? !!u.fold[kk] : !!u.openAll[tab];
+}
+function foldSet(tab,k,open){ ui().fold[tab+"|"+k] = !!open; save(); }
+const FOLD_TABS = ["cos","tla","assess","ca","cqi","data"];   /* the Sections that hold folded cards */
+function setOpenAll(tab,on){
+  const u=ui(); u.openAll[tab]=!!on;
+  Object.keys(u.fold).forEach(kk=>{ if(kk.slice(0,tab.length+1)===tab+"|") delete u.fold[kk]; });  // the control must mean what it says
+  save(); renderTab(tab);
+}
+function foldBar(tab){
+  if(!FOLD_TABS.includes(tab)) return "";
+  const on = !!ui().openAll[tab];
+  return `<div class="foldbar no-print">
+    <span class="fb-lbl">Cards</span>
+    <button class="${on?"active":""}" onclick="setOpenAll('${tab}',true)" title="Open every card in this Section">&#9662; Expand all</button>
+    <button class="${on?"":"active"}" onclick="setOpenAll('${tab}',false)" title="Collapse every card to its heading and status line">&#9652; Collapse all</button>
+  </div>`;
+}
+function foldOpenA(id){ return foldIsOpen("assess","a:"+id); }
 function toggleFoldA(id){
-  window._assessFold = window._assessFold || {};
-  window._assessFold[id] = !window._assessFold[id];
+  foldSet("assess","a:"+id, !foldOpenA(id));
   renderAssess();
 }
-/* Reference cards (summaries, pools, recommendations header) share one fold store. */
-function foldOpenM(k){ return !!(window._miscFold||{})[k]; }
+/* Reference cards (summaries, pools, recommendations header) share one fold store.
+   rr names the Section the card lives in, so it doubles as the scope for the key. */
+function foldOpenM(k){ return foldIsOpen(curTab(), k); }
 function foldClickM(ev, k, rr){
   if(ev && ev.target && ev.target.closest && (ev.target.closest("button")||ev.target.closest("a"))) return;
-  window._miscFold = window._miscFold || {};
-  window._miscFold[k] = !window._miscFold[k];
-  ({ tla: renderTLA, data: renderData, assess: renderAssess, ca: renderCA, cos: renderCOs, attain: renderAttain, cqi: renderCQI }[rr] || renderTLA)();
+  const tab = rr || curTab();
+  foldSet(tab, k, !foldIsOpen(tab, k));
+  ({ tla: renderTLA, data: renderData, assess: renderAssess, ca: renderCA, cos: renderCOs, attain: renderAttain, cqi: renderCQI }[tab] || renderTLA)();
 }
-function foldOpenT(id){ return !!(window._tlaFold||{})[id]; }
+function foldOpenT(id){ return foldIsOpen("tla","co:"+id); }
 function toggleFoldT(id){
-  window._tlaFold = window._tlaFold || {};
-  window._tlaFold[id] = !window._tlaFold[id];
+  foldSet("tla","co:"+id, !foldOpenT(id));
   renderTLA();
 }
 function cqiJump(id){
   const map={cqiA1:"s1",cqiA2:"s2",cqiA3:"s3",cqiA4:"s4",cqiA5:"s5",cqiA6:"s6"};
   const k=map[id];
-  if(k && !cqiFoldOpen(k)){ window._cqiFold = window._cqiFold || {}; window._cqiFold[k]=true; renderCQI(); }
+  if(k && !cqiFoldOpen(k)){ foldSet("cqi", k, true); renderCQI(); }
   const a=document.getElementById(id); if(a && a.scrollIntoView) a.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function cqiNavBar(){
@@ -3174,8 +3211,7 @@ function addAssessment(){
   const c = activeCourse(); if(!c) return;
   const id = uid();
   c.assessments.push({ id, name:"", type:"Quiz", items:[] });
-  window._assessFold = window._assessFold || {};
-  window._assessFold[id] = true;   // a just-added assessment opens ready for editing
+  foldSet("assess","a:"+id, true);   // a just-added assessment opens ready for editing
   save(); renderAssess();
 }
 function updateAssessment(id, field, val){
@@ -6625,6 +6661,9 @@ function demoButtons(){
       <button class="btn secondary" onclick="loadSampleSessional(true)" title="The same sessional under BAETE Framework Version 3, with PO Indicators">Load Sample Sessional (v3)</button>`;
 }
 function demoCourses(){ return (state.courses||[]).filter(c=>c.demo); }
+/* A demonstration course is loaded to be read, not navigated: open its cards so the worked
+   audits, rubrics and analyses are visible without hunting for carets. */
+function demoOpenCards(){ FOLD_TABS.forEach(t=>{ ui().openAll[t]=true; }); }
 function demoGuard(code, v3){
   const n = demoCourses().filter(c=>c.code===code && fwV3(c)===!!v3).length;
   if(!n) return true;
@@ -7037,6 +7076,7 @@ function loadSample(v3){
   scaleCoMarks(f24,3,0.80); scaleCoMarks(f24,4,0.72);            // weakest offering: before the CQI actions
   f24.remarks = "Earliest offering generated for the Cohort Comparison demo — before the SAM-practice and design-feedback actions recorded in CQI.";
   [f24,s25,f25].forEach(c=>{ c.demo=true; addSampleProject(c); ensureAust(c); c.cos.forEach(co=>syncAttrStrings(c,co)); if(v3) applySampleSDG(c); });
+  demoOpenCards();
   state.courses.push(f24,s25,f25); state.activeCourseId = f25.id;
   save(); refresh(); toast("Sample theory course loaded ("+(v3?"Framework v3":"Framework v2.2")+"): three ME 4011 offerings — see Attainment → Cohort Comparison");
 }
@@ -7058,6 +7098,7 @@ function loadSampleSessional(v3){
   liftCoStudents(s25,1,2); liftCoStudents(s25,2,1);
   s25.remarks = "Latest offering generated for the Cohort Comparison demo — the data-analysis actions sustained over two cycles.";
   [s24,f24,s25].forEach(x=>{ x.demo=true; ensureAust(x); x.cos.forEach(co=>syncAttrStrings(x,co)); if(v3) applySampleSDG(x); });
+  demoOpenCards();
   state.courses.push(s24,f24,s25); state.activeCourseId = s24.id;   // the documented offering stays active
   save(); refresh(); toast("Sample sessional loaded ("+(v3?"Framework v3":"Framework v2.2")+"): three ME 3106 offerings — see Attainment → Cohort Comparison");
 }
@@ -7120,7 +7161,7 @@ function guidePanelHTML(g, tab){
 }
 function guideCard(tab){
   const g = TAB_GUIDE[tab]; if(!g) return "";
-  const open = !!(window._guideOpen||{})[tab];
+  const open = guideOpen(tab);   /* open until this Section's guidance is dismissed */
   return `<div class="card guide-card">
     <h2 class="guide-head" onclick="toggleGuide('${tab}')" title="${open? "Hide the guidance":"Show the guidance for this Section"}">
       <span class="guide-caret">${open? "&#9662;":"&#9656;"}</span>${g.ttl}
@@ -7133,11 +7174,12 @@ function injectGuide(tab){
   const host = document.getElementById("tab-"+tab); if(!host) return;
   const first = host.firstElementChild;
   if(first && first.classList && first.classList.contains("guide-card")) return;   // already there
-  host.insertAdjacentHTML("afterbegin", guideCard(tab));
+  host.insertAdjacentHTML("afterbegin", guideCard(tab) + foldBar(tab));
 }
+function guideOpen(tab){ return !ui().guideClosed[tab]; }
 function toggleGuide(tab){
-  window._guideOpen = window._guideOpen || {};
-  window._guideOpen[tab] = !window._guideOpen[tab];
+  ui().guideClosed[tab] = guideOpen(tab);
+  save();
   const host = document.getElementById("tab-"+tab); if(!host) return;
   const card = host.firstElementChild;
   if(card && card.classList && card.classList.contains("guide-card")) card.outerHTML = guideCard(tab);
