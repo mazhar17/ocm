@@ -143,6 +143,11 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
 }
 
 /* ===== Sub-section bar (long Sections split into sub-sections) ===== */
+.btn:disabled,.btn[disabled]{opacity:.45;cursor:not-allowed;filter:grayscale(.35)}
+.file-status{font-weight:400;opacity:.85}
+.file-menu .mi-file{display:block;width:100%;box-sizing:border-box;text-align:left;background:none;border:0;
+  padding:8px 14px;font-family:inherit;font-size:13px;color:var(--text);cursor:pointer}
+.file-menu .mi-file:hover{background:var(--bg)}
 .subbar{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
 .foldbar{display:flex;gap:6px;align-items:center;margin:-6px 0 14px}
 .foldbar .fb-lbl{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-right:2px}
@@ -224,7 +229,7 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
     </svg>
     <div>
       <h1>OBE Course Manager</h1>
-      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.24</span></span>
+      <span class="sub">Teaching, Learning &amp; Assessment — Outcome-Based Education · <span id="verChip">v2.36</span></span>
     </div>
   </div>
   <div class="header-right">
@@ -266,14 +271,14 @@ footer{border-top:1px solid var(--border);color:var(--muted);font-size:12.5px;te
   <section class="tab" id="tab-about"></section>
 </main>
 
-<footer>OBE Course Manager <b>v2.24</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
+<footer>OBE Course Manager <b>v2.36</b> (<a href="https://mazhar17.github.io/ocm/" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/ocm</a>) · runs fully in your browser · data stays on your device · export backups regularly from <b>Data &amp; Backup</b>
 <br>© 2026 Prof. Mazharul Islam (<a href="https://mazhar17.github.io/MI" target="_blank" rel="noopener" style="color:var(--primary)">mazhar17.github.io/MI</a>) · Distributed under the <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:var(--primary)">Creative Commons Attribution (CC BY) 4.0 International License</a></footer>
 <div class="toast" id="toast"></div>
 
 <script>
 "use strict";
 /* ============ Constants ============ */
-const APP_VERSION = "v2.24";
+const APP_VERSION = "v2.36";
 const APP_RELEASE = "July 13, 2026";
 const PO_INFO = {
   1:"Engineering Knowledge", 2:"Problem Analysis", 3:"Design/Development of Solutions",
@@ -415,11 +420,93 @@ function syncAttrStrings(c, co){
 const PO_WK_V3 = {1:[1,2,3,4],2:[1,2,3,4],3:[5],4:[8],5:[2,6],6:[1,5,7],7:[9],8:[9],11:[8]};
 function fwV3(c){ return !!(c && c.aust && c.aust.fw === "v3"); }
 function poInfo(c, n){ return fwV3(c)? PO_INFO_V3[n] : PO_INFO[n]; }
+const PO_PI_ME_T1 = {
+ 1:[
+    "Apply knowledge of mathematics, natural science and computing to solve complex mechanical engineering problems. (WK1, WK2)",
+    "Apply knowledge of engineering fundamentals to solve complex engineering problems. (WK3)",
+    "Apply specialist mechanical engineering knowledge to develop solutions to complex engineering problems. (WK4)"],
+ 2:[
+    "Identify and formulate complex engineering problems, recognizing the attributes (WP1–WP7) that make them complex.",
+    "Research and review published literature to acquire the knowledge required for the problem.",
+    "Analyze complex engineering problems using first principles of mathematics, natural science and engineering sciences to reach substantiated conclusions, considering sustainable development holistically (WK1, WK2, WK3, WK4)."],
+ 3:[
+    "Design mechanical systems, components or processes to meet identified needs and specified engineering requirements.",
+    "Verify that public health and safety considerations are satisfied in the design.",
+    "Evaluate whole-life cost, net zero carbon, resource, cultural, societal and environmental considerations in the design, as required. (WK5)"],
+ 4:[
+    "Plan investigations of complex engineering problems using appropriate research methods and research-based knowledge. (WK8)",
+    "Design and conduct experimental or computational investigations of complex engineering problems. (WK8)",
+    "Analyze and interpret data, evaluate uncertainty, and synthesize information to provide valid conclusions. (WK8)"],
+ 5:[
+    "Select and apply appropriate experimental, computational and engineering techniques, resources and modern tools, including prediction and modelling, to complex mechanical engineering problems. (WK2, WK6)",
+    "Develop or adapt code, spreadsheets and computational models where standard engineering tools are insufficient. (WK2, WK6)",
+    "Recognize and state the limitations and domain of applicability of the techniques, resources and tools applied. (WK6)"],
+ 6:[
+    "When solving complex engineering problems, analyze and evaluate the impacts on society and the economy. (WK1, WK7)",
+    "When solving complex engineering problems, evaluate the environmental and sustainability impacts over an appropriate life-cycle boundary. (WK5)",
+    "When solving complex engineering problems, evaluate the health and safety and legal-framework implications. (WK7)"],
+ 7:[
+    "Apply ethical principles and professional ethics and norms of engineering practice. (WK9)",
+    "Comply with relevant national and international laws, codes and standards in engineering practice. (WK9)",
+    "Demonstrate understanding of the need for diversity and inclusion in professional practice. (WK9)"],
+ 8:[
+    "Function effectively as an individual on engineering tasks in face-to-face, remote and distributed settings.",
+    "Function effectively as a member of diverse, inclusive, multi-disciplinary teams. (WK9)",
+    "Function effectively as a leader of diverse and inclusive teams. (WK9)"],
+ 9:[
+    "Comprehend complex engineering reports and design documentation.",
+    "Write effective and inclusive reports and design documentation for engineering and lay audiences, taking into account cultural, language and learning differences.",
+    "Deliver effective and inclusive oral presentations to engineering and lay audiences, taking into account cultural, language and learning differences."],
+ 10:[
+    "Apply engineering management principles and economic decision-making to one’s own work as a member and leader of a team.",
+    "Apply engineering management principles and economic decision-making to manage projects.",
+    "Apply engineering management principles and economic decision-making in multidisciplinary environments."],
+ 11:[
+    "Recognize the need for and engage in independent and life-long learning to continuously develop relevant engineering knowledge and skills.",
+    "Demonstrate adaptability to new and emerging technologies relevant to mechanical engineering. (WK8).",
+    "Critically evaluate emerging knowledge and technologies and their applicability to mechanical engineering problems. (WK8)."],
+ 12:[
+    "Demonstrate knowledge and understanding of the competences — e.g. opportunity identification, business modelling, financing, marketing, intellectual property — necessary to transform opportunities and ideas into a new business.",
+    "Develop a business model, venture proposal or commercialization plan for an engineering idea, applying those competences."]
+};
+/* ===== PO Indicator sets =====
+   ACC-MAN-02-01 offers its 46 indicators as SUGGESTED, not prescribed: a programme is expected
+   to adapt them to its discipline. Hard-coding one list quietly pushed every department towards
+   it, so a set is now a named, selectable object — two built in, any number supplied by the user.
+   A course keeps its own copy of whichever set it started from, so revising a department set
+   never rewrites an outline that has already been approved and printed. */
+const PI_SETS_BUILTIN = {
+  baete:    { id:"baete", name:"BAETE suggested (ACC-MAN-02-01)",
+              note:"The indicator list published by BAETE alongside Accreditation Criteria Version 3.0. Suggested, not prescribed.",
+              pis: PO_PI_V3 },
+  ME_Type1: { id:"ME_Type1", name:"ME_Type1 · Mechanical Engineering (AUST, Sep 2026)",
+              note:"Adapted for B.Sc. in Mechanical Engineering, with the Knowledge Profile attribute cited on each indicator.",
+              pis: PO_PI_ME_T1 }
+};
+function piSetsAll(){
+  const out = {};
+  Object.keys(PI_SETS_BUILTIN).forEach(k=>{ out[k]=Object.assign({builtin:true}, PI_SETS_BUILTIN[k]); });
+  (state.piSets||[]).forEach(st=>{ if(st && st.id) out[st.id]=Object.assign({builtin:false}, st); });
+  return out;
+}
+function piSet(id){ return piSetsAll()[id] || null; }
+function piCount(set){ return Object.values((set&&set.pis)||{}).reduce((n,a)=>n+(a||[]).length,0); }
+function courseSetId(c){ return (c.aust && c.aust.piSetId) || "baete"; }
+/* Has the course's own copy drifted from the set it was taken from? */
+function piEdited(c){
+  const set = piSet(courseSetId(c)); if(!set) return false;
+  return JSON.stringify(c.aust.pis||{}) !== JSON.stringify(set.pis);
+}
 function piLetter(k){ return String.fromCharCode(97 + k); }
-function piLabel(p, k){ return "PO" + p + piLetter(k); }
+/* Indicators are identified as PO number + letter — 1a, 2c, 3b — following the departmental
+   indicator document; "PO1a" was the older form and is no longer printed anywhere. */
+function piLabel(p, k){ return String(p) + piLetter(k); }
 /* The course's own (editable) PI list — created as a copy of the official list on first use. */
 function coursePIs(c){
-  if(!c.aust.pis) c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  if(!c.aust.pis){
+    const set = piSet(courseSetId(c)) || PI_SETS_BUILTIN.baete;
+    c.aust.pis = JSON.parse(JSON.stringify(set.pis));
+  }
   return c.aust.pis;
 }
 const BLOOMS = ["Remember","Understand","Apply","Analyze","Evaluate","Create"];
@@ -445,7 +532,27 @@ const INST_DEFAULT = {
                                  institution-specific, so it is named here rather than hard-coded in the report */
   roles:{ hod:"Head of the Department", coord:"OBE Program Coordinator", vetter:"Vetter",
           moderator:"Moderator", committee:"Specialization Committee", convener:"Convener" },
-  defaults:{ passMarks:40, kpiMarks:50, kpiTarget:50, wDirect:80, fw:"v2.2" }
+  defaults:{ passMarks:40, kpiMarks:50, kpiTarget:50, wDirect:80, fw:"v2.2", piSet:"baete",
+             /* Whether outcomes mapped to the complex-problem POs must sit at Apply or above.
+                Nothing below C3 solves anything, so a C1/C2 outcome cannot carry WP whatever this
+                says; the policy decides what happens to such an outcome — left as written and
+                flagged for the committee ("keep"), or raised to C3 during conversion ("c3").
+                Raising a level changes what will be taught and assessed, so it is a committee
+                decision, recorded here, not a default the software takes on its own. */
+             minLvlCEP:"keep" },
+  /* The letter-grade scale as a table: an institutional rule, printed in Course Outline §15 and
+     supplying the columns of the Course Report grade distribution. Rows are editable, and may be
+     added or removed, so a programme with a different scale is not forced into this one. */
+  grades:[ {v:"80% and above",        g:"A+", gp:"4.00"},
+           {v:"75% to less than 80%", g:"A",  gp:"3.75"},
+           {v:"70% to less than 75%", g:"A-", gp:"3.50"},
+           {v:"65% to less than 70%", g:"B+", gp:"3.25"},
+           {v:"60% to less than 65%", g:"B",  gp:"3.00"},
+           {v:"55% to less than 60%", g:"B-", gp:"2.75"},
+           {v:"50% to less than 55%", g:"C+", gp:"2.50"},
+           {v:"45% to less than 50%", g:"C",  gp:"2.25"},
+           {v:"40% to less than 45%", g:"D",  gp:"2.00"},
+           {v:"Below 40%",            g:"F",  gp:"0.00"} ]
 };
 function inst(){
   if(!state.inst) state.inst = JSON.parse(JSON.stringify(INST_DEFAULT));
@@ -456,9 +563,41 @@ function inst(){
   if(i.addr===undefined) i.addr=INST_DEFAULT.addr;
   if(i.logo===undefined) i.logo="";
   if(i.sis===undefined) i.sis=INST_DEFAULT.sis;
+  if(i.grading===undefined) i.grading="";                 /* the older free-text scale, kept as a per-course override note */
+  /* Only a MISSING table is refilled. An emptied one stays empty — otherwise deleting the last row
+     would silently restore ten rows, and the delete button would appear not to work. */
+  if(!Array.isArray(i.grades)) i.grades = JSON.parse(JSON.stringify(INST_DEFAULT.grades));
+  i.grades.forEach(r=>{ if(r.v===undefined) r.v=""; if(r.g===undefined) r.g=""; if(r.gp===undefined) r.gp=""; });
   return i;
 }
 function role(k){ return inst().roles[k] || INST_DEFAULT.roles[k]; }
+/* The letter-grade scale is an institutional rule, not a per-course choice — it lives in Setup.
+   A course may still override it where a programme genuinely differs. */
+function gradeRows(){ return inst().grades; }
+function gradeSet(i,f,v){ const r=gradeRows()[i]; if(!r) return; r[f]=String(v); save(); }
+function gradeAdd(){ gradeRows().push({v:"",g:"",gp:""}); save(); renderSetup(); }
+function gradeDel(i){ gradeRows().splice(i,1); if(!gradeRows().length) gradeRows().push({v:"",g:"",gp:""}); save(); renderSetup(); }
+function gradeReset(){
+  if(!confirm("Restore the standard ten-grade scale?\n\nRows you have added or edited here are replaced.")) return;
+  inst().grades = JSON.parse(JSON.stringify(INST_DEFAULT.grades)); save(); renderSetup(); toast("Standard scale restored");
+}
+function gradeLetters(){
+  const g=gradeRows().map(r=>(r.g||"").trim()).filter(Boolean).filter((x,k,a)=>a.indexOf(x)===k);
+  return g.length? g : ["A+","A","A-","B+","B","B-","C+","C","D","F"];
+}
+/* One line, for the places that quote the scale as prose. */
+function gradingScale(c){
+  const own=((c&&c.aust&&c.aust.outline&&c.aust.outline.grading)||"").trim();
+  if(own) return own;
+  return gradeRows().filter(r=>(r.g||"").trim()||(r.v||"").trim())
+    .map(r=>`${(r.g||"").trim()} ${(r.v||"").trim()}`.trim()).join("; ");
+}
+function gradeTableHTML(){
+  const rows=gradeRows().filter(r=>(r.g||"").trim()||(r.v||"").trim()||(r.gp||"").trim());
+  if(!rows.length) return "";
+  return `<table class="tbl" style="max-width:520px"><thead><tr><th>Numerical Value</th><th style="width:110px;text-align:center">Letter Grade</th><th style="width:130px;text-align:center">Grade Point (GP)</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td>${esc(r.v)}</td><td style="text-align:center">${esc(r.g)}</td><td style="text-align:center">${esc(r.gp)}</td></tr>`).join("")}</tbody></table>`;
+}
 function sisName(){ return String(inst().sis||"").trim(); }   /* "" = the institution named no system */
 function instSet(path, v){
   const i=inst(); const p=path.split("."); let o=i;
@@ -527,7 +666,8 @@ function ensureAust(c){
   a.spec.topics.forEach(t=>{ if(!Array.isArray(t.cos)) t.cos = []; if(!Array.isArray(t.tla)) t.tla = []; if(!Array.isArray(t.res)) t.res = []; if(!Array.isArray(t.resExcl)) t.resExcl = []; if(!Array.isArray(t.tlaExcl)) t.tlaExcl = []; });   // topic -> related CO ids, topic-specific activities, planned resources, per-topic deselections (T&L Section's topic-wise plan)
   if(a.fw===undefined) a.fw = (inst().defaults.fw==="v3")? "v3" : "v2.2";
   if(a.fw !== "v3") a.fw = "v2.2";                       // OBE framework: v2.2 (default) or v3 (new POs + indicators)
-  if(a.fw === "v3" && !a.pis) a.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  if(a.piSetId===undefined || !String(a.piSetId).trim()) a.piSetId = (inst().defaults.piSet || "baete");
+  if(a.fw === "v3" && !a.pis) a.pis = JSON.parse(JSON.stringify((PI_SETS_BUILTIN[a.piSetId]||PI_SETS_BUILTIN.baete).pis));
   if(!Array.isArray(a.learnRes)) a.learnRes = [];   // learning resources shared with students: {type,title,url,cos,notes}
   a.learnRes.forEach(r=>{
     if(!Array.isArray(r.cos)) r.cos = [];
@@ -539,7 +679,7 @@ function ensureAust(c){
   if(!Array.isArray(a.spec.cqiPrev) || a.spec.cqiPrev.length!==5)
     a.spec.cqiPrev = Array.from({length:5},(_,i)=>(a.spec.cqiPrev&&a.spec.cqiPrev[i])||{rec:"",ref:""});
   a.vet = Object.assign({vetter1:"",vetter2:""}, a.vet||{});
-  if(a.outline.grading===undefined) a.outline.grading="";   /* letter-grade scale — SAR 2.5 lecture-plan documentation */
+  if(a.outline.grading===undefined) a.outline.grading="";   /* per-course override; blank means "use the institutional scale in Setup" */
   /* CO Modification Request — rows are drafted from CQI findings or added by hand */
   a.comod = Object.assign({ committee:"", convener:"", submitDate:"", effectiveFrom:"", decision:"", comments:"", rows:[] }, a.comod||{});
   if(!Array.isArray(a.comod.rows)) a.comod.rows = [];
@@ -775,39 +915,52 @@ async function unlinkFile(){
   updateFileChip(); renderTab(window._currentTab||"dashboard");
   toast("Stopped working on the file — data remains in this browser");
 }
+/* The File control is a fixed landmark: the button always reads "File", whatever the state, and
+   it is present even where the File System Access API is not (Firefox, Safari, mobile) — there it
+   offers export and import instead of hiding itself, which is how it used to behave. The file name
+   and save status ride beside the word, not in place of it. */
 function updateFileChip(){
   const el = document.getElementById("fileChip");
   if(!el) return;
-  if(!FS_OK){ el.innerHTML = ""; return; }
   const menu = items => window._fileMenuOpen? `<div class="file-menu">${items}</div>` : "";
   const mi = (label, action, cls) => `<button class="${cls||""}" onclick="window._fileMenuOpen=false;${action}">${label}</button>`;
-  if(!fileHandle){
+  const start = mi("⇄ Start from a Version 2.2 Course Outline…","startFromV22()","sep");
+  const common = mi("⬇ Export ALL Courses (JSON)","exportAll()") + `<label class="mi-file">⬆ Import JSON…<input type="file" accept=".json" style="display:none" onchange="window._fileMenuOpen=false;importJSON(this)"></label>`;
+  const btn = (status, title, extra) =>
+    `<button class="file-chip-btn" style="${extra||""}" title="${esc(title)}" onclick="toggleFileMenu(event)">📁 File${status? ' · <span class="file-status">'+status+'</span>':''} ▾</button>`;
+  if(!FS_OK){
     el.innerHTML = `<span class="file-wrap">
-      <button class="file-chip-btn" title="Open an existing data file or save your data to a new file" onclick="toggleFileMenu(event)">📁 File ▾</button>
+      ${btn("in this browser","This browser cannot save straight to a file — use Chrome or Edge on a desktop for that. Your data is kept in the browser; export a backup regularly.")}
+      ${menu(start + common)}</span>`;
+  } else if(!fileHandle){
+    el.innerHTML = `<span class="file-wrap">
+      ${btn("not linked","Open an existing data file, or save your data to a new file")}
       ${menu(
         mi("🆕 New Data File…","newDataFile()") +
         mi("📂 Open Data File…","openDataFile()") +
-        mi("💾 Save to New File…","saveAsDataFile()")
+        mi("💾 Save to New File…","saveAsDataFile()") +
+        start + common
       )}</span>`;
   } else if(!filePermOk){
     el.innerHTML = `<span class="file-wrap">
-      <button class="file-chip-btn" title="Click to reconnect to the file and resume auto-saving" onclick="reconnectFile()">🔗 Reconnect: ${esc(fileHandle.name)}</button>
-      <button class="file-chip-btn" style="padding:6px 8px" title="File options" onclick="toggleFileMenu(event)">▾</button>
+      ${btn(esc(fileHandle.name)+" · reconnect", "Reconnect to the file and resume auto-saving", "border-color:#E3A72F;color:#F6DCAB")}
       ${menu(
         mi("🔗 Reconnect","reconnectFile()") +
         mi("🆕 New Data File…","newDataFile()") +
         mi("📂 Open Another File…","openDataFile()") +
         mi("💾 Save As…","saveAsDataFile()") +
+        start + common +
         mi("Stop Using File","unlinkFile()","danger sep")
       )}</span>`;
   } else {
     el.innerHTML = `<span class="file-wrap">
-      <button class="file-chip-btn" style="${fileDirty? "border-color:#E3A72F;color:#F6DCAB":""}" title="All changes auto-save to this file — click for file options" onclick="toggleFileMenu(event)">💾 ${esc(fileHandle.name)} · ${fileDirty? "saving…" : "saved"} ▾</button>
+      ${btn(esc(fileHandle.name)+" · "+(fileDirty? "saving…":"saved"), "All changes auto-save to this file — click for file options", fileDirty? "border-color:#E3A72F;color:#F6DCAB":"")}
       ${menu(
         mi("🆕 New Data File…","newDataFile()") +
         mi("📂 Open Another File…","openDataFile()") +
         mi("💾 Save As…","saveAsDataFile()") +
         mi("💾 Save Now (Ctrl+S)","saveNowShortcut()") +
+        start + common +
         mi("Stop Using File","unlinkFile()","danger sep")
       )}</span>`;
   }
@@ -1018,6 +1171,7 @@ function renderDashboard(){
       <p class="hint">This app helps you manage a course from the OBE perspective: define Course Outcomes (COs), map them to Program Outcomes (POs), plan CO-based assessments, enter marks, and get CO/PO attainment automatically — ready for accreditation evidence (BAETE / Washington Accord).</p>
       <p>Start by adding your first course.</p>
       <div class="btn-row"><button class="btn" onclick="openNewCourse()">+ Add a Course</button>
+      <button class="btn secondary" onclick="startFromV22()" title="Paste §13 and §14 from your existing Version 2.2 outline and convert them to Version 3">⇄ Start from a Version 2.2 Course Outline</button>
       ${demoButtons()}</div>
       <p style="font-size:12px;color:var(--muted);margin:10px 0 0">The demonstration courses stay available later from <b>Data &amp; Backup → File &amp; Backups</b>, where they can also be removed in one click.</p></div>`;
     return;
@@ -1096,7 +1250,10 @@ function renderDashboard(){
     ${phaseGroup("CHECK","amber","when marks are in",[7])}
     ${phaseGroup("ACT","green","at the end of the semester",[8,9])}
     <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:18px">
-      <button class="btn secondary" onclick="duplicateForNewSemester()">⟳ Duplicate for New Semester (CQI)</button>
+      <div class="btn-row" style="margin:0">
+        <button class="btn secondary" onclick="duplicateForNewSemester()">⟳ Duplicate for New Semester (CQI)</button>
+        <button class="btn secondary" onclick="startFromV22()" title="Paste §13 and §14 from an existing Version 2.2 outline and convert them to Version 3 as a new course">⇄ Start from a Version 2.2 Course Outline</button>
+      </div>
       <button class="btn secondary danger" onclick="deleteCourse()">Delete This Course</button>
     </div>
   </div>`;
@@ -1163,19 +1320,18 @@ function renderCourse(){
       <label class="fld">Course Title <input value="${esc(c.title)}" placeholder="e.g., Renewable Energy" onchange="setCourseField('title',this.value)"></label>
       <label class="fld">Credit Hours <input value="${esc(c.credit)}" placeholder="e.g., 3.0" onchange="setCourseField('credit',this.value)"></label>
       <label class="fld">Semester / Session <input value="${esc(c.semester)}" placeholder="e.g., Spring 2026" onchange="setCourseField('semester',this.value)"></label>
-      <label class="fld" title="Letter-grade scale — part of the lecture-plan documentation BAETE asks for (SAR 2.5); prints in the Course Outline">Grading policy <input value="${esc(c.aust.outline.grading||"")}" placeholder="e.g., A+ ≥ 80, A 75–79, A− 70–74 … F < 40" onchange="austSet('outline.grading',this.value)"></label>
       <label class="fld">Program <input value="${esc(c.program)}" placeholder="e.g., B.Sc. in Mechanical Engineering" onchange="setCourseField('program',this.value)"></label>
       <label class="fld">Section <input value="${esc(c.section)}" placeholder="e.g., A" onchange="setCourseField('section',this.value)"></label>
       <label class="fld">Cohort <input value="${esc(c.cohort)}" placeholder="e.g., ME17" onchange="setCourseField('cohort',this.value)"></label>
       <label class="fld">Course Teacher(s) <input value="${esc(c.instructor)}" placeholder="e.g., Prof. Dr. Mazharul Islam" onchange="setCourseField('instructor',this.value)"></label>
       <label class="fld">OBE Framework
-        <select onchange="setFramework(this.value, this)" title="Version 2.2: the current 12 POs, no indicators. Version 3: the updated 12 POs (PO names differ from PO6 onward) with Performance Indicators (PO1a, PO1b, …)">
+        <select onchange="setFramework(this.value, this)" title="Version 2.2: the current 12 POs, no indicators. Version 3: the updated 12 POs (PO names differ from PO6 onward) with Performance Indicators (1a, 1b, …)">
           <option value="v2.2" ${fwV3(c)?"":"selected"}>Version 2.2 — 12 POs without Indicators</option>
           <option value="v3" ${fwV3(c)?"selected":""}>Version 3 — updated 12 POs with indicators</option>
         </select>
       </label>
     </div>
-    ${fwV3(c)? `<p class="hint" style="margin-top:8px">Version 3 is active: the CO–PO matrix uses the updated PO names, and an optional <b>PO Indicators</b> editor (PO1a, PO1b, …) appears under the matrix in the COs Section.</p>`:""}
+    ${fwV3(c)? `<p class="hint" style="margin-top:8px">Version 3 is active: the CO–PO matrix uses the updated PO names, and an optional <b>PO Indicators</b> editor (1a, 1b, …) appears under the matrix in the COs Section.</p>`:""}
   </div>
   <div class="card">
     <h2>Attainment Settings (AUST Direct CO-PO Measurement)</h2>
@@ -1212,7 +1368,7 @@ function setFramework(v, el){
     return;
   }
   c.aust.fw = v;
-  if(v === "v3" && !c.aust.pis) c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
+  if(v === "v3" && !c.aust.pis) coursePIs(c);
   c.cos.forEach(co=>syncAttrStrings(c, co));   // §14 strings follow the framework's labels (WK/WP/EA vs K/P/A)
   save(); renderCourse(); toast(v==="v3"? "Framework v3 — updated PO names and indicators active" : "Framework v2.2 — current PO names, no indicators");
 }
@@ -1367,9 +1523,32 @@ const VAGUE_VERBS = [
   { re:/^(believe|realize|realise)\b|^(be|become) interested( in)?\b/i, v:"believe / realize / be interested in", why:"describes an internal disposition", alt:"argue, advocate, participate, propose" },
   { re:/^(undertake|engage in)\b/i, v:"undertake / engage in", why:"indicates activity but not the expected result", alt:"conduct, complete, produce, report" }
 ];
-function vagueVerbCheck(stmt){
+/* Real outlines rarely start with the verb. "After completion of the course, the students will
+   be expected to comprehend …" is the AUST house wording, and the alarm used to strip
+   only "students will be able to" — so on the statements teachers actually write it never fired.
+   The lead-in is now removed in layers, longest first, and repeatedly. */
+const CO_LEAD_INS = [
+  /^(after|at|by|on|upon)\s+(the\s+)?(successful\s+)?(completion|conclusion|end|finish)\s+of\s+(this\s+|the\s+)?(course|subject|semester|term)\s*[,:;-]?\s*/i,
+  /^(after|at|by|on|upon)\s+(completing|studying|attending)\s+(this\s+|the\s+)?(course|subject)\s*[,:;-]?\s*/i,
+  /^(the\s+)?(students?|learners?|participants?|candidates?|graduates?)\s*/i,
+  /^(will|shall|should|can|could|must|may)\s+/i,
+  /^(be\s+)?(expected|able|required)\s+/i,
+  /^(be\s+able\s+to|are\s+able\s+to|have\s+the\s+ability\s+to)\s+/i,
+  /^to\s+/i,
+  /^(successfully|effectively|correctly|properly)\s+/i,
+  /^[,:;-]\s*/
+];
+function coVerbPhrase(stmt){
   let s = String(stmt||"").trim();
-  s = s.replace(/^(the )?students?( will| should| can| must)?( be able to| are able to)?\s+/i,"").replace(/^to\s+/i,"");
+  for(let pass=0; pass<8; pass++){
+    let cut=false;
+    for(const re of CO_LEAD_INS){ const t=s.replace(re,""); if(t!==s){ s=t.trim(); cut=true; } }
+    if(!cut) break;
+  }
+  return s;
+}
+function vagueVerbCheck(stmt){
+  const s = coVerbPhrase(stmt);
   for(const x of VAGUE_VERBS){ if(x.re.test(s)) return x; }
   return null;
 }
@@ -1407,9 +1586,11 @@ function renderCOs(){
     return `<tr><td style="white-space:nowrap"><b>CO${i+1}</b></td><td style="min-width:220px;max-width:320px;font-size:12px;color:var(--muted)">${esc(co.statement)||"<i>(no statement yet — write it in the Course Outcomes table above)</i>"}</td>${cells}</tr>`;
   }).join("");
   el.innerHTML = `
+  ${v22ConvertCard(c)}
   <div class="card">
     <h2>Course Outcomes (COs)</h2>
     <p class="hint">Write measurable CO statements using observable action verbs, choose the Bloom's Taxonomy (BT) Domain, and set the matching Level. A statement opening with a non-measurable verb (know, understand, appreciate, be aware of…) triggers a warning with observable alternatives. Edits save automatically.</p>
+    <div class="btn-row no-print" style="margin:0 0 8px"><button class="btn secondary small" onclick="exportCourseCOs()" title="One row per CO — statement, PO, domain and level, WK/WP/EA and SDG numbers — the same columns as the Start from a Version 2.2 Course Outline template">⬇ Export CO table (CSV)</button></div>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>#</th><th style="min-width:300px">CO Statement</th><th>BT Domain</th><th>Level</th><th>Mapped POs</th><th></th></tr></thead>
       <tbody>${coRows || `<tr><td colspan="6" class="empty">No COs yet — add your first CO below.</td></tr>`}</tbody>
@@ -1572,7 +1753,9 @@ function piCard(c){
   if(!open) return `
   <div class="card">
     <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="foldSet('cos','poind',true);renderCOs()"><span class="fold-caret">&#9656;</span> PO Indicators (optional)</h2>
-    <p class="hint" style="margin:0">${anyTick? "Indicators are ticked for at least one CO — they print on the Course Specifications and Outline." : "Optionally record WHICH indicator(s) of a mapped PO each CO addresses (PO1a, PO1b, …). Purely documentary — attainment is unaffected."}</p>
+    <p class="hint" style="margin:0">${(()=>{const st=piSet(courseSetId(c)); const nm=st? esc(st.name):"a custom list";
+      return (anyTick? `Indicators are ticked for at least one CO — they print on the Course Specifications and Outline. ` : `Optionally record WHICH indicator(s) of a mapped PO each CO addresses (1a, 1b, …). Purely documentary — attainment is unaffected. `)
+        + `Set in use: <b>${nm}</b>${piEdited(c)? ' <span class="badge amber">edited for this course</span>':''}`;})()}</p>
   </div>`;
   const coBlocks = c.cos.map((co,i)=>{
     const mapped = Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>+p).sort((a,b)=>a-b);
@@ -1591,10 +1774,26 @@ function piCard(c){
   <div class="card">
     <h2 class="cqi-fold" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="if(!event.target.closest('button')) { foldSet('cos','poind',false); renderCOs(); }"><span class="fold-caret">&#9662;</span> PO Indicators (optional)</h2>
     <p class="hint">Tick the indicator(s) of each mapped PO that this CO addresses. Ticking an indicator also ticks its parent PO in the matrix; unticking a PO clears its indicators. Documentary only — no calculation uses these. Ticked indicators print on the Course Specifications and the Course Outline.</p>
+    ${(()=>{ const all=piSetsAll(), cur=courseSetId(c), st=all[cur];
+      const opts=Object.values(all).map(x=>`<option value="${esc(x.id)}" ${x.id===cur?"selected":""}>${esc(x.name)} — ${piCount(x)} indicators</option>`).join("");
+      return `<div style="background:var(--card-2,#f4faf8);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin:6px 0 10px">
+      <label class="fld" style="max-width:640px">Indicator set for this course
+        <select class="di" onchange="applyPISet(this.value)">${opts}</select></label>
+      <p style="font-size:11.5px;color:var(--muted);margin:6px 0 0;line-height:1.5">
+        ${st? esc(st.note||"") : "This course uses a list that is no longer available as a set; its own copy is intact."}
+        ${piEdited(c)? ' <b>This course\'s copy has been edited since it was taken from the set</b> — the set itself is unchanged, and the course keeps its own version so an approved outline never shifts underneath it.':''}
+      </p>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn secondary small" onclick="downloadPITemplate()" title="A CSV with one row per indicator — fill it in Excel and import it back">⬇ Download template (CSV)</button>
+        <label class="btn secondary small" style="cursor:pointer">⬆ Import indicators (CSV)<input type="file" accept=".csv,text/csv" style="display:none" onchange="importPICSV(this)"></label>
+        <button class="btn secondary small" onclick="exportPISet()" title="This course's list, as CSV">⬇ Export this list</button>
+        <button class="btn secondary small" onclick="saveAsPISet()" title="Make this course's list available to every course">💾 Save as a reusable set</button>
+        ${st && !st.builtin? `<button class="btn danger small" onclick="deletePISet('${esc(st.id)}')" title="Remove the reusable set; course copies are kept">🗑 Remove this set</button>`:""}
+      </div></div>`; })()}
     ${coBlocks || '<div class="empty">Add COs first.</div>'}
     <div class="btn-row">
       <button class="btn secondary small" onclick="window._piEdit=!window._piEdit;renderCOs()">${window._piEdit? "▾ Close list editor":"✎ Edit this course's indicator list"}</button>
-      <button class="btn secondary small" onclick="resetPIs()" title="Restores the official 46-indicator list for this course (ticked indicators whose position survives are kept)">⟲ Reset to official list</button>
+      <button class="btn secondary small" onclick="resetPIs()" title="Discard this course's edits and restore the selected set as published">⟲ Restore the set as published</button>
     </div>
     ${window._piEdit? Array.from({length:N_PO},(_,q)=>{ const p=q+1; return `
       <div style="margin:8px 0"><b>PO${p}</b> <span style="font-size:12px;color:var(--muted)">${esc(poInfo(c,p))}</span>
@@ -1642,17 +1841,117 @@ function delPI(p, k){
   });
   save(); renderCOs();
 }
+function clearAllPITicks(c){ c.cos.forEach(co=>{ if(co.pi) co.pi = {}; }); }
+/* Indicators are ticked by POSITION, so a different list would silently re-point every tick at a
+   different statement. Clearing is a little re-ticking against a course claiming an indicator
+   nobody chose, which is the worse outcome. */
+function applyPISet(id, opts){
+  const c = activeCourse(); if(!c) return;
+  const set = piSet(id); if(!set){ toast("That indicator set is no longer available"); return; }
+  const ticked = c.cos.some(co=>Object.values(co.pi||{}).some(a=>Array.isArray(a)&&a.length));
+  if(!(opts&&opts.silent) && ticked && !confirm(
+      `Use “${set.name}” for this course?\n\nIndicators are ticked by position, so the ticks already recorded would point at different statements. They will be cleared, and the PO ticks in the matrix are not affected.`)) return;
+  c.aust.piSetId = set.id;
+  c.aust.pis = JSON.parse(JSON.stringify(set.pis));
+  if(ticked) clearAllPITicks(c);
+  save(); renderCOs(); toast(set.name+" applied ("+piCount(set)+" indicators)");
+}
 function resetPIs(){
   const c = activeCourse(); if(!c) return;
-  if(!confirm("Replace this course's indicator list with the official 46-indicator list?\n\nTicks whose position exists in the official list are kept; ticks beyond it are dropped.")) return;
-  c.aust.pis = JSON.parse(JSON.stringify(PO_PI_V3));
-  c.cos.forEach(co=>{
-    Object.keys(co.pi||{}).forEach(p=>{
-      co.pi[p] = (co.pi[p]||[]).filter(k=> k < (PO_PI_V3[p]||[]).length);
-      if(!co.pi[p].length) delete co.pi[p];
-    });
+  const set = piSet(courseSetId(c)) || PI_SETS_BUILTIN.baete;
+  if(!confirm(`Discard this course's edits and restore “${set.name}” as published?`)) return;
+  c.aust.pis = JSON.parse(JSON.stringify(set.pis));
+  c.cos.forEach(co=>{ Object.keys(co.pi||{}).forEach(p=>{
+    co.pi[p] = (co.pi[p]||[]).filter(k=> k < (set.pis[p]||[]).length);
+    if(!co.pi[p].length) delete co.pi[p]; }); });
+  save(); renderCOs(); toast(set.name+" restored");
+}
+function piCSV(pis, setName){
+  const rows = [["PO","Code","Indicator"]];
+  for(let p=1;p<=N_PO;p++) (pis[p]||[]).forEach((t,k)=> rows.push([p, piLabel(p,k), t]));
+  const esc1 = v => { const t=String(v==null?"":v); return /[",\n]/.test(t)? '"'+t.replace(/"/g,'""')+'"' : t; };
+  return "\ufeff"+rows.map(r=>r.map(esc1).join(",")).join("\r\n")
+    + (setName? "\r\n" : "");
+}
+function downloadPITemplate(){
+  const blank = {}; for(let p=1;p<=N_PO;p++) blank[p]=["",""];
+  downloadFile("PO_indicator_template.csv", piCSV(blank), "text/csv");
+  toast("Template saved — one row per indicator; the Code column is for your reading only");
+}
+function exportPISet(){
+  const c=activeCourse(); if(!c) return;
+  const set = piSet(courseSetId(c));
+  downloadFile("PO_indicators_"+(courseSetId(c)||"set")+".csv", piCSV(coursePIs(c), set&&set.name), "text/csv");
+}
+function parsePICSV(text){
+  const rows=[]; let f="", row=[], q=false;
+  const t=String(text).replace(/^\ufeff/,"");
+  for(let i=0;i<t.length;i++){ const ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===","){ row.push(f); f=""; }
+    else if(ch==="\n"){ row.push(f); rows.push(row); row=[]; f=""; }
+    else if(ch!=="\r") f+=ch;
+  }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  const out={}; const bad=[];
+  rows.forEach((r,i)=>{
+    if(!r.length) return;
+    const head=String(r[0]||"").trim().toLowerCase();
+    if(i===0 && (head==="po"||head==="")) return;                       // header
+    const p=parseInt(String(r[0]).replace(/[^0-9]/g,""),10);
+    const txt=String(r[2]!==undefined? r[2] : (r[1]||"")).trim();       // Code column optional
+    if(!txt) return;
+    if(!(p>=1 && p<=N_PO)){ bad.push("row "+(i+1)+": PO “"+String(r[0]).trim()+"” is not 1–"+N_PO); return; }
+    (out[p]=out[p]||[]).push(txt);
   });
-  save(); renderCOs(); toast("Official indicator list restored");
+  return { pis: out, errors: bad };
+}
+function importPICSV(input){
+  const c=activeCourse(); if(!c) return;
+  const f=input.files&&input.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const { pis, errors } = parsePICSV(e.target.result);
+    const n = Object.values(pis).reduce((a,b)=>a+b.length,0);
+    if(!n){ alert("No indicators were found.\n\nThe file needs a PO column and an Indicator column — download the template if in doubt."+(errors.length? "\n\n"+errors.slice(0,5).join("\n"):"")); input.value=""; return; }
+    const missing=[]; for(let p=1;p<=N_PO;p++) if(!(pis[p]||[]).length) missing.push("PO"+p);
+    let msg = `Import ${n} indicator${n>1?"s":""} for this course?`;
+    if(missing.length) msg += `\n\nNo indicator was given for: ${missing.join(", ")}. Those POs will show none.`;
+    if(errors.length)  msg += `\n\nSkipped ${errors.length} row(s):\n`+errors.slice(0,5).join("\n");
+    msg += "\n\nIndicators already ticked on your COs will be cleared, because they are recorded by position.";
+    if(!confirm(msg)){ input.value=""; return; }
+    const name = (prompt("Name this indicator set (it will be available to every course):", "Our programme's indicators")||"").trim();
+    const id = name? name.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40) : "custom_"+Date.now();
+    if(!Array.isArray(state.piSets)) state.piSets=[];
+    state.piSets = state.piSets.filter(x=>x.id!==id);
+    state.piSets.push({ id, name: name||("Custom set ("+n+")"), note:"Supplied by import on "+new Date().toISOString().slice(0,10), pis });
+    clearAllPITicks(c);
+    c.aust.piSetId = id; c.aust.pis = JSON.parse(JSON.stringify(pis));
+    save(); renderCOs(); input.value="";
+    toast("Imported “"+(name||id)+"” — "+n+" indicators");
+  };
+  rd.readAsText(f);
+}
+function saveAsPISet(){
+  const c=activeCourse(); if(!c) return;
+  const cur = piSet(courseSetId(c));
+  const name=(prompt("Save this course's edited list as a reusable set, named:", (cur? cur.name+" (edited)":"Our programme's indicators"))||"").trim();
+  if(!name) return;
+  const id = name.replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,40) || ("custom_"+Date.now());
+  if(PI_SETS_BUILTIN[id]){ alert("That name collides with a built-in set. Choose another."); return; }
+  if(!Array.isArray(state.piSets)) state.piSets=[];
+  state.piSets = state.piSets.filter(x=>x.id!==id);
+  state.piSets.push({ id, name, note:"Saved from "+(c.code||"a course")+" on "+new Date().toISOString().slice(0,10),
+                      pis: JSON.parse(JSON.stringify(coursePIs(c))) });
+  c.aust.piSetId=id; save(); renderCOs(); toast("Saved as “"+name+"”");
+}
+function deletePISet(id){
+  const set=piSet(id); if(!set || set.builtin) return;
+  const users=(state.courses||[]).filter(c=>courseSetId(c)===id).length;
+  if(!confirm(`Remove the indicator set “${set.name}”?`+(users? `\n\n${users} course(s) started from it. Their own copies are kept — only the reusable set is removed.`:""))) return;
+  state.piSets=(state.piSets||[]).filter(x=>x.id!==id);
+  save(); renderCOs(); toast("Set removed");
 }
 function addCO(){
   const c = activeCourse(); if(!c) return;
@@ -4373,7 +4672,7 @@ function buildAIContext(c){
         L.push(`Score distribution on ${x.label} (n=${d[i].scores.length}): 0-20%: ${b[0]}, 20-40%: ${b[1]}, 40-60%: ${b[2]}, 60-80%: ${b[3]}, 80-100%: ${b[4]}`);
       }
     });
-    const GR = ["A+","A","A-","B+","B","B-","C+","C","D","F"];
+    const GR = gradeLetters();
     const g = (c.aust.report && c.aust.report.grades) || {};
     const gTotal = GR.reduce((s,k)=>s+(parseFloat(g[k])||0),0);
     if(gTotal>0) L.push(`Overall grade distribution${sisName()? " ("+sisName()+")":""}: ${GR.filter(k=>parseFloat(g[k])>0).map(k=>k+": "+g[k]).join(", ")} (total ${gTotal})`);
@@ -4942,6 +5241,652 @@ function comodFrameworkTransition(){
   if(!m.effectiveFrom) m.effectiveFrom = nextSemesterOf(c.semester);
   save(); renderCOs(); toast("Transition rows drafted — set the Version 3 POs on the Modification side");
 }
+
+/* ===== Start from a Version 2.2 Course Outline =====
+   A teacher who has never used OCM has their Version 2.2 COs in a Word outline, not here.
+   Building the whole old course in OCM just to migrate it would be wasted work: the only
+   inputs a migration needs are §13 (CO, PO, Bloom) and §14 (K, P, A). So: paste those two
+   tables, get a conversion worksheet, draft the committee packet, and — once approved —
+   start the Version 3 course from the accepted decisions. The v2.2 record stays as the
+   "Existing" side of the modification form. */
+const V22_TO_V3_PO = {1:1,2:2,3:3,4:4,5:5,6:6,7:6,8:7,9:8,10:9,11:10,12:11};
+/* From the PO statements in ACC-MAN-02 v3.0 §5.2: PO1–PO6 are each written in terms of COMPLEX
+   ENGINEERING PROBLEMS; PO9 is the only PO written in terms of COMPLEX ENGINEERING ACTIVITIES.
+   Table 6.2 defines a complex problem as having "WP1 and some or all of WP2 to WP7" — so WP1
+   alone is not one. Table 6.3 sets no gateway: "some or all" of EA1–EA5. */
+const PO_CEP_V3 = [1,2,3,4,5,6];
+const PO_CEA_V3 = [9];
+/* The Knowledge Profile attributes each PO statement cites, for guidance only. */
+const PO_WK_CITED = {1:[1,2,3,4],2:[1,2,3,4],3:[5],4:[8],5:[2,6],6:[1,5,7],7:[9],8:[9],9:[],10:[],11:[8],12:[]};
+function cepPOs(pos){ return (pos||[]).filter(p=>PO_CEP_V3.indexOf(p)>=0); }
+function ceaPOs(pos){ return (pos||[]).filter(p=>PO_CEA_V3.indexOf(p)>=0); }
+const WK_WIDENED = {1:"now includes awareness of relevant social sciences",
+  2:"now includes data analysis, statistics and computing", 5:"now includes whole-life cost, net zero carbon and re-use of resources",
+  7:"now includes sustainable development and the engineer's responsibility for public safety"};
+const PO_STMT_V3 = {
+  1: "Apply knowledge of mathematics, natural science, computing, engineering fundamentals and an engineering specialization as specified in WK1 to WK4 respectively to develop solutions of complex engineering problems.",
+  2: "Identify, formulate, research literature and analyze complex engineering problems reaching substantiated conclusions using first principles of mathematics, natural sciences and engineering sciences with holistic considerations for sustainable development.",
+  3: "Design creative solutions for complex engineering problems and design systems, components or processes to meet identified needs with appropriate consideration for public health and safety, whole-life cost, net zero carbon as well as resource, cultural, societal, and environmental considerations as required.",
+  4: "Conduct investigations of complex engineering problems using research methods including research-based knowledge, design of experiments, analysis and interpretation of data, and synthesis of information to provide valid conclusions.",
+  5: "Create, select and apply and recognize limitations of appropriate techniques, resources, and modern engineering and IT tools, including prediction and modeling, to complex engineering problems.",
+  6: "When solving complex engineering problems, analyze and evaluate sustainable development impacts to: society, the economy, sustainability, health and safety, legal frameworks, and the environment.",
+  7: "Apply ethical principles and commit to professional ethics and norms of engineering practice and adhere to relevant national and international laws. Demonstrate an understanding of the need for diversity and inclusion.",
+  8: "Function effectively as an individual, and as a member or leader in diverse and inclusive teams and in multi-disciplinary, face-to-face, remote and distributed settings.",
+  9: "Communicate effectively and inclusively on complex engineering activities with the engineering community and with society at large, such as being able to comprehend and write effective reports and design documentation, make effective presentations, taking into account cultural, language, and learning differences.",
+  10: "Apply knowledge and understanding of engineering management principles and economic decision-making and apply these to one’s own work, as a member and leader in a team and to manage projects and in multidisciplinary environments.",
+  11: "Recognize the need for, and have the preparation and ability for i) independent and life-long learning ii) adaptability to new and emerging technologies and iii) critical thinking in the broadest context of technological change.",
+  12: "Demonstrate knowledge and understanding of the competences necessary to transform opportunities and ideas into a new business."
+};
+
+/* ===== Start from a Version 2.2 Course Outline — the CO table =====
+   One row per CO, numbers only: PO 1–12, BT Domain C/A/P with its level, Knowledge Profile,
+   Complex Problem Solving and Complex Engineering Activities as attribute numbers, SDG goal
+   numbers (Version 3 files only). The same columns serve a Version 2.2 and a Version 3 outline;
+   the framework is stated once, at import, and every cell is validated against it. Rows can be
+   typed in the table, or filled in a spreadsheet from the template and imported. */
+const V22_COLS = ["CO","CO Statement","PO","BT Domain","BT Level","Knowledge Profile","Complex Problem Solving","Complex Engineering Activities","SDG"];
+function v22State(){
+  if(!window._v22) window._v22 = { meta:{code:"",title:"",credit:"",sem:"",program:(inst().dept? "":""),section:"",cohort:"",inst:"",
+                                          fw:"v2.2",piSet:(inst().defaults.piSet||"baete")},
+                                   rows:[v22BlankRow(),v22BlankRow(),v22BlankRow()] };
+  ["program","section","cohort"].forEach(k=>{ if(window._v22.meta[k]===undefined) window._v22.meta[k]=""; });
+  if(!window._v22.meta.piSet) window._v22.meta.piSet = inst().defaults.piSet||"baete";
+  return window._v22;
+}
+function v22BlankRow(){ return { statement:"", po:[], dom:"C", lvl:"", wk:[], wp:[], ea:[], sdg:[] }; }
+/* "1-7", "1–7", "1 to 7" mean the whole run; BAETE's own tables are written that way, and a
+   teacher copying "WP1–WP7" from an outline means all seven, not two. */
+function numsIn(v, max){
+  let t = String(v==null?"":v);
+  t = t.replace(/(\d+)\s*(?:-|–|—|\.\.|…|\bto\b|\bthrough\b)\s*(\d+)/gi, function(_,a,b){
+    a=+a; b=+b; if(!(a>=1&&b>=1)) return _;
+    const step = a<=b? 1 : -1, out=[];
+    for(let n=a; step>0? n<=b : n>=b; n+=step){ out.push(n); if(out.length>64) break; }
+    return out.join(",");
+  });
+  return t.split(/[^0-9]+/).map(x=>+x).filter(n=>n>=1&&n<=max).filter((n,i,a)=>a.indexOf(n)===i).sort((a,b)=>a-b);
+}
+/* Every Course Information field is required before the record is built, except Section: a course
+   with no sections leaves it blank, as the Course Info screen itself allows. */
+const V22_META_REQUIRED = [["code","Course Code"],["title","Course Title"],["credit","Credit Hours"],
+  ["sem","Semester / Session"],["program","Program"],["cohort","Cohort"],["inst","Course Teacher(s)"]];
+function v22MetaErrors(){
+  const m=v22State().meta;
+  return V22_META_REQUIRED.filter(([k])=>!String(m[k]||"").trim()).map(([,label])=>label);
+}
+function v22SetMeta(k,v){
+  v22State().meta[k]=String(v).trim();
+  /* Which set a programme reports against is a departmental fact, not a personal preference —
+     so the first answer becomes the institution's default and nobody is asked twice. */
+  if(k==="piSet"){ inst().defaults.piSet=v22State().meta.piSet; save(); }
+  renderV22Start();      /* the Build button enables only when the identity block is complete */
+}
+function setCoursePISet(id){ const c=activeCourse(); if(!c) return; applyPISet(id); }
+function v22SetRow(i,f,v){
+  const r=v22State().rows[i]; if(!r) return;
+  const fw=v22State().meta.fw;
+  if(f==="statement") r.statement=String(v).trim();
+  else if(f==="dom") r.dom=String(v).toUpperCase().charAt(0)||"C";
+  else if(f==="lvl") r.lvl=String(v).replace(/[^0-9]/g,"");
+  else if(f==="po") r.po=numsIn(v,N_PO);
+  else if(f==="wk") r.wk=numsIn(v, fw==="v3"? 9:8);
+  else if(f==="wp") r.wp=numsIn(v,7);
+  else if(f==="ea") r.ea=numsIn(v,5);
+  else if(f==="sdg") r.sdg=numsIn(v,17);
+}
+function v22AddRow(){ v22State().rows.push(v22BlankRow()); renderV22Start(); }
+function v22DelRow(i){ v22State().rows.splice(i,1); if(!v22State().rows.length) v22State().rows.push(v22BlankRow()); renderV22Start(); }
+function v22MaxLevel(dom){ return dom==="A"? 5 : dom==="P"? 7 : 6; }
+function validateCORows(rows, fw){
+  const errs=[];
+  rows.forEach((r,i)=>{
+    const n=i+1;
+    if(!r.statement) errs.push(`CO${n}: the statement is empty`);
+    if(!r.po.length) errs.push(`CO${n}: no PO (1–${N_PO})`);
+    const lv=parseInt(r.lvl,10);
+    if(!(lv>=1 && lv<=v22MaxLevel(r.dom))) errs.push(`CO${n}: BT Level must be 1–${v22MaxLevel(r.dom)} for domain ${r.dom}`);
+    if(fw!=="v3" && r.wk.indexOf(9)>=0) errs.push(`CO${n}: K9 does not exist under Version 2.2 (WK9 is new in Version 3)`);
+    if(fw!=="v3" && r.sdg.length) errs.push(`CO${n}: SDGs apply only under Version 3 — leave the column blank for a Version 2.2 outline`);
+  });
+  return errs;
+}
+function coRowsCSV(rows){
+  const esc1=v=>{ const t=String(v==null?"":v); return /[",\n]/.test(t)? '"'+t.replace(/"/g,'""')+'"' : t; };
+  const out=[V22_COLS];
+  rows.forEach((r,i)=> out.push([i+1, r.statement, r.po.join(", "), r.dom, r.lvl, r.wk.join(", "), r.wp.join(", "), r.ea.join(", "), (r.sdg||[]).join(", ")]));
+  return "﻿"+out.map(x=>x.map(esc1).join(",")).join("\r\n");
+}
+function parseCORowsCSV(text){
+  const t=String(text).replace(/^﻿/,""); const rows=[]; let f="",row=[],q=false;
+  for(let i=0;i<t.length;i++){ const ch=t[i];
+    if(q){ if(ch==='"'){ if(t[i+1]==='"'){ f+='"'; i++; } else q=false; } else f+=ch; }
+    else if(ch==='"') q=true; else if(ch===","){ row.push(f); f=""; }
+    else if(ch==="\n"){ row.push(f); rows.push(row); row=[]; f=""; } else if(ch!=="\r") f+=ch; }
+  if(f.length||row.length){ row.push(f); rows.push(row); }
+  const out=[];
+  rows.forEach((r,i)=>{
+    if(!r.some(x=>String(x).trim())) return;
+    if(i===0 && /statement/i.test(r.join(" "))) return;           // header
+    const g=k=>String(r[k]!==undefined? r[k]:"").trim();
+    out.push({ statement:g(1), po:numsIn(g(2),N_PO), dom:(g(3).toUpperCase().charAt(0)||"C"), lvl:g(4).replace(/[^0-9]/g,""),
+               wk:numsIn(g(5),9), wp:numsIn(g(6),7), ea:numsIn(g(7),5), sdg:numsIn(g(8),17) });
+  });
+  return out;
+}
+function downloadCOTemplate(){
+  const ex=[{statement:"design renewable energy systems for a prospective site",po:[3],dom:"C",lvl:"6",wk:[5],wp:[1,2,3,4,5],ea:[],sdg:[]},
+            {statement:"work safely and cooperatively in the laboratory",po:[9],dom:"A",lvl:"3",wk:[],wp:[],ea:[],sdg:[]}];
+  downloadFile("CO_table_template.csv", coRowsCSV(ex), "text/csv");
+  toast("Template saved — one row per CO, numbers only; the two example rows can be overwritten");
+}
+function importCOTable(input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const rows=parseCORowsCSV(e.target.result); input.value="";
+    if(!rows.length){ alert("No CO rows were found. The file needs the template's columns: CO, CO Statement, PO, BT Domain, BT Level, Knowledge Profile, Complex Problem Solving, Complex Engineering Activities, SDG."); return; }
+    v22State().rows=rows; renderV22Start(); toast(rows.length+" CO row"+(rows.length>1?"s":"")+" read — check them, then build");
+  };
+  rd.readAsText(f);
+}
+function exportCOTable(){ downloadFile("CO_table_"+(v22State().meta.code||"course").replace(/\s+/g,"_")+".csv", coRowsCSV(v22State().rows), "text/csv"); }
+/* The same file, from any existing course — the record of a v2.2 offering, or a finished v3 course for the committee. */
+function exportCourseCOs(){
+  const c=activeCourse(); if(!c) return;
+  const rows=c.cos.map(co=>{
+    const dom=(co.btDomain||"Cognitive").charAt(0);
+    const lvl = dom==="A"? (lvlTag(co.bloomA)||"").replace(/\D/g,"") : dom==="P"? (lvlTag(co.bloomP)||"").replace(/\D/g,"") : String(BLOOMS.indexOf(co.bloom)+1||"");
+    return { statement:co.statement||"", po:Object.keys(co.po||{}).filter(p=>co.po[p]>0).map(Number).sort((a,b)=>a-b), dom, lvl,
+             wk:(co.wk||[]).slice(), wp:(co.wp||[]).slice(), ea:(co.ea||[]).slice(), sdg:(co.sdg||[]).slice() };
+  });
+  downloadFile("CO_table_"+(c.code||"course").replace(/\s+/g,"_")+"_"+(fwV3(c)?"v3":"v2.2")+".csv", coRowsCSV(rows), "text/csv");
+  toast("CO table exported ("+(fwV3(c)?"Version 3":"Version 2.2")+")");
+}
+function startFromV22(){ window._currentTab="dashboard"; showTab("dashboard"); renderV22Start(); }
+function renderV22Start(){
+  const el=document.getElementById("tab-dashboard"); if(!el) return;
+  const st=v22State(), m=st.meta, v3=m.fw==="v3";
+  const errs=validateCORows(st.rows, m.fw);
+  const rowsHtml=st.rows.map((r,i)=>`
+    <tr>
+      <td style="text-align:center;white-space:nowrap"><b>CO${i+1}</b></td>
+      <td><textarea class="di" rows="2" style="width:100%;min-width:260px;overflow-y:hidden" oninput="autoGrowTA(this)" onchange="v22SetRow(${i},'statement',this.value)" placeholder="what the student will be able to do">${esc(r.statement)}</textarea></td>
+      <td><input class="di" style="width:64px;text-align:center" value="${esc(r.po.join(", "))}" onchange="v22SetRow(${i},'po',this.value)" placeholder="1–12"></td>
+      <td><select class="di" onchange="v22SetRow(${i},'dom',this.value);renderV22Start()"><option ${r.dom==="C"?"selected":""}>C</option><option ${r.dom==="A"?"selected":""}>A</option><option ${r.dom==="P"?"selected":""}>P</option></select></td>
+      <td><input class="di" style="width:48px;text-align:center" value="${esc(r.lvl)}" onchange="v22SetRow(${i},'lvl',this.value)" placeholder="1–${v22MaxLevel(r.dom)}"></td>
+      <td><input class="di" style="width:80px;text-align:center" value="${esc(r.wk.join(", "))}" onchange="v22SetRow(${i},'wk',this.value)" placeholder="${v3?"1–9":"1–8"}" title="Numbers, or a range such as 1-4"></td>
+      <td><input class="di" style="width:96px;text-align:center" value="${esc(r.wp.join(", "))}" onchange="v22SetRow(${i},'wp',this.value)" placeholder="1–7" title="Numbers, or a range such as 1-7 for all seven"></td>
+      <td><input class="di" style="width:80px;text-align:center" value="${esc(r.ea.join(", "))}" onchange="v22SetRow(${i},'ea',this.value)" placeholder="1–5" title="Numbers, or a range such as 1-5 for all five"></td>
+      <td>${v3? `<input class="di" style="width:80px;text-align:center" value="${esc(r.sdg.join(", "))}" onchange="v22SetRow(${i},'sdg',this.value)" placeholder="1–17">` : `<span style="color:var(--muted);font-size:11px">v3 only</span>`}</td>
+      <td class="no-print"><button class="icon-btn" title="Delete this row" onclick="v22DelRow(${i})">✕</button></td>
+    </tr>`).join("");
+  el.innerHTML = `
+  <div class="card">
+    <h2>Start from a Version 2.2 Course Outline</h2>
+    <p class="hint">Enter the course and its COs as they stand in the outline — §13 and §14 in one table, numbers only. Type them here, or download the template, fill it in a spreadsheet and import it. Nothing else from the old course is needed. Next comes the conversion: a prompt for your AI tool, its proposal pasted back, checked by OCM, then the committee rows and the Version 3 course.</p>
+    <div class="grid c2" style="max-width:900px">
+      <label class="fld">Course Code <input class="di" value="${esc(m.code)}" placeholder="e.g., ME 4011" onchange="v22SetMeta('code',this.value)"></label>
+      <label class="fld">Course Title <input class="di" value="${esc(m.title)}" placeholder="e.g., Renewable Energy" onchange="v22SetMeta('title',this.value)"></label>
+      <label class="fld">Credit Hours <input class="di" value="${esc(m.credit)}" placeholder="e.g., 3.0" onchange="v22SetMeta('credit',this.value)"></label>
+      <label class="fld">Semester / Session <input class="di" value="${esc(m.sem)}" placeholder="e.g., Fall 2025" onchange="v22SetMeta('sem',this.value)"></label>
+      <label class="fld">Program <input class="di" value="${esc(m.program)}" placeholder="e.g., B.Sc. in Mechanical Engineering" onchange="v22SetMeta('program',this.value)"></label>
+      <label class="fld">Section <span style="font-weight:400;color:var(--muted);font-size:11px">(leave blank if the course has none)</span> <input class="di" value="${esc(m.section)}" placeholder="e.g., A" onchange="v22SetMeta('section',this.value)"></label>
+      <label class="fld">Cohort <input class="di" value="${esc(m.cohort)}" placeholder="e.g., Level 4/Term 1, Fall 2025" onchange="v22SetMeta('cohort',this.value)"></label>
+      <label class="fld">Course Teacher(s) <input class="di" value="${esc(m.inst)}" placeholder="e.g., Prof. Dr. Mazharul Islam" onchange="v22SetMeta('inst',this.value)"></label>
+      <label class="fld" title="A 7 under Knowledge Profile is K7 in a Version 2.2 outline and WK7 in a Version 3 one; every cell is checked against this choice">This outline follows
+        <select class="di" onchange="v22SetMeta('fw',this.value)"><option value="v2.2" ${!v3?"selected":""}>Version 2.2 — to convert</option><option value="v3" ${v3?"selected":""}>Version 3 — already approved</option></select></label>
+      <label class="fld" title="Applies to outcomes mapped to PO1–PO6. Changing it here sets the installation default, as with the indicator set.">Outcomes on the complex-problem POs (PO1–PO6)
+        <select class="di" onchange="instSet('defaults.minLvlCEP',this.value);renderV22Start()">
+          <option value="keep" ${cepLevelPolicy()!=="c3"?"selected":""}>Keep the level as written</option>
+          <option value="c3" ${cepLevelPolicy()==="c3"?"selected":""}>Require Apply (C3) or above</option>
+        </select></label>
+      <label class="fld">Which PO Indicator set does your programme report against?
+        <select class="di" onchange="v22SetMeta('piSet',this.value)">${Object.values(piSetsAll()).map(x=>`<option value="${esc(x.id)}" ${x.id===m.piSet?"selected":""}>${esc(x.name)} — ${piCount(x)} indicators</option>`).join("")}</select></label>
+    </div>
+    <p style="font-size:11.5px;color:var(--muted);margin:2px 0 0;line-height:1.5">This is a <b>departmental decision, not a personal one</b> — ask your OBE coordinator if you are unsure. Your answer becomes this installation's default, so you will not be asked again. It governs the indicators offered in the conversion prompt and ticked on the new course. The level rule beside it is a departmental decision too: on <b>Require Apply (C3)</b> the conversion raises a C1 or C2 outcome mapped to PO1–PO6 and asks the committee to sign the change; on <b>Keep the level</b> it leaves the outcome alone and reports it.</p>
+    <div class="btn-row" style="margin-top:10px">
+      <button class="btn secondary small" onclick="downloadCOTemplate()">⬇ Download template (CSV)</button>
+      <label class="btn secondary small" style="cursor:pointer">⬆ Import CO table (CSV)<input type="file" accept=".csv,text/csv" style="display:none" onchange="importCOTable(this)"></label>
+      <button class="btn secondary small" onclick="exportCOTable()">⬇ Export this table</button>
+    </div>
+    <div class="tbl-wrap" style="margin-top:10px"><table class="tbl">
+      <thead><tr><th>CO</th><th style="min-width:280px">CO Statement</th><th>PO</th><th>BT Domain</th><th>BT Level</th>
+        <th title="BAETE Table 6.1">Knowledge Profile<br><span style="font-weight:400;font-size:11px;color:var(--muted)">${v3?"WK1–WK9":"K1–K8"}</span></th>
+        <th title="BAETE Table 6.2 — Range of Complex Engineering Problem Solving">Range of Complex Problem Solving<br><span style="font-weight:400;font-size:11px;color:var(--muted)">${v3?"WP1–WP7":"P1–P7"}</span></th>
+        <th title="BAETE Table 6.3 — Range of Complex Engineering Activities">Range of Complex Engineering Activities<br><span style="font-weight:400;font-size:11px;color:var(--muted)">${v3?"EA1–EA5":"A1–A5"}</span></th>
+        <th>SDG</th><th class="no-print"></th></tr></thead>
+      <tbody>${rowsHtml}</tbody></table></div>
+    <div class="btn-row" style="margin-top:8px"><button class="btn secondary small" onclick="v22AddRow()">+ Add a CO row</button></div>
+    ${(()=>{ const me=v22MetaErrors(); const all=me.map(x=>"Course Information — "+x+" is empty").concat(errs);
+      return all.length? `<div style="background:#fff3f1;border-left:3px solid #c0392b;padding:8px 12px;border-radius:6px;margin-top:10px;font-size:12.5px;line-height:1.5"><b>Before building:</b><br>${all.map(esc).join("<br>")}</div>`:""; })()}
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn" ${(errs.length||v22MetaErrors().length)?"disabled":""} title="${(errs.length||v22MetaErrors().length)? "Complete every Course Information field and correct the CO rows first":"Build the record"}" onclick="buildV22Course()">${v3? "Add this Version 3 course →" : "Build the course record and convert →"}</button>
+      <button class="btn secondary" onclick="renderDashboard()">Cancel</button>
+    </div>
+  </div>`;
+}
+function buildV22Course(){
+  const st=v22State(), m=st.meta, v3=m.fw==="v3";
+  const me=v22MetaErrors();
+  if(me.length){ alert("Complete the Course Information first:\n\n• "+me.join("\n• ")); return; }
+  const errs=validateCORows(st.rows, m.fw); if(errs.length){ alert(errs.join("\n")); return; }
+  const c=ensureAust({ id:uid(), code:m.code, title:m.title, credit:m.credit, semester:m.sem, program:m.program,
+    instructor:m.inst, section:m.section, cohort:m.cohort,
+    cos:[], assessments:[], students:[], marks:{}, cfg:defaultCfg() });
+  c.aust.fw = v3? "v3":"v2.2";
+  st.rows.forEach(r=>{
+    const lv=parseInt(r.lvl,10);
+    const co={ id:uid(), statement:r.statement, btDomain: r.dom==="A"?"Affective": r.dom==="P"?"Psychomotor":"Cognitive",
+      bloom: r.dom==="C"? (BLOOMS[lv-1]||"") : "", bloomA: r.dom==="A"? (BLOOM_A[lv-1]||"") : "", bloomP: r.dom==="P"? (BLOOM_P[lv-1]||"") : "",
+      po:{}, wk:r.wk.slice(), wp:r.wp.slice(), ea:r.ea.slice() };
+    if(v3) co.sdg=r.sdg.slice();
+    r.po.forEach(p=>{ co.po[p]=3; });
+    syncAttrStrings(c,co); c.cos.push(co);
+  });
+  c.aust.piSetId = m.piSet || (inst().defaults.piSet||"baete");
+  if(v3){ delete c.aust.pis; coursePIs(c); } else { c.aust.src22=true; migPropose(c); }
+  state.courses.push(c); state.activeCourseId=c.id;
+  window._v22=null;
+  save(); refresh(); showTab("cos");
+  toast(c.cos.length+" CO"+(c.cos.length>1?"s":"")+(v3? " added on Version 3" : " recorded — now convert them"));
+}
+/* ===== The conversion: prompt out, proposal in, rules as referee ===== */
+function migPromptText(c){
+  const set=piSet(courseSetId(c)) || PI_SETS_BUILTIN.baete;
+  const pis=set.pis;
+  const L=[];
+  L.push("You are helping a university teacher convert the Course Outcomes (COs) of one course from the BAETE Accreditation Manual Version 2.2 to Version 3.0. Propose; do not decide. The teacher and a departmental committee will approve or amend every line.");
+  L.push("");
+  L.push("WHAT YOU ARE PRODUCING — read this before the rules. You are proposing the CLAIM each outcome will make under Version 3: its PO, its Knowledge Profile attributes, its complex-problem and complex-activity attributes, its indicators and its SDGs. The teacher then designs the semester's assessment to match that claim, and the software audits the evidence afterwards, question by question. You are NOT auditing evidence and you have none — no assessment items, no rubrics, no marks are given to you, and none are needed. So never withhold an attribute on the ground that you cannot see the evidence for it; that judgement belongs to a later stage and to a different tool. Propose what the outcome, read against the Version 3 PO statement, should claim.");
+  L.push("");
+  L.push(`COURSE: ${c.code||""} ${c.title||""} · ${c.semester||""} · ${c.instructor||""}`.trim());
+  L.push("");
+  L.push("CURRENT COs (Version 2.2). Format: CO | statement | PO | BT domain+level | K | P | A");
+  c.cos.forEach((co,i)=>{
+    const dom=(co.btDomain||"Cognitive").charAt(0);
+    const lvl = dom==="A"? lvlTag(co.bloomA) : dom==="P"? lvlTag(co.bloomP) : ("C"+(BLOOMS.indexOf(co.bloom)+1));
+    L.push(`CO${i+1} | ${co.statement||""} | ${posOf(co)||"—"} | ${lvl} | ${(co.wk||[]).map(k=>"K"+k).join(", ")||"—"} | ${(co.wp||[]).map(k=>"P"+k).join(", ")||"—"} | ${(co.ea||[]).map(k=>"A"+k).join(", ")||"—"}`);
+  });
+  L.push("");
+  L.push("VERSION 3 PROGRAMME OUTCOMES (official statements):");
+  for(let p=1;p<=N_PO;p++) L.push(`PO${p} ${PO_INFO_V3[p]}: ${PO_STMT_V3[p]||""}`);
+  L.push("");
+  L.push("KNOWLEDGE PROFILE WK1–WK9:"); for(let k=1;k<=9;k++) L.push(`WK${k}: ${ATTR_V3.wk.tip[k]||""}`);
+  L.push("COMPLEX PROBLEM SOLVING WP1–WP7:"); for(let k=1;k<=7;k++) L.push(`WP${k}: ${ATTR_V3.wp.tip[k]||""}`);
+  L.push("COMPLEX ENGINEERING ACTIVITIES EA1–EA5:"); for(let k=1;k<=5;k++) L.push(`EA${k}: ${ATTR_V3.ea.tip[k]||""}`);
+  L.push("");
+  L.push(`PO INDICATORS — the programme's adopted set, "${set.name}" (label = PO number + letter):`);
+  for(let p=1;p<=N_PO;p++) (pis[p]||[]).forEach((t,k)=>L.push(`${piLabel(p,k)}: ${t}`));
+  L.push("");
+  L.push("UN SUSTAINABLE DEVELOPMENT GOALS: "+SDG_LIST.map((n,i)=>(i+1)+" "+n).join("; "));
+  L.push("");
+  L.push("RULES — follow every one:");
+  L.push("1. PO correspondence: v2.2 PO1–PO5 → v3 PO1–PO5. v2.2 PO6 (The Engineer and Society) → v3 PO6. v2.2 PO7 (Environment and Sustainability) → v3 PO6, NOT v3 PO7 (which is Ethics). v2.2 PO8→PO7, PO9→PO8, PO10→PO9, PO11→PO10, PO12→PO11. v3 PO12 Entrepreneurship is new — propose it only if the CO plainly concerns turning ideas into a business. Read the v3 statement before confirming any PO; do not renumber mechanically.");
+  L.push("2. Keep ONE PO per CO unless the current outline has more. Prefer the PO whose statement the CO most directly evidences.");
+  L.push("3. Knowledge Profile: K1→WK1 … K8→WK8 positionally, then re-read WK1, WK2, WK5 and WK7 — their scope widened (social sciences; data analysis and computing; whole-life cost, net zero carbon, resource re-use; sustainable development and public safety). Add a widened WK only if the CO genuinely covers it. WK9 (ethics, inclusion, diversity) is NEW and cannot be inherited from any K — propose it only where the CO teaches it.");
+  L.push("4. P1–P7 → WP1–WP7 and A1–A5 → EA1–EA5 positionally. BAETE Table 6.2: a complex engineering problem has \"WP1 and some or all of WP2 to WP7\" — so WP1 alone is NOT a complex problem: whenever you propose WP at all, propose WP1 together with at least one of WP2–WP7. Table 6.3 sets no gateway: an activity is complex with some or all of EA1–EA5, so a single EA is valid.");
+  L.push("4a. Which POs expect them (from the PO statements themselves, ACC-MAN-02 v3.0 §5.2): PO1, PO2, PO3, PO4, PO5 and PO6 are each written in terms of COMPLEX ENGINEERING PROBLEMS, so a CO proposed for any of them would normally carry WP1 plus at least one more. PO9 is the only PO written in terms of COMPLEX ENGINEERING ACTIVITIES, so a CO proposed for PO9 would normally carry at least one EA. PO7, PO8, PO10, PO11 and PO12 mention neither and normally carry no WP and no EA.");
+  L.push("4b. THE DEFAULT IS TO PROPOSE, NOT TO WITHHOLD. For every CO you map to PO1–PO6, propose WP1 and at least one of WP2–WP7, chosen from the wording of the outcome itself. Writing — for such a CO is the exception, not the safe answer: use it only where you positively judge the outcome foundational — a knowledge or comprehension level outcome (C1 or C2) whose complex-problem work plainly belongs to a later course — and then say which kind of later course carries it. Do not write — because you cannot see the assessment; you are not meant to see it.");
+  L.push("4c. Choosing the WP attributes from the outcome's own words (BAETE Table 6.2): design, develop, formulate or optimise a system → WP3 (no obvious solution; abstract thinking, creativity, originality), and usually WP7 (many components or sub-problems needing a systems approach). Considering social, environmental, economic, ethical, legal or safety factors together → WP2 (wide-ranging or conflicting requirements). Selecting or siting for a particular context → WP2, often WP4 (infrequently encountered or novel issues). Evaluating or analysing with modern tools and engineering fundamentals → WP1, with the second attribute taken from what the evaluation actually weighs: WP2 where technical and non-technical factors compete, WP3 only where the choice genuinely has no obvious answer and demands modelling judgement, WP4 where the technology or context is unfamiliar. Running a standard tool by a standard method is not by itself WP3. Working across disciplines or with diverse stakeholders → WP6. New or emerging technology → WP4. Work not covered by standards or codes → WP5. WP1 accompanies all of these, because each requires in-depth knowledge at WK3–WK6 or WK8.");
+  L.push("4d. Attributes already claimed in the Version 2.2 outline are APPROVED RECORD, not suggestions. Map them positionally — P1→WP1, P7→WP7, A2→EA2 — and state the mapping as a fact. Do not hedge them with \"only if the assessment evidences …\"; the committee prunes a claim it disagrees with, and the software checks the evidence later. You may ADD an attribute the outcome's wording clearly warrants.");
+  L.push("4f. APPLY (C3) IS THE FLOOR FOR A COMPLEX-PROBLEM CLAIM. WP1 speaks of a first-principles analytical approach and WP3 of modelling and originality: nothing is being solved at Remember or Understand, so a CO at C1 or C2 must NOT carry any WP, whatever PO it maps to. This does not apply to EA — a complex engineering ACTIVITY can be comprehended without the outcome solving a complex problem, which is why indicator 9a sits at comprehension level. Treat WP3 as belonging at Evaluate or Create; at C3 it is possible but say in the Reason why.");
+  if(cepLevelPolicy()==="c3"){
+    L.push("4g. DEPARTMENTAL POLICY — RAISE THE LEVEL. This programme has decided that an outcome mapped to PO1–PO6 sits at Apply (C3) or above. So where a Version 2.2 CO mapped to one of those POs stands at C1 or C2, RAISE it to C3, rewrite the statement with an observable C3 verb that keeps the subject matter the teacher already teaches, and propose WP1 with at least one of WP2–WP7. Begin the Reason with the words \"Level raised under departmental policy\" and name the old level. Do not invent new subject matter to justify the level: if the outcome cannot honestly be taught and assessed at C3 with the content it already covers, leave the level alone, propose no WP, and say in the Reason that the outcome should be re-mapped to a PO that is not written in terms of complex problems, naming the PO you would use. An outcome raised on paper and examined at C2 is a Criterion 2 weakness, which is worse than an honest C2.");
+  } else {
+    L.push("4g. Where a CO mapped to PO1–PO6 stands at C1 or C2, DO NOT raise the level — that changes what will be taught and assessed, and is the committee's decision, not yours. Keep the level, propose no WP, and say in the Reason that the outcome is foundational and that the PO mapping may need review because PO1–PO6 are written in terms of solving complex problems.");
+  }
+  L.push("4e. The Knowledge Profile attributes cited in each PO statement, as guidance rather than a rule: PO1 and PO2 cite WK1–WK4; PO3 cites WK5; PO4 cites WK8; PO5 cites WK2 and WK6; PO6 cites WK1, WK5 and WK7; PO7 and PO8 cite WK9; PO11 cites WK8; PO9, PO10 and PO12 cite none. If your proposed WK set shares nothing with the cited set for that PO, check the mapping.");
+  L.push("5. Wording: the statement must open with an observable action verb at the SAME Bloom level as now. Rewrite an opening of know / understand / comprehend / learn / appreciate / be familiar with / be aware of / grasp / realise into an observable verb at that level; otherwise keep the teacher's wording. Never raise the level.");
+  L.push("6. PO Indicators: EVERY proposed PO must carry at least one indicator — one, or at most two — chosen from that PO's own indicators above and given by label (e.g. 6a). Choose the indicator the CO contributes to MOST, even if the contribution is partial.");
+  L.push("6a. Do NOT require the indicator's verb level to match the CO's Bloom level. An indicator states what the PROGRAMME expects of a graduate for that PO; one course contributes only a part of it. A comprehension-level CO contributes to an analysis-level indicator by building the knowledge that the analysis rests on — propose the indicator and say that in the Reason. Refusing an indicator on level grounds would mean no comprehension-level CO could ever be mapped to any PO, which contradicts the mapping the department has already approved.");
+  L.push("6b. Write — only if you conclude that NONE of that PO's indicators is served by this CO at all. That is not a neutral answer: it means the PO mapping itself is unsupported. In that case say so plainly in the Reason and name the PO you think the CO really serves, with the indicator it would carry there.");
+  L.push("7. SDGs: only where the proposed PO is 2, 3 or 6, at most three goals, and only goals this course can plausibly teach AND assess. Otherwise —. An SDG never substitutes for a WK/WP/EA attribute.");
+  L.push("8. Departmental instructions (ME programme, 31 Aug 2026): all courses move to Version 3; CO–PO mappings are revised by each teacher and approved by the committee; SDG evidence must appear in teaching and assessment; WK5, WK7 and WK9 need special attention. The minutes also require that WP and EA claims rest on actual teaching and assessment evidence — that instruction is addressed to the TEACHER, across the coming semester, not to you now: a claim you propose here obliges the teacher to design assessment that evidences it, and the software checks that afterwards, question by question. It is not a reason to withhold a claim at this stage.");
+  L.push("");
+  L.push("BEFORE YOU WRITE THE OUTPUT, check your own lines: every CO mapped to PO1–PO6 has either two or more WP numbers, or a Reason that says in as many words why the outcome is foundational. Any CO mapped to PO9 has at least one EA. No CO at C1 or C2 carries any WP at all. No Reason contains the words \"only if\" about an attribute you have proposed.");
+  L.push("");
+  L.push("OUTPUT — exactly one line per CO, in this order, no other text before or after the block, no markdown table:");
+  L.push("CO<n> | <proposed statement> | PO: <numbers> | Level: <C/A/P + number> | WK: <numbers or —> | WP: <numbers or —> | EA: <numbers or —> | PI: <labels or —> | SDG: <numbers or —> | Reason: <one sentence naming what changed and why>");
+  /* Example labels are taken from the set actually loaded — a hard-coded "6f" is wrong for a set
+     whose PO6 stops at 6c, and an example citing a label the model has just been told does not
+     exist teaches it to invent them. */
+  const exPI = (po, want) => { const list=(pis[po]||[]); if(!list.length) return "—";
+    return piLabel(po, Math.min(want, list.length-1)); };
+  L.push("Illustrative examples only — do not copy their values. Each obeys every rule above.");
+  L.push(`CO9 | analyse the life-cycle environmental impact of a proposed power plant | PO: 6 | Level: C4 | WK: 5, 7 | WP: 1, 2 | EA: — | PI: ${exPI(6,1)} | SDG: 7, 13 | Reason: v2.2 PO7 becomes v3 PO6; WK5 added because whole-life cost and net zero carbon are now within its scope; ${exPI(6,1)} matches the environmental impact this CO analyses, and WP2 because the life-cycle assessment weighs environmental against economic requirements.`);
+  L.push("Proposing WP from the wording alone, with no assessment in view:");
+  L.push(`CO13 | select a heat-recovery configuration for an existing plant under conflicting cost, emissions and space constraints | PO: 5 | Level: C5 | WK: 2, 6 | WP: 1, 2 | EA: — | PI: ${exPI(5,0)} | SDG: — | Reason: PO5 and C5 are retained and K6 maps to WK6, with WK2 added for the modelling the tools require; WP1 because the selection rests on in-depth engineering knowledge, and WP2 because cost, emissions and space pull against one another; ${exPI(5,0)} matches the use of modern tools.`);
+  L.push("Where the CO's level is below the indicator's — the indicator is still proposed, and the dash in WP is justified as the rule requires:");
+  L.push(`CO11 | explain the working principles of the proven renewable energy systems | PO: 6 | Level: C2 | WK: 7 | WP: — | EA: — | PI: ${exPI(6,0)} | SDG: 7 | Reason: v2.2 PO7 becomes v3 PO6 and "comprehend" is replaced by the observable C2 verb "explain"; ${exPI(6,0)} is proposed because this CO builds the knowledge of societal and economic impacts on which the PO6 analysis rests; no WP is proposed because this comprehension-level outcome is foundational and the complex-problem work sits in the later design and site-assessment courses.`);
+  L.push("Where no indicator of the proposed PO is served at all — which means the PO mapping itself is wrong (note that a C1 outcome carries no WP, as rule 4f requires):");
+  L.push(`CO12 | list the standard safety codes applicable to pressure vessels | PO: 6 | Level: C1 | WK: 7 | WP: — | EA: — | PI: — | SDG: — | Reason: no PO6 indicator is served, because every PO6 indicator requires analysing or evaluating impacts and this CO does none of that; no WP is proposed because the outcome is foundational at recall level. The PO6 mapping looks unsupported — the CO appears to serve PO1 Engineering Knowledge, where it would carry ${exPI(1,1)}.`);
+  return L.join("\n");
+}
+function copyMigPrompt(){ const c=activeCourse(); if(!c) return; copyPromptText(migPromptText(c)); }
+function migParseProposal(text, c){
+  const rows={}; const errs=[];
+  String(text||"").split(/\r?\n/).forEach(line=>{
+    const m=/^\s*\**\s*CO\s*(\d+)\s*\**\s*\|(.*)$/i.exec(line); if(!m) return;
+    const idx=+m[1]-1; const co=c.cos[idx]; if(!co){ errs.push("CO"+(idx+1)+" is not in this course"); return; }
+    const parts=m[2].split("|").map(x=>x.trim());
+    const r={ statement:"", po:[], lvl:"", wk:[], wp:[], ea:[], pi:[], sdg:[], reason:"" };
+    parts.forEach((pt,k)=>{
+      const lab=/^([A-Za-z]+)\s*:\s*(.*)$/.exec(pt);
+      if(!lab){ if(k===0 && !r.statement) r.statement=pt; return; }
+      const key=lab[1].toLowerCase(), val=lab[2].trim();
+      if(key==="po") r.po=numsIn(val,N_PO);
+      else if(key==="level") r.lvl=val.replace(/\s+/g,"").toUpperCase();
+      else if(key==="wk") r.wk=numsIn(val,9);
+      else if(key==="wp") r.wp=numsIn(val,7);
+      else if(key==="ea") r.ea=numsIn(val,5);
+      else if(key==="pi") r.pi=(val.match(/\b(\d{1,2})([a-z])\b/gi)||[]).map(x=>x.toLowerCase());
+      else if(key==="sdg") r.sdg=numsIn(val,17);
+      else if(key==="reason") r.reason=val;
+    });
+    if(!r.statement) r.statement=co.statement||"";
+    rows[co.id]=r;
+  });
+  return { rows, errs };
+}
+function migReadProposal(){
+  const c=activeCourse(); if(!c) return;
+  const ta=document.getElementById("migPaste"); const txt=ta? ta.value : "";
+  const { rows, errs } = migParseProposal(txt, c);
+  const n=Object.keys(rows).length;
+  if(!n){ alert("No CO lines were recognised.\n\nEach line must begin with CO1, CO2 … and separate its fields with |, as the prompt's OUTPUT section shows."); return; }
+  const m=migOf(c);
+  c.cos.forEach(co=>{
+    const r=rows[co.id]; if(!r) return;
+    const cur=m.rows[co.id]||{};
+    m.rows[co.id]=Object.assign(cur,{ statement:r.statement, po:r.po.length? r.po : (cur.po||[]), lvl:r.lvl,
+      wk:r.wk, wk9:r.wk.indexOf(9)>=0, wp:r.wp, ea:r.ea, pi:r.pi, sdg:r.sdg, reason:r.reason, accept:true, fromAI:true });
+  });
+  m.proposalAt=new Date().toISOString().slice(0,10);
+  save(); renderCOs();
+  toast(n+" proposal"+(n>1?"s":"")+" read — review the flags, then draft the committee rows"+(errs.length? " ("+errs.length+" line(s) skipped)":""));
+}
+/* The referee: deterministic checks on whatever was proposed — by the AI or by hand. */
+/* Apply (C3) is the floor for a complex-problem claim: WP1 speaks of an analytical approach and
+   WP3 of modelling and originality, and at Remember or Understand nothing is being solved. This
+   holds regardless of the policy below. EA is deliberately exempt — a complex ACTIVITY can be
+   comprehended (indicator 9a is exactly that) without the outcome solving a complex problem. */
+const CEP_MIN_LEVEL = 3;
+function cepLevelPolicy(){ return (inst().defaults||{}).minLvlCEP==="c3" ? "c3" : "keep"; }
+function coLevelNum(co){
+  const d=(co.btDomain||"Cognitive").charAt(0);
+  if(d==="A") return +String(lvlTag(co.bloomA)||"").replace(/\D/g,"")||0;
+  if(d==="P") return +String(lvlTag(co.bloomP)||"").replace(/\D/g,"")||0;
+  return BLOOMS.indexOf(co.bloom)+1;
+}
+function migRefereeFlags(c, co){
+  const f=[]; const r=migOf(c).rows[co.id]||{};
+  const srcPOs=Object.keys(co.po||{}).filter(p=>co.po[p]>0).map(Number);
+  const w=vagueVerbCheck(r.statement||co.statement);
+  if(w) f.push({sev:"danger", text:`Opens with “${esc(w.v)}” — not observable. Rewrite at the same level.`});
+  if(srcPOs.indexOf(7)>=0 && (r.po||[]).indexOf(7)>=0) f.push({sev:"danger", text:"v2.2 PO7 was Environment and Sustainability; v3 PO7 is Ethics. This CO almost certainly belongs to v3 PO6."});
+  srcPOs.forEach(p=>{ const t=V22_TO_V3_PO[p]; if(t && (r.po||[]).indexOf(t)<0 && (r.po||[]).length) f.push({sev:"warn", text:`v2.2 PO${p} normally becomes v3 PO${t}; the proposal says PO${r.po.join(", PO")} — confirm this is deliberate.`}); });
+  if(!(r.po||[]).length) f.push({sev:"danger", text:"No PO proposed."});
+  const wp=(r.wp||[]), ea=(r.ea||[]), pos=(r.po||[]);
+  if(wp.length && wp.indexOf(1)<0) f.push({sev:"danger", text:"WP claimed without WP1 — Table 6.2 defines a complex problem as WP1 <i>and</i> some or all of WP2–WP7."});
+  else if(wp.length===1 && wp[0]===1) f.push({sev:"danger", text:"WP1 alone is not a complex engineering problem — Table 6.2 requires WP1 <b>and</b> at least one of WP2–WP7. Add the attribute that makes the problem complex, or claim none."});
+  if(/\bonly if\b/i.test(r.reason||"") && (wp.length||ea.length||(r.pi||[]).length))
+    f.push({sev:"info", text:"The reason hedges an attribute it proposes (“only if …”). A claim is either made and taken to the committee, or not made — the evidence is checked later, in the CA and CQI Sections."});
+  /* The proposed level, or the existing one where the proposal is silent. */
+  const lvM=/^([CAP])(\d)$/.exec(r.lvl||""); const propLvl = lvM? +lvM[2] : coLevelNum(co);
+  const propDom = lvM? lvM[1] : (co.btDomain||"Cognitive").charAt(0);
+  const lowCog = propDom==="C" && propLvl>0 && propLvl<CEP_MIN_LEVEL;
+  if(lowCog && wp.length)
+    f.push({sev:"danger", text:`A complex-problem claim at ${propDom}${propLvl}. WP1 requires a first-principles analytical approach and WP3 modelling and originality — nothing is solved below Apply (C3). Either the level is understated, or the WP claim belongs to a later outcome.`});
+  if(cepPOs(pos).length && !wp.length){
+    const foundational=/foundational/i.test(r.reason||"");
+    if(cepLevelPolicy()==="c3" && lowCog)
+      f.push({sev:"danger", text:`PO${cepPOs(pos).join(", PO")} with an outcome at ${propDom}${propLvl}. Departmental policy sets Apply (C3) as the floor for outcomes mapped to the complex-problem POs — raise the level and add WP1 with at least one more, or map this outcome to a PO that is not written in terms of complex problems.`});
+    else if(foundational)
+      /* The Reason has done what the rule asks; a warning beside a justified line reads as a
+         defect and teaches the user to ignore the colour. The committee is still told what to check. */
+      f.push({sev:"info", text:`No WP claimed on PO${cepPOs(pos).join(", PO")}; the Reason calls the outcome foundational. The committee should satisfy itself that the later course named does carry the complex-problem work.`});
+    else
+      f.push({sev:"warn", text:`PO${cepPOs(pos).join(", PO")} ${cepPOs(pos).length>1?"are":"is"} written in terms of complex engineering problems, but this CO claims no WP. That is allowed for a foundational outcome — say so in the Reason — otherwise add WP1 and at least one more.`});
+  }
+  if(wp.indexOf(3)>=0 && propDom==="C" && propLvl===CEP_MIN_LEVEL)
+    f.push({sev:"info", text:"WP3 at C3. Abstract thinking, creativity and originality in modelling usually sit at Evaluate or Create; at Apply it is possible but worth a sentence saying why."});
+  if(ceaPOs(pos).length && !ea.length) f.push({sev:"warn", text:"PO9 is written in terms of complex engineering activities, but this CO claims no EA. Allowed for a foundational outcome, if the Reason says so."});
+  if(ea.length && !ceaPOs(pos).length) f.push({sev:"warn", text:`EA claimed on PO${pos.join(", PO")} — only PO9 is written in terms of complex engineering activities. Confirm this is deliberate.`});
+  if(wp.length && !cepPOs(pos).length) f.push({sev:"warn", text:`WP claimed on PO${pos.join(", PO")} — the complex-problem POs are PO1–PO6. Confirm this is deliberate.`});
+  pos.forEach(pp=>{ const cited=PO_WK_CITED[pp]||[];
+    if(cited.length && (r.wk||[]).length && !(r.wk||[]).some(k=>cited.indexOf(k)>=0))
+      f.push({sev:"info", text:`The PO${pp} statement cites WK${cited.join(", WK")}; this CO claims WK${(r.wk||[]).join(", WK")}. Worth checking the mapping.`}); });
+  (r.sdg||[]).length && (r.po||[]).every(p=>[2,3,6].indexOf(p)<0) && f.push({sev:"warn", text:"SDGs proposed on a PO other than 2, 3 or 6 — keep only if the course will teach and assess them."});
+  if((r.sdg||[]).length>3) f.push({sev:"warn", text:"More than three SDGs — claim narrowly."});
+  if(r.wk9) f.push({sev:"info", text:"WK9 proposed — new in Version 3; confirm this CO actually teaches ethics, inclusion or diversity."});
+  if((r.po||[]).length && !(r.pi||[]).length && r.fromAI){
+    /* A CO mapped to a PO must contribute to at least one of that PO's indicators, or the mapping
+       is unsupported. An indicator need not match the CO's Bloom level — it states what the
+       programme expects of a graduate, to which one course contributes a part. */
+    f.push({sev:"warn", text:`PO${(r.po||[]).join(", PO")} is proposed with no indicator, which leaves the mapping unsupported. Tick the indicator this CO contributes to most — a partial contribution is enough, and the indicator need not sit at the CO's own Bloom level — or change the PO. Candidates are offered under ✎.`});
+  }
+  (r.po||[]).forEach(pp=>{ if((r.pi||[]).length && !(r.pi||[]).some(l=>l.replace(/[a-z]$/,"")===String(pp)))
+    f.push({sev:"warn", text:`PO${pp} carries no indicator of its own — every proposed PO needs at least one.`}); });
+  const set=piSet(courseSetId(c)); if(set && (r.pi||[]).length){
+    r.pi.forEach(lbl=>{ const mm=/^(\d+)([a-z])$/.exec(lbl); const p=mm? +mm[1]:0, k=mm? mm[2].charCodeAt(0)-97 : -1;
+      if(!mm || !(set.pis[p]||[])[k]) f.push({sev:"warn", text:`Indicator ${esc(lbl)} is not in the set “${esc(set.name)}”.`});
+      else if((r.po||[]).indexOf(p)<0) f.push({sev:"warn", text:`Indicator ${esc(lbl)} belongs to PO${p}, which is not a proposed PO.`}); });
+  }
+  const lv=/^([CAP])(\d)$/.exec(r.lvl||""); const dom=(co.btDomain||"Cognitive").charAt(0);
+  const curLvl = dom==="A"? +(lvlTag(co.bloomA)||"").replace(/\D/g,"") : dom==="P"? +(lvlTag(co.bloomP)||"").replace(/\D/g,"") : (BLOOMS.indexOf(co.bloom)+1);
+  if(lv && +lv[2]>curLvl){
+    const byPolicy = cepLevelPolicy()==="c3" && dom==="C" && curLvl<CEP_MIN_LEVEL && +lv[2]===CEP_MIN_LEVEL && cepPOs(pos).length;
+    f.push(byPolicy
+      ? {sev:"info", text:`Level raised from C${curLvl} to C${CEP_MIN_LEVEL} under the departmental policy for complex-problem outcomes. This changes what will be taught and assessed, so the Specialization Committee signs it on the CO Modification Request Form, and the semester's questions must reach that level.`}
+      : {sev:"warn", text:`Level raised from ${dom}${curLvl} to ${lv[1]}${lv[2]} — the rules say keep the level.`});
+  }
+  return f;
+}
+/* The indicators of every proposed PO, offered as chips: correcting a missing one takes a
+   click rather than another round trip to the AI. */
+function migPICandidates(c, co, r){
+  const set=piSet(courseSetId(c)) || PI_SETS_BUILTIN.baete;
+  const pos=(r.po||[]);
+  if(!pos.length) return `<div style="font-size:11.5px;color:var(--muted)">Set a PO to see its indicators.</div>`;
+  const groups=pos.map(p=>{
+    const list=(set.pis[p]||[]);
+    if(!list.length) return `<div style="font-size:11.5px;color:var(--muted)">PO${p} has no indicators in “${esc(set.name)}”.</div>`;
+    const chips=list.map((t,k)=>{
+      const lbl=piLabel(p,k), on=(r.pi||[]).indexOf(lbl)>=0;
+      return `<button class="btn ${on?"":"secondary"} small" style="padding:2px 9px;font-size:11.5px" title="${esc(t)}" onclick="migTogglePI('${co.id}','${lbl}')">${on?"✓ ":""}${lbl}</button>`;
+    }).join(" ");
+    return `<div style="margin-top:4px"><span style="font-size:11.5px;color:var(--muted)">PO${p} —</span> ${chips}</div>`;
+  }).join("");
+  return `<div style="flex:1 1 100%;min-width:100%">${groups}
+    <div style="font-size:11px;color:var(--muted);margin-top:3px">Hover a label for its full text. A partial contribution is enough, and an indicator need not sit at this CO's Bloom level.</div></div>`;
+}
+function migTogglePI(coId, lbl){
+  const c=activeCourse(); if(!c) return; const r=migOf(c).rows[coId]; if(!r) return;
+  if(!Array.isArray(r.pi)) r.pi=[];
+  const i=r.pi.indexOf(lbl);
+  if(i>=0) r.pi.splice(i,1); else r.pi.push(lbl);
+  r.pi.sort();
+  save(); renderCOs();
+}
+function migEditToggle(coId){ window._migEdit = (window._migEdit===coId)? null : coId; renderCOs(); }
+function v22ConvertCard(c){
+  if(!c.aust || !c.aust.src22 || fwV3(c)) return "";
+  const m=migOf(c); migPropose(c);
+  const hasAI=!!m.proposalAt;
+  const sevCol={danger:"#c0392b",warn:"#a86a00",info:"var(--muted)"};
+  const setName=(piSet(courseSetId(c))||{}).name||"";
+  const rows=c.cos.map((co,i)=>{
+    const r=m.rows[co.id]; const f=migRefereeFlags(c,co); const editing=window._migEdit===co.id;
+    const worst=f.some(x=>x.sev==="danger")? "danger" : f.some(x=>x.sev==="warn")? "warn" : "";
+    const poTxt=(r.po||[]).map(p=>"PO"+p+((r.pi||[]).filter(l=>l.replace(/[a-z]$/,"")===String(p)).length? " ("+(r.pi||[]).filter(l=>l.replace(/[a-z]$/,"")===String(p)).join(", ")+")":"")).join(", ")||"—";
+    return `
+    <tr style="${worst==="danger"?"background:#fff3f1":worst==="warn"?"background:#fff8e6":""}">
+      <td style="text-align:center;white-space:nowrap"><input type="checkbox" ${r.accept?"checked":""} onchange="migSet('${co.id}','accept',this.checked)"> <b>CO${i+1}</b></td>
+      <td style="min-width:260px">${esc(r.statement||co.statement)}${r.statement && r.statement!==co.statement? `<div style="font-size:11px;color:var(--muted);margin-top:3px">was: ${esc(co.statement)}</div>`:""}</td>
+      <td style="text-align:center;white-space:nowrap">${esc(poTxt)}<div style="font-size:11px;color:var(--muted)">was ${esc(posOf(co)||"—")}</div></td>
+      <td style="text-align:center">${esc((r.wk||[]).map(k=>"WK"+k).join(", ")||"—")}</td>
+      <td style="text-align:center">${esc((r.wp||[]).map(k=>"WP"+k).join(", ")||"—")}</td>
+      <td style="text-align:center">${esc((r.ea||[]).map(k=>"EA"+k).join(", ")||"—")}</td>
+      <td style="text-align:center">${esc((r.sdg||[]).join(", ")||"—")}</td>
+      <td style="font-size:11.5px;line-height:1.45">${f.length? f.map(x=>`<div style="color:${sevCol[x.sev]}">${x.sev==="danger"?"⛔":x.sev==="warn"?"⚠":"ℹ"} ${x.text}</div>`).join("") : '<span style="color:#2e8b57">✓ no issues</span>'}${r.reason? `<div style="color:var(--muted);margin-top:3px">${esc(r.reason)}</div>`:""}</td>
+      <td class="no-print" style="white-space:nowrap"><button class="icon-btn" title="Edit this proposal" onclick="migEditToggle('${co.id}')">✎</button></td>
+    </tr>
+    ${editing? `<tr><td colspan="9" style="background:#f4faf8">
+      <div class="grid c2" style="gap:8px 16px">
+        <label class="fld">Proposed statement <textarea class="di" rows="2" style="width:100%" onchange="migSet('${co.id}','statement',this.value)">${esc(r.statement||co.statement)}</textarea></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <label class="fld">PO <input class="di" style="width:80px" value="${esc((r.po||[]).join(", "))}" onchange="migSet('${co.id}','po',this.value)"></label>
+          <label class="fld">Indicators <input class="di" style="width:110px" value="${esc((r.pi||[]).join(", "))}" onchange="migSet('${co.id}','pi',this.value)" placeholder="6a, 6c"></label>
+          ${migPICandidates(c, co, r)}
+          <label class="fld">WK <input class="di" style="width:90px" value="${esc((r.wk||[]).join(", "))}" onchange="migSet('${co.id}','wk',this.value)"></label>
+          <label class="fld">WP <input class="di" style="width:110px" value="${esc((r.wp||[]).join(", "))}" onchange="migSet('${co.id}','wp',this.value)"></label>
+          <label class="fld">EA <input class="di" style="width:80px" value="${esc((r.ea||[]).join(", "))}" onchange="migSet('${co.id}','ea',this.value)"></label>
+          <label class="fld">SDG <input class="di" style="width:90px" value="${esc((r.sdg||[]).join(", "))}" onchange="migSet('${co.id}','sdg',this.value)"></label>
+        </div>
+      </div></td></tr>`:""}`;
+  }).join("");
+  const n=c.cos.filter(co=>(m.rows[co.id]||{}).accept).length;
+  return `
+  <div class="card" style="border:1.5px solid var(--primary)">
+    <h2>Convert to Version 3</h2>
+    <p class="hint">Three steps. Nothing here changes this Version 2.2 record — it stays as the Existing side of the committee form.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:6px 0 10px">
+      <div style="flex:1;min-width:260px;background:#f4faf8;border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+        <div style="font-weight:700;color:var(--primary-dark)">1 · Copy the conversion prompt</div>
+        <p style="font-size:12px;margin:4px 0 6px;line-height:1.45">Your COs, the Version 3 statements, WK/WP/EA descriptors, the indicator set, the SDG list, the rules and the departmental instructions — in one prompt. Run it in ChatGPT, Claude, Gemini or any AI tool.</p>
+        <label class="fld" style="margin:0 0 6px" title="The indicators offered in the prompt come from this set — check it before copying">Indicator set
+          <select class="di" onchange="setCoursePISet(this.value)">${Object.values(piSetsAll()).map(x=>`<option value="${esc(x.id)}" ${x.id===courseSetId(c)?"selected":""}>${esc(x.name)} — ${piCount(x)}</option>`).join("")}</select></label>
+        <button class="btn small" onclick="copyMigPrompt()">📋 Copy the conversion prompt</button>
+      </div>
+      <div style="flex:1;min-width:260px;background:#f4faf8;border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+        <div style="font-weight:700;color:var(--primary-dark)">2 · Paste the proposal back</div>
+        <textarea id="migPaste" class="di" rows="3" style="width:100%;font-family:ui-monospace,monospace;font-size:11.5px;margin:6px 0" placeholder="CO1 | … | PO: 6 | Level: C2 | WK: 7 | WP: — | EA: — | PI: 6a | SDG: 7, 13 | Reason: …"></textarea>
+        <button class="btn small secondary" onclick="migReadProposal()">⬆ Read the proposal</button>
+      </div>
+      <div style="flex:1;min-width:260px;background:#f4faf8;border:1px solid var(--border);border-radius:10px;padding:10px 12px">
+        <div style="font-weight:700;color:var(--primary-dark)">3 · Review, then send it on</div>
+        <p style="font-size:12px;margin:4px 0 8px;line-height:1.45">OCM checks every line — the PO7 trap, WP without WP1, SDGs on the wrong PO, indicators outside the set, a raised level, an unmeasurable verb. ✎ edits a row; untick to leave a CO out.</p>
+        <div class="btn-row" style="margin:0"><button class="btn small secondary" onclick="migDraftComod()">📝 Draft committee rows (${n})</button> <button class="btn small" onclick="migAccept()">✔ Accept &amp; start the v3 course</button></div>
+      </div>
+    </div>
+    ${(()=>{ const rows=c.cos.map(co=>m.rows[co.id]||{}).filter(r=>r.accept!==false);
+        const anyCEP=rows.some(r=>cepPOs(r.po).length), okCEP=rows.some(r=>(r.wp||[]).indexOf(1)>=0 && (r.wp||[]).length>1);
+        const anyCEA=rows.some(r=>ceaPOs(r.po).length), okCEA=rows.some(r=>(r.ea||[]).length);
+        const out=[];
+        if(anyCEP && !okCEP) out.push("This course maps PO1–PO6, which are written in terms of complex engineering problems, but <b>no outcome carries WP1 with at least one of WP2–WP7</b>. The programme's complex-problem claim has to be evidenced somewhere; if not in this course, the Reason should say which course carries it.");
+        if(anyCEA && !okCEA) out.push("This course maps PO9, the complex-engineering-activities outcome, but <b>no outcome claims any EA</b>.");
+        return out.length? `<div style="background:#fff3f1;border-left:3px solid #c0392b;padding:8px 12px;border-radius:6px;margin:0 0 8px;font-size:12.5px;line-height:1.5">${out.join("<br>")}</div>`:""; })()}
+    ${hasAI? "" : `<p class="hint" style="margin:0 0 6px">Until a proposal is pasted, the table shows OCM's own mechanical draft — the PO correspondence and positional relabelling only. The AI adds the judgement: wording, indicators, SDGs.</p>`}
+    <div class="tbl-wrap"><table class="tbl" style="font-size:12.5px">
+      <thead><tr><th>CO</th><th>Proposed statement</th><th>PO (indicators)</th><th>WK</th><th>WP</th><th>EA</th><th>SDG</th><th style="min-width:220px">Checks</th><th class="no-print"></th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+function migOf(c){ ensureAust(c); if(!c.aust.mig||typeof c.aust.mig!=="object") c.aust.mig={rows:{}}; if(!c.aust.mig.rows) c.aust.mig.rows={}; return c.aust.mig; }
+/* Deterministic proposals. Nothing here changes the approved record; the worksheet holds them
+   until the teacher accepts and the committee has signed. */
+function migPropose(c){
+  const m=migOf(c);
+  c.cos.forEach(co=>{
+    if(m.rows[co.id]) return;
+    const srcPOs=Object.keys(co.po||{}).filter(p=>co.po[p]>0).map(Number);
+    const po=[]; srcPOs.forEach(p=>{ const t=V22_TO_V3_PO[p]; if(t && po.indexOf(t)<0) po.push(t); });
+    const probe={po:{}}; po.forEach(p=>{ probe.po[p]=3; });
+    m.rows[co.id]={ po, wk:(co.wk||[]).slice(), wp:(co.wp||[]).slice(), ea:(co.ea||[]).slice(), wk9:false,
+                    sdg:[], sdgSuggest:suggestedSDGs(probe), accept:true };
+  });
+  save();
+}
+function migFindings(c, co){
+  const f=[]; const r=migOf(c).rows[co.id]||{};
+  const srcPOs=Object.keys(co.po||{}).filter(p=>co.po[p]>0).map(Number);
+  const w=vagueVerbCheck(co.statement);
+  if(w) f.push({sev:"danger", text:`“${w.v}” cannot be observed or measured — the statement needs an action verb before it goes to the committee.`});
+  srcPOs.forEach(p=>{
+    if(p===7) f.push({sev:"danger", text:`v2.2 PO7 (Environment and Sustainability) becomes v3 <b>PO6</b> The Engineer and the World — <b>not</b> v3 PO7, which is Ethics.`});
+    else if(p===6) f.push({sev:"warn", text:`v2.2 PO6 (The Engineer and Society) merges into v3 PO6 The Engineer and the World.`});
+    else if(p>=8) f.push({sev:"warn", text:`v2.2 PO${p} (${esc(PO_INFO[p])}) shifts to v3 PO${p-1} (${esc(PO_INFO_V3[p-1])}).`});
+  });
+  if(!srcPOs.length) f.push({sev:"warn", text:"No PO was read for this CO — set one in the worksheet."});
+  (co.wk||[]).forEach(k=>{ if(WK_WIDENED[k]) f.push({sev:"info", text:`K${k} → WK${k}, which ${WK_WIDENED[k]}. Does this CO now claim that wider scope?`}); });
+  f.push({sev:"info", text:"WK9 (ethics, inclusive behaviour, diversity) is new in Version 3 and cannot be inherited from any K — tick it only if this CO genuinely teaches it."});
+  if((r.wp||[]).length && (r.wp||[]).indexOf(1)<0) f.push({sev:"danger", text:"WP claims without WP1 — WP1 (depth of knowledge) is the gateway; a problem without it is not a complex engineering problem."});
+  if((r.sdgSuggest||[]).length) f.push({sev:"info", text:`The proposed PO suggests SDG ${r.sdgSuggest.join(", ")} — claim a goal only if this course will teach and assess it.`});
+  return f;
+}
+function migSet(coId, field, val){
+  const c=activeCourse(); if(!c) return; const r=migOf(c).rows[coId]; if(!r) return;
+  const nums=(v,max)=>String(v||"").split(/[^0-9]+/).map(x=>+x).filter(n=>n>=1&&n<=max).filter((n,i,a)=>a.indexOf(n)===i).sort((a,b)=>a-b);
+  if(field==="po") r.po=nums(val,N_PO);
+  else if(field==="statement") r.statement=String(val).trim();
+  else if(field==="pi") r.pi=(String(val).match(/\b(\d{1,2})([a-z])\b/gi)||[]).map(x=>x.toLowerCase());
+  else if(field==="wk"){ r.wk=nums(val,9); r.wk9=r.wk.indexOf(9)>=0; }
+  else if(field==="wp") r.wp=nums(val,7);
+  else if(field==="ea") r.ea=nums(val,5);
+  else if(field==="wk9") r.wk9=!!val;
+  else if(field==="accept") r.accept=!!val;
+  else if(field==="sdg"){ const n=+val; const i=r.sdg.indexOf(n); if(i>=0) r.sdg.splice(i,1); else r.sdg.push(n); r.sdg.sort((a,b)=>a-b); }
+  if(field==="po"){ const probe={po:{}}; r.po.forEach(p=>{ probe.po[p]=3; }); r.sdgSuggest=suggestedSDGs(probe); }
+  save(); renderCOs();
+}
+function migReason(c, co){
+  const f=migFindings(c,co).filter(x=>x.sev!=="info").map(x=>String(x.text).replace(/<[^>]+>/g,""));
+  const r=migOf(c).rows[co.id]||{};
+  if(r.reason) return "Framework transition, BAETE Version 2.2 → Version 3. "+r.reason;
+  return "Framework transition, BAETE Version 2.2 → Version 3. "+(f.length? f.join(" ") : "Mapping restated under the Version 3 statements; numbering unchanged.");
+}
+function migDraftComod(){
+  const c=activeCourse(); if(!c) return; const m=migOf(c);
+  const cm=comodOf(c);
+  cm.rows=(cm.rows||[]).filter(r=>!r.mig);   // redraft cleanly
+  let n=0;
+  c.cos.forEach((co,i)=>{
+    const r=m.rows[co.id]; if(!r||!r.accept) return;
+    const ex=coSnapshot(c,co,i);
+    const wk=r.wk.slice(); if(r.wk9 && wk.indexOf(9)<0) wk.push(9);
+    addComodRow(c,{ coId:co.id, ex, action:"modify", mig:true,
+      nu:{ statement:r.statement||ex.statement, po:r.po.map(p=>"PO"+p).join(", "), bloom:ex.bloom,
+           wk:wk.sort((a,b)=>a-b).map(k=>"WK"+k).join(", "), wp:r.wp.map(k=>"WP"+k).join(", "), ea:r.ea.map(k=>"EA"+k).join(", "),
+           pi:(r.pi||[]).join(", "), sdg:r.sdg.join(", ") },
+      reason:migReason(c,co) + (r.sdg.length? " Proposed SDG claim: "+r.sdg.map(k=>k+" ("+sdgName(k)+")").join(", ")+"." : "") });
+    n++;
+  });
+  if(!cm.effectiveFrom) cm.effectiveFrom=nextSemesterOf(c.semester);
+  save(); renderCOs(); toast(n+" modification row"+(n===1?"":"s")+" drafted — print the form from Documents");
+}
+function migAccept(){
+  const c=activeCourse(); if(!c) return; const m=migOf(c);
+  const acc=c.cos.filter(co=>(m.rows[co.id]||{}).accept);
+  if(!acc.length){ toast("No CO is accepted"); return; }
+  const eff=(comodOf(c).effectiveFrom)||nextSemesterOf(c.semester)||"";
+  if(!confirm(`Start the Version 3 course from ${acc.length} accepted CO${acc.length>1?"s":""}?\n\nA new course is created on Framework Version 3 with the accepted mappings, attributes and SDG claims. This Version 2.2 record is kept unchanged as the Existing side of the modification form.\n\nSemester of the new course: ${eff||"(set it in Course Info)"}`)) return;
+  const n=ensureAust(JSON.parse(JSON.stringify(c)));
+  n.id=uid(); n.semester=eff; n.students=[]; n.marks={};
+  n.aust.fw="v3"; n.aust.src22=false; delete n.aust.mig; n.aust.comod={rows:[],effectiveFrom:""};
+  n.aust.piSetId = courseSetId(c) || inst().defaults.piSet || "baete"; delete n.aust.pis; coursePIs(n);
+  n.aust.migratedFrom=c.id;
+  n.cos = acc.map(co=>{
+    const r=m.rows[co.id]; const k=JSON.parse(JSON.stringify(co));
+    k.po={}; r.po.forEach(p=>{ k.po[p]=3; });
+    k.wk=r.wk.slice(); if(r.wk9 && k.wk.indexOf(9)<0) k.wk.push(9); k.wk.sort((a,b)=>a-b);
+    k.wp=r.wp.slice(); k.ea=r.ea.slice(); k.sdg=r.sdg.slice();
+    if(r.statement) k.statement=r.statement;
+    /* Under the C3 policy the proposal may legitimately raise the level; carry it across, so that
+       the Bloom column, the verb alarm and the question-level checks all speak of the same course. */
+    const lvm=/^([CAP])(\d)$/.exec(r.lvl||"");
+    if(lvm && lvm[1]==="C" && (k.btDomain||"Cognitive")==="Cognitive" && BLOOMS[+lvm[2]-1] && +lvm[2]>coLevelNum(co)) k.bloom=BLOOMS[+lvm[2]-1];
+    k.pi={}; (r.pi||[]).forEach(lbl=>{ const mm=/^(\d+)([a-z])$/.exec(lbl); if(!mm) return; const p=+mm[1], kk=mm[2].charCodeAt(0)-97;
+      if(r.po.indexOf(p)>=0 && ((piSet(n.aust.piSetId)||PI_SETS_BUILTIN.baete).pis[p]||[])[kk]!==undefined){ (k.pi[p]=k.pi[p]||[]).push(kk); } });
+    k.modStatement=""; k.modPO=""; k.modBloom="";
+    syncAttrStrings(n,k); return k;
+  });
+  c.aust.migratedTo=n.id;
+  const hadRows=(comodOf(c).rows||[]).some(x=>x.mig);
+  if(!hadRows){ migDraftComod(); }        /* the committee still needs the form; draft it now if it was skipped */
+  state.courses.push(n); state.activeCourseId=n.id;
+  save(); refresh(); showTab("cos");
+  toast("Version 3 course started — "+acc.length+" CO"+(acc.length>1?"s":"")+" carried across. The CO Modification Request Form prints from the "+(c.semester||"Version 2.2")+" record.");
+}
 /* ===== Outcome wording: observable verbs matched to the CO's declared Bloom level ===== */
 const BLOOM_VERBS = {
   "Remember":  ["define","list","recall","identify","state"],
@@ -4967,7 +5912,7 @@ function verbSuggestions(co, fallback){
   return (list && list.length)? list : String(fallback||"").split(",").map(s=>s.trim()).filter(Boolean);
 }
 function stmtBody(stmt){                       // the statement with its lead-in and main verb removed
-  let s=String(stmt||"").trim();
+  let s=coVerbPhrase(stmt);
   s=s.replace(/^(the )?students?( will| should| can| must)?( be able to| are able to)?\s+/i,"").replace(/^to\s+/i,"");
   const m=/^([A-Za-z]+(\s+(of|with|in|aware of|familiar with|knowledge of))?)\s+/.exec(s);
   return m? s.slice(m[0].length) : s;
@@ -5446,6 +6391,13 @@ const BLOOM_P = ["Perception (P1)","Set (P2)","Guided Response (P3)","Mechanism 
 function cLevel(co){ const i = BLOOMS.indexOf(co.bloom); return i>=0? "C"+(i+1) : ""; }
 function lvlTag(s){ const m = /\((\w\d)\)/.exec(s||""); return m? m[1] : ""; }
 function posOf(co){ return Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>"PO"+p).join(", "); }
+/* "PO3 (3a, 3c)" — the Version 3 Course Outline carries the ticked indicators inside the PO column. */
+function posOfWithPI(co){
+  return Object.entries(co.po||{}).filter(([,v])=>v>0).map(([p])=>{
+    const ks=((co.pi||{})[p]||[]).slice().sort((a,b)=>a-b);
+    return "PO"+p + (ks.length? " ("+ks.map(k=>piLabel(+p,k)).join(", ")+")" : "");
+  }).join(", ");
+}
 function di(path, val, ph, style){ return `<input class="di" value="${esc(val)}" placeholder="${esc(ph||"")}" style="${style||""}" onchange="austSet('${path}',this.value)">`; }
 /* All multi-line entry boxes: 5 rows by default, auto-growing with content (the rows argument is retained for compatibility but no longer used). */
 function dta(path, val, rows, ph){ return `<textarea class="di" rows="5" style="overflow-y:hidden" placeholder="${esc(ph||"")}" oninput="autoGrowTA(this)" onchange="austSet('${path}',this.value)">${esc(val)}</textarea>`; }
@@ -5561,7 +6513,7 @@ function docOutline(c){
   const coRows = c.cos.map((co,i)=>`
     <tr><td style="text-align:center"><b>${i+1}</b></td>
       <td>${esc(co.statement)}</td>
-      <td style="text-align:center">${posOf(co)||"—"}</td>
+      <td style="text-align:center">${fwV3(c)? (posOfWithPI(co)||"—") : (posOf(co)||"—")}</td>
       <td style="text-align:center">${cLevel(co)}</td>
       <td style="text-align:center">${lvlTag(co.bloomA)||pod(coSel(co.id,'bloomA',co.bloomA,BLOOM_A),"")}</td>
       <td style="text-align:center">${lvlTag(co.bloomP)||pod(coSel(co.id,'bloomP',co.bloomP,BLOOM_P),"")}</td></tr>`).join("");
@@ -5569,7 +6521,8 @@ function docOutline(c){
     <tr><td><b>CO${i+1}</b></td>
       <td>${pod(coIn(co.id,'kp',co.kp, fwV3(c)? 'e.g., WK3, WK4':'e.g., K3, K4'), co.kp)}</td>
       <td>${pod(coIn(co.id,'cep',co.cep, fwV3(c)? 'e.g., WP1, WP3':'e.g., P1, P3'), co.cep)}</td>
-      <td>${pod(coIn(co.id,'cea',co.cea, fwV3(c)? 'e.g., EA1, EA3':'e.g., A1, A2'), co.cea)}</td></tr>`).join("");
+      <td>${pod(coIn(co.id,'cea',co.cea, fwV3(c)? 'e.g., EA1, EA3':'e.g., A1, A2'), co.cea)}</td>${fwV3(c)? `
+      <td style="text-align:center">${(co.sdg||[]).slice().sort((a,b)=>a-b).join(", ")||"—"}</td>`:""}</tr>`).join("");
   const methodRows = o.methods.map((m,i)=>`<tr>
       <td>${di('outline.methods.'+i+'.name', m.name, 'e.g., Attendance')}</td>
       <td style="text-align:center"><input class="di" style="width:80px;text-align:center" value="${esc(m.pct)}" onchange="austSetR('outline.methods.${i}.pct',this.value)"> %</td>
@@ -5605,11 +6558,10 @@ function docOutline(c){
     <tr><th rowspan="2" style="width:50px">Sl. No.</th><th rowspan="2">COs</th><th rowspan="2" style="width:80px">POs</th><th colspan="3">Bloom's Taxonomy</th></tr>
     <tr><th style="width:60px">C</th><th style="width:60px">A</th><th style="width:60px">P</th></tr></thead>
     <tbody>${coRows || '<tr><td colspan="6" style="text-align:center">Define COs in the "COs & CO–PO Mapping" Section</td></tr>'}</tbody></table>
-  ${piPrintTable(c)}
-  ${sdgPrintTable(c)}
-  <h2>14. Mapping of COs with Knowledge Profiles, Complex Engineering Problem Solving and Complex Engineering Activities</h2>
-  <table class="tbl"><thead><tr><th style="width:90px">Course Outcome</th><th>Knowledge Profile (${fwV3(c)? "WK1–WK9":"K1–K8"})</th><th>Complex Problem Solving (${fwV3(c)? "WP1–WP7":"P1–P7"})</th><th>Complex Engineering Activities (${fwV3(c)? "EA1–EA5":"A1–A5"})</th></tr></thead>
-    <tbody>${kpRows || '<tr><td colspan="4" style="text-align:center">—</td></tr>'}</tbody></table>
+  ${fwV3(c)? `<p style="font-size:11px;color:#555;margin:2px 0 10px">PO Indicators are shown in brackets after the PO, numbered as in the programme's indicator set — <b>${esc((piSet(courseSetId(c))||{}).name||"course-specific list")}</b>.</p>`:""}
+  <h2>14. Mapping of COs with Knowledge Profiles, Complex Engineering Problem Solving (CEP), Complex Engineering Activities (CEA)${fwV3(c)? ", and Sustainable Development Goals (SDG)":""}</h2>
+  <table class="tbl"><thead><tr><th style="width:90px">Course Outcome</th><th>Knowledge Profile (${fwV3(c)? "WK1–WK9":"K1–K8"})</th><th>CEP (${fwV3(c)? "WP1–WP7":"P1–P7"})</th><th>CEA (${fwV3(c)? "EA1–EA5":"A1–A5"})</th>${fwV3(c)? '<th style="width:110px">SDG</th>':''}</tr></thead>
+    <tbody>${kpRows || `<tr><td colspan="${fwV3(c)?5:4}" style="text-align:center">—</td></tr>`}</tbody></table>
   <h2>15. Percentages of Assessment Methods</h2>
   <table class="tbl" style="max-width:480px"><thead><tr><th>Method</th><th style="width:130px">Percentage</th><th class="no-print" style="width:54px;font-size:11px">Delete</th></tr></thead>
     <tbody>${methodRows || '<tr><td colspan="3" style="text-align:center;color:var(--muted)">Add the methods of the approved grading policy</td></tr>'}
@@ -5619,7 +6571,10 @@ function docOutline(c){
     <button class="btn secondary small" onclick="prefillOutlineMethods()" title="Replaces the rows with this course's assessments and their shares of total marks — a starting point to edit">⛏ Prefill from Assessments Section</button>
   </div>
   <p style="font-size:11.5px;color:var(--muted)">This table is yours to edit and is <b>not linked</b> to the Assessments Section — state the approved grading policy (e.g., include Attendance). The total should be 100%.</p>
-  ${(c.aust.outline.grading||"").trim()? `<p style="font-size:12.5px;margin:6px 0 10px"><b>Grading policy:</b> ${esc(c.aust.outline.grading)}</p>`:""}
+  ${(()=>{ const own=((c.aust.outline.grading||"").trim());
+      if(own) return `<p style="font-size:12.5px;margin:6px 0 10px"><b>Grading policy:</b> ${esc(own)}</p>`;
+      const t=gradeTableHTML();
+      return t? `<p style="font-size:12.5px;margin:8px 0 4px"><b>Grading policy</b></p>${t}` : ""; })()}
   <h2>16. Week wise distribution of contents and assessment methods</h2>
   <table class="tbl"><thead><tr><th style="width:60px">Week</th><th>Topics</th><th style="width:180px">Assessment Method(s)</th></tr></thead>
     <tbody>${weekRows}</tbody></table>
@@ -5635,9 +6590,9 @@ function docOutline(c){
   <table class="tbl"><thead><tr><th style="width:200px">Type</th><th style="width:200px">Title</th><th>Link / location</th><th style="width:120px">Related CO(s)</th></tr></thead>
     <tbody>${c.aust.learnRes.filter(r=>(r.title||"").trim()||(r.url||"").trim()).map(r=>`<tr><td>${esc(r.type||"")}</td><td>${esc(r.title||"")}</td><td style="word-break:break-all">${esc(r.url||"")}</td><td>${(r.cos||[]).map(id=>{const j=c.cos.findIndex(x=>x.id===id); return j>=0? "CO"+(j+1):null;}).filter(Boolean).join(", ")||"—"}</td></tr>`).join("")}</tbody></table>` : ""}
   <table class="tbl" style="margin-top:18px"><tr>
-    <td style="width:33%">Prepared by:<br><br>Signature: __________________<br>Name: ${di('outline.prepared', o.prepared || c.instructor)}</td>
-    <td style="width:33%">Checked by:<br><br>Signature: __________________<br>Name: ${di('outline.checked', o.checked)}</td>
-    <td style="width:33%">Approved by:<br><br>Signature: __________________<br>Name: ${di('outline.approved', o.approved)}</td>
+    <td style="width:33%;vertical-align:top">Prepared by:<br><br>Signature: __________________<br>Name: ${di('outline.prepared', o.prepared || c.instructor)}<br>Department: ${di('outline.preparedDept', o.preparedDept || c.aust.outline.dept || inst().dept || "")}<br>Date: ${di('outline.preparedDate', o.preparedDate, '', 'width:120px')}</td>
+    <td style="width:33%;vertical-align:top">Checked by:<br><br>Signature: __________________<br>Name: ${di('outline.checked', o.checked)}<br>Date: ${di('outline.checkedDate', o.checkedDate, '', 'width:120px')}</td>
+    <td style="width:33%;vertical-align:top">Approved by:<br><br>Signature: __________________<br>Name: ${di('outline.approved', o.approved)}<br>Date: ${di('outline.approvedDate', o.approvedDate, '', 'width:120px')}</td>
   </tr></table>
   <p style="font-size:11.5px;color:var(--muted);margin-top:10px">Annexes (Generic PEOs, PEO-PO mapping, and Bloom's Taxonomy tables) follow the standard AUST template and may be appended from the approved document.</p>`;
 }
@@ -5658,6 +6613,7 @@ function piPrintTable(c){
     .map(x=>`<tr><td style="width:70px;text-align:center;white-space:nowrap"><b>${piLabel(x.p,x.k)}</b></td><td>${esc(((pis[x.p]||[])[x.k])||"")}</td></tr>`).join("");
   return `
   <h2 style="font-size:14px">Mapping of COs with PO Indicators (OBE Framework Version 3)</h2>
+  <p style="font-size:11.5px;color:#555;margin:0 0 4px">Indicator set: <b>${esc((piSet(courseSetId(c))||{}).name || "course-specific list")}</b>${piEdited(c)? " (adapted for this course)":""}</p>
   <table class="tbl" style="max-width:520px"><thead><tr><th style="width:70px">CO</th><th>PO Indicator(s) addressed</th></tr></thead><tbody>${rows}</tbody></table>
   <p style="font-size:11.5px;color:var(--muted);margin-bottom:4px">Indicators referenced above:</p>
   <table class="tbl"><tbody>${legend}</tbody></table>`;
@@ -6068,8 +7024,10 @@ function docCOMod(c){
   const title="Request for the Modification(s) of the Course Outcomes";
   if(!m.rows.length) return `${docHead(title,"")}<p class="hint">No modification proposed yet. Draft rows in the <b>COs &amp; CO–PO Mapping</b> Section (CO Modification Request), or from a finding in the CQI Section.</p>`;
   const cb=on=>`<span class="cbx">${on?"√":"□"}</span>`;
+  const transition = !v3 && m.rows.some(r=>r.mig || /^Framework transition/.test(r.reason||""));   /* v2.2 record, Version 3 proposals */
   const attrHead = v3? `<th style="width:56px;text-align:center">WK</th><th style="width:56px;text-align:center">WP</th><th style="width:56px;text-align:center">EA</th><th style="width:80px;text-align:center">PO Indicators</th>`
                      : `<th style="width:56px;text-align:center">K</th><th style="width:56px;text-align:center">P</th><th style="width:56px;text-align:center">A</th>`;
+  const attrHeadNu = transition? `<th style="width:56px;text-align:center">WK</th><th style="width:56px;text-align:center">WP</th><th style="width:56px;text-align:center">EA</th>` : attrHead;
   const nCols = v3? 12 : 10;
   const rows=m.rows.map(r=>{
     const ex=r.ex||{}, nu=r.nu||{};
@@ -6115,9 +7073,9 @@ function docCOMod(c){
   <p style="font-size:12px;color:var(--muted);margin:0 0 4px">2.1 Analysis of existing COs, POs, Bloom's Taxonomy levels and complex-engineering attributes, with the modification proposed for constructive alignment. The Existing columns are reproduced from the approved course record.</p>
   <div class="tbl-wrap"><table class="tbl">
     <thead>
-      <tr><th rowspan="2" style="width:74px">CO No. / action</th><th colspan="${v3?7:6}" style="text-align:center">Existing</th><th colspan="${v3?7:6}" style="text-align:center">Modification proposed</th><th rowspan="2">Reason &amp; evidence</th></tr>
+      <tr><th rowspan="2" style="width:74px">CO No. / action</th><th colspan="${v3?7:6}" style="text-align:center">Existing${transition? " (Version 2.2)":""}</th><th colspan="${v3?7:6}" style="text-align:center">Modification proposed${transition? " (Version 3)":""}</th><th rowspan="2">Reason &amp; evidence</th></tr>
       <tr><th>CO statement</th><th style="width:64px;text-align:center">PO</th><th style="width:64px;text-align:center">Bloom</th>${attrHead}
-          <th>CO statement</th><th style="width:64px;text-align:center">PO</th><th style="width:64px;text-align:center">Bloom</th>${attrHead}</tr>
+          <th>CO statement</th><th style="width:64px;text-align:center">PO</th><th style="width:64px;text-align:center">Bloom</th>${attrHeadNu}</tr>
     </thead>
     <tbody>${rows}</tbody></table></div>
   <h2>3. SMART Criteria</h2>
@@ -6421,7 +7379,7 @@ function docReport(c){
       <td>${taCell("setTlaAnalysis", k, "diff", v.diff, "")}</td></tr>`;
   }).join("");
   const noAdoptedRow = cols => `<tr><td colspan="${cols}" style="text-align:center">Adopt T&amp;L activities in the T&amp;L Section — one row per adopted activity appears here automatically</td></tr>`;
-  const GR = ["A+","A","A-","B+","B","B-","C+","C","D","F"];
+  const GR = gradeLetters();
   const gTotal = GR.reduce((s,g)=>s+(parseFloat(r.grades[g])||0),0);
   const cqiLabels = [["A. CQI Loop for COs","Direct Measurement"],["A. CQI Loop for COs","Indirect Measurement from Surveys (if any)"],["B. CQI Loop for POs","Direct Measurement"],["B. CQI Loop for POs","Indirect Measurement from Surveys (if any)"],["C. CQI Loop for PEOs","Indirect Measurement from Surveys (if any)"]];
   return `${docHead("Course Report","(Should be Submitted to the OBE Course Coordinator at the End of the Semester)")}
@@ -6930,6 +7888,8 @@ function renderSetup(){
     </div>
     <div class="grid c2" style="max-width:820px;margin-top:6px">
       ${fld("Academic management system","sis",i.sis,"e.g., IUMS — leave blank if none","The system your grade sheet comes from. Its name is printed beside the grade distribution in the Course Report (4.1). Leave blank and the heading simply reads “Grade Distributions”.")}
+      <label class="fld" title="Which PO Indicator set a new Version 3 course starts from. Each course can change its own.">Default PO Indicator set
+        <select class="di" onchange="instSet('defaults.piSet',this.value)">${Object.values(piSetsAll()).map(x=>`<option value="${esc(x.id)}" ${x.id===(i.defaults.piSet||"baete")?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
     </div>
     <h3 style="margin-top:14px">Official logo</h3>
     <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
@@ -6958,6 +7918,22 @@ function renderSetup(){
     </div>
   </div>
   <div class="card">
+    <h2>Grading Policy</h2>
+    <p class="hint">The letter-grade scale your institution applies. It prints in <b>Course Outline §15</b> and supplies the columns of the grade distribution in <b>Course Report 4.1</b>. Rows can be edited, added or removed, so a programme with a different scale is not forced into this one.</p>
+    <div class="tbl-wrap"><table class="tbl" style="max-width:660px">
+      <thead><tr><th>Numerical Value</th><th style="width:120px;text-align:center">Letter Grade</th><th style="width:130px;text-align:center">Grade Point (GP)</th><th class="no-print" style="width:54px"></th></tr></thead>
+      <tbody>${i.grades.map((r,k)=>`<tr>
+        <td><input class="di" style="width:100%" value="${esc(r.v)}" placeholder="e.g., 70% to less than 75%" onchange="gradeSet(${k},'v',this.value)"></td>
+        <td><input class="di" style="width:100%;text-align:center" value="${esc(r.g)}" placeholder="A-" onchange="gradeSet(${k},'g',this.value)"></td>
+        <td><input class="di" style="width:100%;text-align:center" value="${esc(r.gp)}" placeholder="3.50" onchange="gradeSet(${k},'gp',this.value)"></td>
+        <td class="no-print"><button class="icon-btn" title="Delete this row" onclick="gradeDel(${k})">✕</button></td></tr>`).join("")}</tbody>
+    </table></div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn secondary small" onclick="gradeAdd()">+ Add a grade row</button>
+      <button class="btn secondary small" onclick="gradeReset()" title="Restore the standard ten-grade scale">⟲ Restore the standard scale</button>
+    </div>
+  </div>
+  <div class="card">
     <h2>Defaults for New Courses</h2>
     <p class="hint">Your institution's assessment policy, applied when a course is added. Existing courses keep their own settings (Course Info → Attainment Settings). BAETE sets no quantitative benchmark — Criterion 5.0 states that adequacy is judged qualitatively — so these thresholds are an institutional decision, and the app records whose decision it is.</p>
     <div class="grid c4" style="max-width:900px">
@@ -6966,6 +7942,12 @@ function renderSetup(){
       ${num("Target KPI (%)","defaults.kpiTarget",i.defaults.kpiTarget,"Share of students that must be above the pass mark for the outcome to count as attained")}
       ${num("Direct assessment weight (%)","defaults.wDirect",i.defaults.wDirect,"Indirect is always 100 − direct")}
     </div>
+    <label class="fld" style="max-width:640px;margin-top:8px" title="Applies to outcomes mapped to PO1–PO6, the outcomes written in terms of solving complex engineering problems">Outcomes mapped to the complex-problem POs (PO1–PO6)
+      <select class="di" onchange="instSet('defaults.minLvlCEP',this.value)">
+        <option value="keep" ${i.defaults.minLvlCEP!=="c3"?"selected":""}>Keep the level as written — flag a C1/C2 outcome for the committee</option>
+        <option value="c3" ${i.defaults.minLvlCEP==="c3"?"selected":""}>Require Apply (C3) or above — the conversion raises a C1/C2 outcome</option>
+      </select></label>
+    <p style="font-size:11.5px;color:var(--muted);margin:2px 0 0;line-height:1.5">Nothing below Apply solves anything, so a C1 or C2 outcome never carries a complex-problem attribute either way. What this setting decides is what happens to such an outcome during conversion: left as written and put to the committee, or raised to C3 with an observable verb and a WP claim. <b>Raising a level changes what is taught and examined</b> — it is a decision for the Specialization Committee, minuted and recorded here, and every raised outcome still goes to the committee on the CO Modification Request Form.</p>
     <label class="fld" style="max-width:420px;margin-top:8px">OBE framework for new courses
       <select class="di" onchange="instSet('defaults.fw',this.value)">
         <option value="v2.2" ${i.defaults.fw!=="v3"?"selected":""}>Version 2.2 — 12 POs without Indicators</option>
