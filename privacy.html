@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OBE Course Manager — Privacy</title>
+<style>body{font-family:Calibri,Segoe UI,Arial,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#1C2B28;line-height:1.55}h1{color:#0A4A40}h2{color:#0A4A40;font-size:1.1em;margin-top:1.6em}a{color:#0A4A40}.muted{color:#6B7C78;font-size:.9em}</style></head>
+<body>
+<h1>OBE Course Manager — Privacy</h1>
+<p class="muted">Applies to the application at <a href="https://mazhar17.github.io/ocm/">mazhar17.github.io/ocm</a> and to copies of it served elsewhere. Last updated 5 September 2026.</p>
+
+<h2>Where your data lives</h2>
+<p>OBE Course Manager is a single web page that runs entirely in your browser. There is no server behind it and no account. Everything you enter — courses, outcomes, questions, marks — is stored in your browser's local storage and, if you choose, in a file on your own computer. The application makes no network requests of its own: no analytics, no telemetry, no error reporting.</p>
+
+<h2>Google Drive (optional)</h2>
+<p>The File menu offers <em>Open from Google Drive</em> and <em>Save to Google Drive as</em>. These are the only features that contact any service, and they do nothing until you click them.</p>
+<ul>
+<li><strong>What is requested.</strong> The Google permission <code>drive.file</code>. It lets the application read and write only the files you pick in Google's own file picker, or files the application itself created. It cannot list, search or read anything else in your Drive.</li>
+<li><strong>What is sent.</strong> Your course data file, to Google's Drive API, into your own Google Drive, when you open or save. Nothing is sent to the author or to any third party.</li>
+<li><strong>What is kept.</strong> The identifier and name of the Drive file you are working on, in your browser's local storage, so the link survives a reload. The sign-in token lives only in memory and expires within an hour.</li>
+<li><strong>Google's scripts.</strong> Two Google scripts (sign-in and the file picker) are loaded from Google when you first click a Drive item — not on page load. Their use is governed by <a href="https://policies.google.com/privacy">Google's privacy policy</a>.</li>
+<li><strong>Revoking access.</strong> At any time, at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>, remove "OBE Course Manager".</li>
+</ul>
+
+<h2>Who to contact</h2>
+<p>Prof. Dr. Mazharul Islam, Ahsanullah University of Science and Technology — <a href="mailto:mazharul.islam.mpe@aust.edu">mazharul.islam.mpe@aust.edu</a>.</p>
+<p class="muted">© 2026 Prof. Mazharul Islam · CC BY 4.0</p>
+</body></html>
