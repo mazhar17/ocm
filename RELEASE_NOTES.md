@@ -1,6 +1,6 @@
 # OBE Course Manager — Release Notes
 
-**Version:** v2.19 · **First release:** July 13, 2026
+**Version:** v2.36 · **First release:** July 13, 2026
 **Live at:** https://mazhar17.github.io/ocm/
 **License:** © 2026 Prof. Mazharul Islam ([mazhar17.github.io/MI](https://mazhar17.github.io/MI)) · Creative Commons Attribution (CC BY) 4.0 International
 
@@ -16,7 +16,7 @@ The underlying OBE implementation framework was developed at **Ahsanullah Univer
 
 ## Key Features
 
-- **Course setup** — course information (including cohort), Course Outcomes with Bloom's taxonomy levels (cognitive, affective, psychomotor), and a click-to-set CO–PO mapping matrix against the 12 Washington Accord Program Outcomes. A per-course **OBE Framework** selector offers **Version 2.2** (the 12 POs without indicators — the default) or **Version 3** (the updated 12-PO set with the official 46 **PO Indicators**, PO1a…PO12b; documentary, printed on the Outline and Specifications).
+- **Course setup** — course information (including cohort), Course Outcomes with Bloom's taxonomy levels (cognitive, affective, psychomotor), and a click-to-set CO–PO mapping matrix against the 12 Washington Accord Program Outcomes. A per-course **OBE Framework** selector offers **Version 2.2** (the 12 POs without indicators — the default) or **Version 3** (the updated 12-PO set with the 46 suggested **PO Indicators** (or your own set), 1a…12b; documentary, printed on the Outline and Specifications).
 - **T&L Activities recommender (CQI-aware)** — a pool of 36 evidence-based teaching-learning activities, matched to each CO's Bloom's level, boosted by the previous semester's CQI recommendations and ranked down when marked ineffective; one-click adoption into the constructive-alignment table. The pool is extensible.
 - **Assessment planning** — quizzes, exams, labs and projects broken into items, each tagged with a CO and maximum marks; the tagging drives all attainment calculations. **Class Performance** assessments need no questions: set a total, tick the COs, and the marks split equally across them (one CP column per course part).
 - **Marks management** — spreadsheet-style entry with frozen headers, decimals and fractions (1 2/3), bulk student paste from Excel, and a CSV workflow (Empty Template → Import → Export).
