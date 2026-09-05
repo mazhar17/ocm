@@ -170,7 +170,7 @@
     <text x="960" y="816" text-anchor="middle" font-size="15" fill="#1F2D3D">Annexure H evidence &amp; report</text>
   </g>
 
-  <!-- 9 Accreditation Documents (ACT) -->
+  <!-- 9 Documents (ACT) -->
   <g>
     <rect x="428" y="560" width="330" height="320" rx="18" fill="#FFFFFF" stroke="#0F6B5C" stroke-width="3"/>
     <circle cx="464" cy="596" r="18" fill="#0A4A40"/><text x="464" y="603" text-anchor="middle" font-size="20" font-weight="700" fill="#FFFFFF">9</text>
@@ -184,7 +184,7 @@
         <circle cx="1330" cy="777" r="1.8" fill="#0F6B5C"/>
       </g>
     </g>
-    <text x="593" y="726" text-anchor="middle" font-size="20" font-weight="700" fill="#0A4A40">Accreditation Documents</text>
+    <text x="593" y="726" text-anchor="middle" font-size="20" font-weight="700" fill="#0A4A40">Documents</text>
     <line x1="473" y1="740" x2="713" y2="740" stroke="#9AB8B2" stroke-width="1.5" stroke-dasharray="2 4"/>
     <text x="593" y="764" text-anchor="middle" font-size="14" fill="#1F2D3D">Print 7 auto-filled documents:</text>
     <text x="593" y="785" text-anchor="middle" font-size="14" fill="#1F2D3D">Outline, Specifications, Vetting Form,</text>
@@ -259,6 +259,6 @@
   <!-- ======== FOOTER ======== -->
   <rect x="640" y="1015" width="640" height="40" rx="20" fill="#E6F2F0"/>
   <rect x="752" y="1023" width="70" height="24" rx="6" fill="#0A4A40"/>
-  <text x="787" y="1040" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">v2.10</text>
+  <text x="787" y="1040" text-anchor="middle" font-size="15" font-weight="700" fill="#FFFFFF">v2.19</text>
   <text x="836" y="1041" font-size="17" fill="#0A4A40">·  mazhar17.github.io/obe-course-manager</text>
 </svg>
